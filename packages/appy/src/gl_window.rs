@@ -51,15 +51,14 @@ impl Component for GlWindow {
 		let quit_trigger=use_quit_trigger();
 		let dirty_trigger=use_dirty_trigger();
 
-		println!("render");
+		unsafe {
+			gl::Clear(gl::COLOR_BUFFER_BIT);
+		};
 
 		let post_render_instance_ref=instance.clone();
 		use_post_render(Rc::new(move||{
 			let instance=post_render_instance_ref.borrow_mut();
 			instance.window.gl_swap_window();
-			unsafe {
-				gl::Clear(gl::COLOR_BUFFER_BIT);
-			};
 		}));
 
 		let idle_instance_ref=instance.clone();
