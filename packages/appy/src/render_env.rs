@@ -2,7 +2,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::any::Any;
 
-use crate::{*};
+//use crate::{*};
 
 #[derive(PartialEq)]
 pub enum IdleAction {
@@ -48,20 +48,17 @@ impl RenderEnv {
 		}
 	}
 
-	pub fn render(&self, c: Rc<dyn Component>, ci: Rc<RefCell<ComponentInstance>>) {
-		/*let re=RenderEnv{
-			component_instance: ci,
-			hook_index: 0,
-			signal_handlers: vec![]
-		};*/
+	pub fn pre_render_tree(&mut self) {
+		self.signal_handlers=vec![];
+	}
 
-		/*RenderEnv::set_current(Some(Rc::new(RefCell::new(re))));
-		RenderEnv::set_current(None);*/
+	pub fn pre_render(&mut self, ci:Rc<RefCell<ComponentInstance>>) {
+		self.component_instance=Some(ci.clone());
+		self.hook_index=0;
+	}
 
-		let child_fragment=c.render();
-		let signal_handlers=self.signal_handlers.clone();
-
-		(child_fragment, signal_handlers)
+	pub fn post_render(&mut self) {
+		self.component_instance=None;
 	}
 
 	pub fn get_current()->Rc<RefCell<RenderEnv>> {

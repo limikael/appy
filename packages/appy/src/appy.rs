@@ -16,7 +16,7 @@ type ComponentPath=Vec<ComponentPathComponent>;
 pub struct Appy {
 	instances: HashMap<ComponentPath,Rc<RefCell<ComponentInstance>>>,
 	root_fragment: Vec<Rc<dyn Component>>,
-	signal_handlers: Vec<SignalHandler>
+	render_env: Rc<RefCell<RenderEnv>>
 }
 
 impl Appy {
@@ -43,26 +43,23 @@ impl Appy {
 
 		let ci=self.instances.get(&this_path).unwrap().clone();
 
-		let r=Rc::new(RefCell::new(RenderEnv::new()));
-		RenderEnv::set_current(Some(r.clone()));
+		self.render_env.borrow_mut().pre_render(ci);
+		let child_fragment=component.render();
+		self.render_env.borrow_mut().post_render();
 
-		r.borrow_mut().render(component,ci);
-
-/*		let (child_fragment, mut signal_handlers)=
-			RenderEnv::render(component,ci);
-
-		self.signal_handlers.append(&mut signal_handlers);
-
-		self.render_fragment(child_fragment,this_path);*/
+		self.render_fragment(child_fragment,this_path);
 	}
 
 	fn render(&mut self) {
-		self.signal_handlers=vec![];
+		self.render_env.borrow_mut().pre_render_tree();
+		RenderEnv::set_current(Some(self.render_env.clone()));
 		self.render_fragment(self.root_fragment.clone(),vec![]);
+		RenderEnv::set_current(None);
 	}
 
 	fn run_post_render(&mut self) {
-		for handler in &self.signal_handlers {
+		let env=self.render_env.borrow();
+		for handler in &env.signal_handlers {
 			match handler {
 				SignalHandler::PostRender(f)=>f(),
 				_=>{}
@@ -72,7 +69,8 @@ impl Appy {
 
 	fn run_idle(&mut self)->IdleAction {
 		loop {
-			for handler in &self.signal_handlers {
+			let env=self.render_env.borrow();
+			for handler in &env.signal_handlers {
 				match handler {
 					SignalHandler::Idle(f)=>{
 						let res=f();
@@ -91,7 +89,7 @@ impl Appy {
 		let mut appy=Self{
 			instances: HashMap::new(),
 			root_fragment: fragment,
-			signal_handlers: vec![]
+			render_env: Rc::new(RefCell::new(RenderEnv::new()))
 		};
 
 		loop {
