@@ -65,7 +65,7 @@ impl Component for GlWindow {
 			let e=event_pump.wait_event();
 			match e {
 				Event::Quit {..} => IdleAction::Quit,
-				Event::MouseButtonDown {x, y, ..} => {
+				Event::MouseButtonDown {/*x, y,*/ ..} => {
 					println!("mouse...");
 					IdleAction::Redraw
 				},
