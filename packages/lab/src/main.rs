@@ -1,9 +1,9 @@
-use appy::{Appy, Component, ComponentFragment, Typed, use_ref};
+use appy::{GlWindow, Appy, Component, ComponentFragment, Typed, use_instance, use_ref};
 use appy_macros::{apx, component};
 use std::rc::Rc;
 use std::any::TypeId;
 
-#[component]
+/*#[component]
 struct Window {
 }
 
@@ -12,7 +12,7 @@ impl Component for Window {
 		println!("render window...");
 		self.children.clone()
 	}
-}
+}*/
 
 #[component]
 struct Rect {
@@ -25,10 +25,19 @@ struct RectData {
 
 impl Component for Rect {
 	fn render(&self)->ComponentFragment {
-		let rf=use_ref(||RectData{v: 32});
+		let rd_ref=use_instance(||RectData{v: 32});
+		let mut rd=rd_ref.borrow_mut();
+		//println!("instance_data: {}",rd.v);
+		rd.v=6;
 
-		println!("ref: {}",rf.borrow_mut().current.v);
-		rf.borrow_mut().current.v=6;
+		let r_ref=use_ref(||123);
+		let mut r=r_ref.borrow_mut();
+
+		//println!("ref_data: {}",r.current);
+		r.current=321;
+
+		/*let trigger=use_trigger();
+		trigger();*/
 
 		vec![]
 	}
@@ -36,9 +45,9 @@ impl Component for Rect {
 
 fn main() {
 	Appy::run(apx!{
-		<Window>
+		<GlWindow>
 			<Rect x="1"/>
 			<Rect x="2"/>
-		</Window>
+		</GlWindow>
 	});
 }
