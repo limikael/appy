@@ -67,20 +67,12 @@ impl Appy {
 		}
 	}
 
-	fn run_idle(&mut self)->IdleAction {
-		loop {
-			let env=self.render_env.borrow();
-			for handler in &env.signal_handlers {
-				match handler {
-					SignalHandler::Idle(f)=>{
-						let res=f();
-
-						if res!=IdleAction::None {
-							return res
-						}
-					},
-					_=>{}
-				}
+	fn run_idle(&mut self) {
+		let env=self.render_env.borrow();
+		for handler in &env.signal_handlers {
+			match handler {
+				SignalHandler::Idle(f)=>f(),
+				_=>{}
 			}
 		}
 	}
@@ -93,9 +85,19 @@ impl Appy {
 		};
 
 		loop {
+			appy.render_env.borrow().dirty.set_state(false);
 			appy.render();
 			appy.run_post_render();
-			if appy.run_idle()==IdleAction::Quit {
+			if appy.render_env.borrow().dirty.get_state() {
+				panic!("dirty during render, unsupported for now");
+			}
+
+			while !appy.render_env.borrow().dirty.get_state() && 
+					!appy.render_env.borrow().quit.get_state() {
+				appy.run_idle();
+			}
+
+			if appy.render_env.borrow().quit.get_state() {
 				break;
 			}
 		}

@@ -17,6 +17,8 @@ struct GlWindowInstance {
 
 impl GlWindowInstance {
 	pub fn new()->GlWindowInstance {
+		println!("gl instance");
+
 		let sdl=sdl2::init().unwrap();
 		let video_subsystem=sdl.video().unwrap();
 		let window=video_subsystem
@@ -46,6 +48,8 @@ impl GlWindowInstance {
 impl Component for GlWindow {
 	fn render(&self)->ComponentFragment {
 		let instance=use_instance(||GlWindowInstance::new());
+		let quit_trigger=use_quit_trigger();
+		let dirty_trigger=use_dirty_trigger();
 
 		println!("render");
 
@@ -64,12 +68,13 @@ impl Component for GlWindow {
 			let mut event_pump=instance.sdl.event_pump().unwrap();
 			let e=event_pump.wait_event();
 			match e {
-				Event::Quit {..} => IdleAction::Quit,
-				Event::MouseButtonDown {/*x, y,*/ ..} => {
-					println!("mouse...");
-					IdleAction::Redraw
+				Event::Quit {..} => {
+					quit_trigger();
 				},
-				_ => IdleAction::None,
+				Event::MouseButtonDown {/*x, y,*/ ..} => {
+					dirty_trigger();
+				},
+				_ => {},
 			}
 		}));
 

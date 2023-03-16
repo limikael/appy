@@ -2,19 +2,19 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::any::Any;
 
-//use crate::{*};
+use crate::{*};
 
-#[derive(PartialEq)]
+/*#[derive(PartialEq)]
 pub enum IdleAction {
 	None,
 	Redraw,
 	Quit
-}
+}*/
 
 #[derive(Clone)]
 pub enum SignalHandler {
 	PostRender(Rc<dyn Fn()>),
-	Idle(Rc<dyn Fn()->IdleAction>)
+	Idle(Rc<dyn Fn()>)
 }
 
 pub struct ComponentInstance {
@@ -36,7 +36,9 @@ thread_local! {
 pub struct RenderEnv {
 	component_instance: Option<Rc<RefCell<ComponentInstance>>>,
 	hook_index: usize,
-	pub signal_handlers: Vec<SignalHandler>
+	pub signal_handlers: Vec<SignalHandler>,
+	pub dirty: Trigger,
+	pub quit: Trigger
 }
 
 impl RenderEnv {
@@ -45,6 +47,8 @@ impl RenderEnv {
 			component_instance: None,
 			hook_index: 0,
 			signal_handlers: vec![],
+			dirty: Trigger::new(),
+			quit: Trigger::new()
 		}
 	}
 
@@ -81,6 +85,49 @@ impl RenderEnv {
 		if self.hook_index>=ci.hook_data.len() {
 			ci.hook_data.push(Rc::new(RefCell::new(ctor())));
 		}
+
+		let use_hook_index=self.hook_index;
+		self.hook_index+=1;
+		let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
+
+		a.downcast::<RefCell<T>>().unwrap()
+	}
+
+	pub fn get_current_hook_data_no_ctor<T: 'static>(&mut self)->Rc<RefCell<T>> {
+		let ci_ref=self.component_instance.clone().unwrap();
+		let ci=ci_ref.borrow();
+
+		if self.hook_index>=ci.hook_data.len() {
+			panic!("hook not found");
+		}
+
+		let use_hook_index=self.hook_index;
+		self.hook_index+=1;
+		let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
+
+		a.downcast::<RefCell<T>>().unwrap()
+	}
+
+	pub fn have_current_hook_data(&self)->bool {
+		let ci_ref=self.component_instance.clone().unwrap();
+		let ci=ci_ref.borrow();
+
+		if self.hook_index>=ci.hook_data.len() {
+			return false;
+		}
+
+		true
+	}
+
+	pub fn create_current_hook_data<T: 'static>(&mut self, data:T)->Rc<RefCell<T>> {
+		let ci_ref=self.component_instance.clone().unwrap();
+		let mut ci=ci_ref.borrow_mut();
+
+		if self.hook_index < ci.hook_data.len() {
+			panic!("hook data already exists");
+		}
+
+		ci.hook_data.push(Rc::new(RefCell::new(data)));
 
 		let use_hook_index=self.hook_index;
 		self.hook_index+=1;

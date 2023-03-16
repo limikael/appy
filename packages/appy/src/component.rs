@@ -1,9 +1,6 @@
 use std::rc::Rc;
-use std::any::TypeId;
 
-pub trait Typed {
-	fn get_type_id(&self)->TypeId;
-}
+use crate::{*};
 
 pub trait Component: Typed {
 	fn render(&self)->ComponentFragment;
