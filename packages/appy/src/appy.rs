@@ -42,12 +42,18 @@ impl Appy {
 		}
 
 		let ci=self.instances.get(&this_path).unwrap().clone();
-		let (child_fragment, mut signal_handlers)=
+
+		let r=Rc::new(RefCell::new(RenderEnv::new()));
+		RenderEnv::set_current(Some(r.clone()));
+
+		r.borrow_mut().render(component,ci);
+
+/*		let (child_fragment, mut signal_handlers)=
 			RenderEnv::render(component,ci);
 
 		self.signal_handlers.append(&mut signal_handlers);
 
-		self.render_fragment(child_fragment,this_path);
+		self.render_fragment(child_fragment,this_path);*/
 	}
 
 	fn render(&mut self) {
