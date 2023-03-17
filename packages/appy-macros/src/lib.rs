@@ -6,9 +6,6 @@ use quote::quote;
 
 #[proc_macro_attribute]
 pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
-	/*let input_clone=input.clone();
-	let DeriveInput { ident, .. } = parse_macro_input!(input_clone);*/
-
 	let mut ast = parse_macro_input!(input as DeriveInput);
 	match &mut ast.data {
 		syn::Data::Struct(ref mut struct_data) => {           
@@ -24,27 +21,13 @@ pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			}              
 
 			return quote! {
+				#[derive(Clone)]
 				#ast
-				/*impl Typed for #ident {
-					fn get_type_id(&self)->TypeId {
-						TypeId::of::<Self>()
-					}
-				}*/
 			}.into();
 		}
 		_ => panic!("`component` has to be used with structs "),
 	}
-//	input
-//	"fn answer() -> u32 { 42 }".parse().unwrap()
 }
-
-/*#[proc_macro_derive(Component)]
-pub fn derive_component_fn(item:TokenStream)->TokenStream {
-	//println!("{}",item.to_string());
-	//"fn answer() -> u32 { 42 }".parse().unwrap()
-
-	item
-}*/
 
 fn parse_xml_token_stream(input: TokenStream)->Element {
 	let mut s="".to_owned();

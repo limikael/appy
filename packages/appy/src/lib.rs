@@ -13,7 +13,13 @@ pub use appy::{*};
 mod gl_window;
 pub use gl_window::{*};
 
+mod gl_components;
+pub use gl_components::{*};
+
 mod utils;
 pub use utils::{*};
+
+mod gl_utils;
+pub use gl_utils::{*};
 
 pub use appy_macros::{*};

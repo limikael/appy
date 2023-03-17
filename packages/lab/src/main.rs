@@ -1,40 +1,44 @@
-use appy::{*};
 use std::rc::Rc;
+use appy::{*};
 
 #[component]
-struct Rect {
-	x: i32,
-}
+struct App {}
 
-struct RectData {
-	v: i32
-}
-
-impl Component for Rect {
+impl Component for App {
 	fn render(&self)->ComponentFragment {
-		let rd_ref=use_instance(||RectData{v: 32});
-		let mut rd=rd_ref.borrow_mut();
-		//println!("instance_data: {}",rd.v);
-		rd.v=6;
+		let (x,set_x)=use_state(||50);
+		//println!("render, x={}",*x.borrow());
 
-		let r_ref=use_ref(||123);
-		let mut r=r_ref.borrow_mut();
+		let inc={
+			let x=x.clone();
+			let set_x=set_x.clone();
+			Rc::new(move||{
+				let v=*x.borrow()+10;
+				set_x(v);	
+			})
+		};
 
-		//println!("ref_data: {}",r.current);
-		r.current=321;
+		let dec={
+			let x=x.clone();
+			let set_x=set_x.clone();
+			Rc::new(move||{
+				let v=*x.borrow()-10;
+				set_x(v);	
+			})
+		};
 
-		/*let trigger=use_trigger();
-		trigger();*/
+		let xv=*x.borrow();
 
-		vec![]
+		apx!{
+			<GlWindow>
+				<Button x="10" y="10" w="100" h="50" on_click="inc"/>
+				<Button x="10" y="70" w="100" h="50" on_click="dec"/>
+				<Rect x="xv" y="200" w="100" h="50" />
+			</GlWindow>
+		}
 	}
 }
 
 fn main() {
-	Appy::run(apx!{
-		<GlWindow>
-			<Rect x="1"/>
-			<Rect x="2"/>
-		</GlWindow>
-	});
+	Appy::run(apx!{<App/>});
 }

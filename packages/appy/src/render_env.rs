@@ -1,5 +1,7 @@
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::collections::HashMap;
+use std::any::TypeId;
 use std::any::Any;
 
 use crate::{*};
@@ -32,7 +34,9 @@ pub struct RenderEnv {
 	pub post_render_handlers: Vec<Rc<dyn Fn()>>,
 	pub idle_handlers: Vec<Rc<dyn Fn()>>,
 	pub dirty: Trigger,
-	pub quit: Trigger
+	pub quit: Trigger,
+//	pub contexts:HashMap<TypeId,Rc<RefCell<dyn Any>>>
+	pub contexts:HashMap<TypeId,Rc<dyn Any>>
 }
 
 impl RenderEnv {
@@ -43,13 +47,15 @@ impl RenderEnv {
 			post_render_handlers: vec![],
 			idle_handlers: vec![],
 			dirty: Trigger::new(),
-			quit: Trigger::new()
+			quit: Trigger::new(),
+			contexts: HashMap::new()
 		}
 	}
 
 	pub fn pre_render_tree(&mut self) {
 		self.post_render_handlers=vec![];
 		self.idle_handlers=vec![];
+		self.contexts=HashMap::new();
 	}
 
 	pub fn pre_render(&mut self, ci:Rc<RefCell<ComponentInstance>>) {
