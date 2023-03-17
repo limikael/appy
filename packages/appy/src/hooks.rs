@@ -26,31 +26,26 @@ pub fn use_ref<F, T: 'static>(ctor: F)->Rc<RefCell<RefData<T>>>
 }
 
 pub struct StateData<T> {
-	pub state_value: Rc<RefCell<T>>
+	pub state_value: Rc<T>
 }
 
-pub fn use_state<F, T: 'static>(ctor: F)->(Rc<RefCell<T>>,Rc<dyn Fn(T)>)
+pub fn use_state<F, T: 'static>(ctor: F)->(Rc<T>,Rc<dyn Fn(T)>)
 		where F:Fn()->T {
 	let dirty_trigger=use_dirty_trigger();
 	let state_data_ref=use_instance(||StateData{
-		state_value: Rc::new(RefCell::new(ctor()))
+		state_value: Rc::new(ctor())
 	});
 
-	let state_data=state_data_ref.borrow();
+	let current_value=state_data_ref.borrow().state_value.clone();
 	(
-		state_data.state_value.clone(),
+		current_value,
 		{
-			let state_value=state_data.state_value.clone();
 			Rc::new(move|value:T|{
-				state_value.replace(value);
+				state_data_ref.borrow_mut().state_value=Rc::new(value);
 				dirty_trigger();
 			})
 		}
 	)
-
-//	(state_data.state_value.clone(),Rc::new(move|value:T|{
-//		state_data.value=Rc::new(RefCell::new(value));
-//	}))
 }
 
 pub fn use_post_render(f: Rc<dyn Fn()>) {

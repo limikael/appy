@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 appy-macros = {path="../appy-macros"}
 appy = {path="../appy"}
+closure = "0.3.0"

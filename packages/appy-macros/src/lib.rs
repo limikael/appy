@@ -1,4 +1,4 @@
-use proc_macro::TokenStream;
+use proc_macro::{*};
 use std::str::FromStr;
 use minidom::{Element, Children};
 use syn::{parse_macro_input, DeriveInput, parse::Parser};
@@ -89,4 +89,62 @@ pub fn apx(input: TokenStream) -> TokenStream {
 	//println!("{:?}", s);
 
 	TokenStream::from_str(&s).unwrap()
+}
+
+#[proc_macro]
+pub fn ccb(input: TokenStream) -> TokenStream {
+    let input=proc_macro2::TokenStream::from(input);    
+	let mut parts:Vec<String>=vec![];
+	let mut it=input.into_iter();
+
+	parts.push("{".to_string());
+
+	let captures=
+		if let proc_macro2::TokenTree::Group(captures)=it.next().unwrap() { 
+			captures 
+		} 
+
+		else { 
+			panic!("expected group") 
+		};
+
+	for c in captures.stream() {
+		parts.push(match c {
+			proc_macro2::TokenTree::Ident(ident)=>{
+				quote!{let #ident=#ident.clone();}
+			},
+			proc_macro2::TokenTree::Punct{..}=>{quote!{}},
+			_=>{panic!("unexpected");}
+		}.to_string());
+	}
+
+	parts.push("Rc::new(move||".to_string());
+
+	for i in it {
+		parts.push(i.to_string())
+	}
+
+	parts.push(")}".to_string());
+
+	//println!("{:?}",&parts.join(""));
+	TokenStream::from_str(&parts.join(" ")).unwrap()
+}
+
+#[proc_macro]
+pub fn relet(input: TokenStream) -> TokenStream {
+    let input=proc_macro2::TokenStream::from(input);    
+	let mut parts:Vec<String>=vec![];
+
+	for c in input.into_iter() {
+		parts.push(match c {
+			proc_macro2::TokenTree::Ident(ident)=>{
+				quote!{let #ident=#ident.clone();}
+			},
+			proc_macro2::TokenTree::Punct{..}=>{quote!{}},
+			_=>{panic!("unexpected");}
+		}.to_string());
+	}
+
+	//println!("{:?}",&parts.join(""));
+	TokenStream::from_str(&parts.join(" ")).unwrap()
 }
