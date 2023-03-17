@@ -1,18 +1,5 @@
-use appy::{GlWindow, Appy, Component, ComponentFragment, Typed, use_instance, use_ref};
-use appy_macros::{apx, component};
+use appy::{*};
 use std::rc::Rc;
-use std::any::TypeId;
-
-/*#[component]
-struct Window {
-}
-
-impl Component for Window {
-	fn render(&self)->ComponentFragment {
-		println!("render window...");
-		self.children.clone()
-	}
-}*/
 
 #[component]
 struct Rect {

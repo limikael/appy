@@ -1,10 +1,9 @@
-use std::any::TypeId;
 use std::rc::Rc;
 use std::cell::RefCell;
 
-pub trait Typed {
+/*pub trait Typed {
 	fn get_type_id(&self)->TypeId;
-}
+}*/
 
 pub struct Trigger {
 	pub state:Rc<RefCell<bool>>,

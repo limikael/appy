@@ -1,6 +1,7 @@
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::any::TypeId;
+use std::any::Any;
 use std::collections::HashMap;
 
 use crate::{*};
@@ -34,7 +35,7 @@ impl Appy {
 
 	fn render_component(&mut self, component: Rc<dyn Component>, component_path:ComponentPath) {
 		let mut this_path=component_path.clone();
-		this_path.push(ComponentPathComponent::TypeId(component.get_type_id()));
+		this_path.push(ComponentPathComponent::TypeId(component.type_id()));
 
 		if !self.instances.contains_key(&this_path) {
 			let c=ComponentInstance::new();

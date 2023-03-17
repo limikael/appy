@@ -6,8 +6,8 @@ use quote::quote;
 
 #[proc_macro_attribute]
 pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
-	let input_clone=input.clone();
-	let DeriveInput { ident, .. } = parse_macro_input!(input_clone);
+	/*let input_clone=input.clone();
+	let DeriveInput { ident, .. } = parse_macro_input!(input_clone);*/
 
 	let mut ast = parse_macro_input!(input as DeriveInput);
 	match &mut ast.data {
@@ -25,11 +25,11 @@ pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
 			return quote! {
 				#ast
-				impl Typed for #ident {
+				/*impl Typed for #ident {
 					fn get_type_id(&self)->TypeId {
 						TypeId::of::<Self>()
 					}
-				}
+				}*/
 			}.into();
 		}
 		_ => panic!("`component` has to be used with structs "),

@@ -1,8 +1,7 @@
 use std::rc::Rc;
+//use crate::{*};
 
-use crate::{*};
-
-pub trait Component: Typed {
+pub trait Component {
 	fn render(&self)->ComponentFragment;
 }
 

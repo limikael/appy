@@ -1,4 +1,3 @@
-use std::any::TypeId;
 use appy_macros::component;
 use std::rc::Rc;
 use sdl2::event::Event;
