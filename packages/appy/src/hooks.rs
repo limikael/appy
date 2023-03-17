@@ -23,16 +23,12 @@ pub fn use_ref<F, T: 'static>(ctor: F)->Rc<RefCell<RefData<T>>>
 	use_instance(||RefData{current:ctor()})
 }
 
-pub fn use_signal(s: SignalHandler) {
-	RenderEnv::get_current().borrow_mut().signal_handlers.push(s);
-}
-
 pub fn use_post_render(f: Rc<dyn Fn()>) {
-	use_signal(SignalHandler::PostRender(f));
+	RenderEnv::get_current().borrow_mut().post_render_handlers.push(f);
 }
 
 pub fn use_idle(f: Rc<dyn Fn()>) {
-	use_signal(SignalHandler::Idle(f));
+	RenderEnv::get_current().borrow_mut().idle_handlers.push(f);
 }
 
 pub fn use_quit_trigger()->Rc<dyn Fn()> {

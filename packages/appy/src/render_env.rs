@@ -4,13 +4,6 @@ use std::any::Any;
 
 use crate::{*};
 
-/*#[derive(PartialEq)]
-pub enum IdleAction {
-	None,
-	Redraw,
-	Quit
-}*/
-
 #[derive(Clone)]
 pub enum SignalHandler {
 	PostRender(Rc<dyn Fn()>),
@@ -36,7 +29,8 @@ thread_local! {
 pub struct RenderEnv {
 	component_instance: Option<Rc<RefCell<ComponentInstance>>>,
 	hook_index: usize,
-	pub signal_handlers: Vec<SignalHandler>,
+	pub post_render_handlers: Vec<Rc<dyn Fn()>>,
+	pub idle_handlers: Vec<Rc<dyn Fn()>>,
 	pub dirty: Trigger,
 	pub quit: Trigger
 }
@@ -46,14 +40,16 @@ impl RenderEnv {
 		Self {
 			component_instance: None,
 			hook_index: 0,
-			signal_handlers: vec![],
+			post_render_handlers: vec![],
+			idle_handlers: vec![],
 			dirty: Trigger::new(),
 			quit: Trigger::new()
 		}
 	}
 
 	pub fn pre_render_tree(&mut self) {
-		self.signal_handlers=vec![];
+		self.post_render_handlers=vec![];
+		self.idle_handlers=vec![];
 	}
 
 	pub fn pre_render(&mut self, ci:Rc<RefCell<ComponentInstance>>) {

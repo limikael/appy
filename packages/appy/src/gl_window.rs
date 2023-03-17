@@ -70,6 +70,7 @@ impl Component for GlWindow {
 					quit_trigger();
 				},
 				Event::MouseButtonDown {/*x, y,*/ ..} => {
+					println!("mouse..");
 					dirty_trigger();
 				},
 				_ => {},

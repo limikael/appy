@@ -58,22 +58,29 @@ impl Appy {
 		RenderEnv::set_current(None);
 	}
 
-	fn run_post_render(&mut self) {
-		let env=self.render_env.borrow();
-		for handler in &env.signal_handlers {
-			match handler {
-				SignalHandler::PostRender(f)=>f(),
-				_=>{}
-			}
+	fn run_handlers(handlers:&Vec<Rc<dyn Fn()>>) {
+		for handler in handlers {
+			handler()
 		}
 	}
 
-	fn run_idle(&mut self) {
-		let env=self.render_env.borrow();
-		for handler in &env.signal_handlers {
-			match handler {
-				SignalHandler::Idle(f)=>f(),
-				_=>{}
+	fn render_loop(&mut self) {
+		loop {
+			self.render_env.borrow().dirty.set_state(false);
+			self.render();
+			Self::run_handlers(&self.render_env.borrow().post_render_handlers);
+
+			if self.render_env.borrow().dirty.get_state() {
+				panic!("dirty during render, unsupported for now");
+			}
+
+			while !self.render_env.borrow().dirty.get_state() && 
+					!self.render_env.borrow().quit.get_state() {
+				Self::run_handlers(&self.render_env.borrow().idle_handlers);
+			}
+
+			if self.render_env.borrow().quit.get_state() {
+				break;
 			}
 		}
 	}
@@ -85,22 +92,6 @@ impl Appy {
 			render_env: Rc::new(RefCell::new(RenderEnv::new()))
 		};
 
-		loop {
-			appy.render_env.borrow().dirty.set_state(false);
-			appy.render();
-			appy.run_post_render();
-			if appy.render_env.borrow().dirty.get_state() {
-				panic!("dirty during render, unsupported for now");
-			}
-
-			while !appy.render_env.borrow().dirty.get_state() && 
-					!appy.render_env.borrow().quit.get_state() {
-				appy.run_idle();
-			}
-
-			if appy.render_env.borrow().quit.get_state() {
-				break;
-			}
-		}
+		appy.render_loop();
 	}
 }
