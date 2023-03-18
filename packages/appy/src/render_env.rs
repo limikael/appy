@@ -35,7 +35,6 @@ pub struct RenderEnv {
 	pub idle_handlers: Vec<Rc<dyn Fn()>>,
 	pub dirty: Trigger,
 	pub quit: Trigger,
-//	pub contexts:HashMap<TypeId,Rc<RefCell<dyn Any>>>
 	pub contexts:HashMap<TypeId,Rc<dyn Any>>
 }
 

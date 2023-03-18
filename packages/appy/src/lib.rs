@@ -23,3 +23,13 @@ mod gl_utils;
 pub use gl_utils::{*};
 
 pub use appy_macros::{*};
+
+#[macro_export]
+macro_rules! with_clone {
+	([$ ($var:ident), *],$body:expr) => {
+		{
+			$(let $var=($var).clone();)*
+			$body
+		}
+	}
+}

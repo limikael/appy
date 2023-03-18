@@ -42,15 +42,15 @@ impl Component for Button {
 	fn render(&self)->ComponentFragment {
 		let s=(*self).clone();
 
-		let on_mouse_down=move||{
+		let on_mouse_down=Rc::new(move||{
 			(s.on_click)();
-		};
+		});
 
 		apx!{
 			<Rect x="self.x" y="self.y" w="self.w" h="self.h"/>
 			<Interactive
 					x="self.x" y="self.y" w="self.w" h="self.h"
-					on_mouse_down="Rc::new(on_mouse_down)"/>
+					on_mouse_down="on_mouse_down"/>
 		}
 	}
 }

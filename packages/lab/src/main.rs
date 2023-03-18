@@ -1,6 +1,5 @@
 use std::rc::Rc;
 use appy::{*};
-use closure::closure;
 
 #[component]
 struct App {}
@@ -9,13 +8,15 @@ impl Component for App {
 	fn render(&self)->ComponentFragment {
 		let (x,set_x)=use_state(||50);
 
-		let inc=Rc::new(closure!(clone x, clone set_x, ||{
-			set_x(*x+20)
+		let inc=Rc::new(with_clone!([x,set_x],move||{
+			set_x(*x+10)
 		}));
 
-		let dec=Rc::new(closure!(clone x, clone set_x, ||{
-			set_x(*x-20)
+		let dec=Rc::new(with_clone!([x,set_x],move||{
+			set_x(*x-10)
 		}));
+
+//		let nop=Rc::new(||{});
 
 		apx![
 			<GlWindow>

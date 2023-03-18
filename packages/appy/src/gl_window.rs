@@ -57,27 +57,22 @@ pub fn use_gl_window_event(listener: Rc<dyn Fn(&Event)>) {
 
 impl Component for GlWindow {
 	fn render(&self)->ComponentFragment {
-//		println!("render");
-		let instance=use_instance(||GlWindowInstance::new());
-		instance.borrow_mut().event_listeners=vec![];
-		use_context_provider(instance.clone());
+		let instance_ref=use_instance(||GlWindowInstance::new());
+		instance_ref.borrow_mut().event_listeners=vec![];
+		use_context_provider(instance_ref.clone());
 
 		let quit_trigger=use_quit_trigger();
-		//let dirty_trigger=use_dirty_trigger();
 
 		unsafe {
 			gl::Clear(gl::COLOR_BUFFER_BIT);
 		};
 
-		let post_render_instance_ref=instance.clone();
-		use_post_render(Rc::new(move||{
-			let instance=post_render_instance_ref.borrow_mut();
-			instance.window.gl_swap_window();
-		}));
+		use_post_render(Rc::new(with_clone!([instance_ref],move||{
+			instance_ref.borrow_mut().window.gl_swap_window();
+		})));
 
-		let idle_instance_ref=instance.clone();
-		use_idle(Rc::new(move||{
-			let instance=idle_instance_ref.borrow_mut();
+		use_idle(Rc::new(with_clone!([instance_ref],move||{
+			let instance=instance_ref.borrow_mut();
 			let mut event_pump=instance.sdl.event_pump().unwrap();
 			let e=event_pump.wait_event();
 			for listener in &instance.event_listeners {
@@ -88,13 +83,9 @@ impl Component for GlWindow {
 				Event::Quit {..} => {
 					quit_trigger();
 				},
-				Event::MouseButtonDown {..} => {
-					//println!("mouse");
-					//dirty_trigger();
-				},
 				_ => {},
 			}
-		}));
+		})));
 
 		self.children.clone()
 	}
