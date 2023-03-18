@@ -1,6 +1,3 @@
-mod component;
-pub use component::{*};
-
 mod render_env;
 pub use render_env::{*};
 

@@ -30,7 +30,7 @@ pub fn function_component(_attr: TokenStream, input: TokenStream) -> TokenStream
 	};
 
 	TokenStream::from(quote!{
-		type #alias_ident=#arg_type;
+		pub type #alias_ident=#arg_type;
 		#ast
 	})
 }
@@ -45,6 +45,7 @@ pub fn derive_props(input: TokenStream) -> TokenStream {
 	})
 }
 
+/*
 #[proc_macro_attribute]
 pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
 	let mut ast = parse_macro_input!(input as DeriveInput);
@@ -68,7 +69,7 @@ pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
 		}
 		_ => panic!("`component` has to be used with structs "),
 	}
-}
+}*/
 
 fn parse_xml_token_stream(input: TokenStream)->Element {
 	let mut s="".to_owned();
@@ -94,23 +95,23 @@ fn process_fragment_to_vec(fragment_els: Children)->String {
 	let mut fragment_parts:Vec<String>=vec![];
 	for el in fragment_els {
 		let mut s="".to_owned();
-		s+=&format!("Rc::new({}{{",el.name());
+		s+=&format!("Element::new(Rc::new(move||{}(Props_{}{{",el.name(),el.name());
 
-		let mut have_children:bool=false;
+//		let mut have_children:bool=false;
 		let mut attr_parts:Vec<String>=vec![];
 		for (key, val) in el.attrs() {
 			attr_parts.push(format!("{}: {}",key,val));
-			if key=="children" {
+/*			if key=="children" {
 				have_children=true;
-			}
+			}*/
 		}
 
-		if !have_children {
+/*		if !have_children {
 			attr_parts.push(format!("children: {}",process_fragment_to_vec(el.children())));
-		}
+		}*/
 
 		s+=&attr_parts.join(",");
-		s+=&format!("}})");
+		s+=&format!("}},{})))",process_fragment_to_vec(el.children()));
 
 		fragment_parts.push(s);
 	}
@@ -127,7 +128,7 @@ pub fn apx(input: TokenStream) -> TokenStream {
 
 	//println!("{:?}", root);
 	let s=process_fragment_to_vec(root.children());
-	//println!("{:?}", s);
+	println!("{:?}", s);
 
 	TokenStream::from_str(&s).unwrap()
 }

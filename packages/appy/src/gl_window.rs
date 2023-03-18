@@ -1,11 +1,6 @@
-use appy_macros::component;
 use std::rc::Rc;
 use sdl2::event::Event;
 use crate::{*};
-
-#[component]
-pub struct GlWindow {
-}
 
 pub struct GlWindowInstance {
 	sdl: sdl2::Sdl,
@@ -55,38 +50,43 @@ pub fn use_gl_window_event(listener: Rc<dyn Fn(&Event)>) {
 	instance.borrow_mut().event_listeners.push(listener);
 }
 
-impl Component for GlWindow {
-	fn render(&self)->ComponentFragment {
-		let instance_ref=use_instance(||GlWindowInstance::new());
-		instance_ref.borrow_mut().event_listeners=vec![];
-		use_context_provider(instance_ref.clone());
+pub struct GlWindowProps {
+}
 
-		let quit_trigger=use_quit_trigger();
+#[function_component]
+pub fn gl_window(props:GlWindowProps, children:Elements)->Elements {
+	println!("render window!!");
 
-		unsafe {
-			gl::Clear(gl::COLOR_BUFFER_BIT);
-		};
+	let instance_ref=use_instance(||GlWindowInstance::new());
+	instance_ref.borrow_mut().event_listeners=vec![];
+	use_context_provider(instance_ref.clone());
 
-		use_post_render(Rc::new(with_clone!([instance_ref],move||{
-			instance_ref.borrow_mut().window.gl_swap_window();
-		})));
+	let quit_trigger=use_quit_trigger();
 
-		use_idle(Rc::new(with_clone!([instance_ref],move||{
-			let instance=instance_ref.borrow_mut();
-			let mut event_pump=instance.sdl.event_pump().unwrap();
-			let e=event_pump.wait_event();
-			for listener in &instance.event_listeners {
-				listener(&e);
-			}
+	unsafe {
+		gl::Clear(gl::COLOR_BUFFER_BIT);
+	};
 
-			match e {
-				Event::Quit {..} => {
-					quit_trigger();
-				},
-				_ => {},
-			}
-		})));
+	use_post_render(Rc::new(with_clone!([instance_ref],move||{
+		instance_ref.borrow_mut().window.gl_swap_window();
+	})));
 
-		self.children.clone()
-	}
+	use_idle(Rc::new(with_clone!([instance_ref],move||{
+		let instance=instance_ref.borrow_mut();
+		let mut event_pump=instance.sdl.event_pump().unwrap();
+		let e=event_pump.wait_event();
+		for listener in &instance.event_listeners {
+			listener(&e);
+		}
+
+		match e {
+			Event::Quit {..} => {
+				quit_trigger();
+			},
+			_ => {},
+		}
+	})));
+
+//	self.children.clone()
+	children
 }

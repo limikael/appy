@@ -6,6 +6,22 @@ use std::collections::HashMap;
 
 use crate::{*};
 
+#[derive(Clone)]
+pub struct Element {
+	render: Rc<dyn Fn()->Elements>
+}
+
+impl Element {
+	pub fn new(render:Rc<dyn Fn()->Elements>)->Self {
+		Self {
+			render: render
+		}
+	}
+}
+
+//pub type Element=Rc<dyn Fn()->Vec<Rc<dyn Any>>>;
+pub type Elements=Vec<Element>;
+
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
 enum ComponentPathComponent {
 	Index(i32),
@@ -16,12 +32,12 @@ type ComponentPath=Vec<ComponentPathComponent>;
 
 pub struct Appy {
 	instances: HashMap<ComponentPath,Rc<RefCell<ComponentInstance>>>,
-	root_fragment: Vec<Rc<dyn Component>>,
+	root_fragment: Elements,
 	render_env: Rc<RefCell<RenderEnv>>
 }
 
 impl Appy {
-	fn render_fragment(&mut self, fragment: ComponentFragment, component_path:ComponentPath) {
+	fn render_fragment(&mut self, fragment: Elements, component_path:ComponentPath) {
 		let mut i=0;
 
 		for component in fragment {
@@ -33,7 +49,7 @@ impl Appy {
 		}
 	}
 
-	fn render_component(&mut self, component: Rc<dyn Component>, component_path:ComponentPath) {
+	fn render_component(&mut self, component: Element, component_path:ComponentPath) {
 		let mut this_path=component_path.clone();
 		this_path.push(ComponentPathComponent::TypeId(component.type_id()));
 
@@ -45,7 +61,11 @@ impl Appy {
 		let ci=self.instances.get(&this_path).unwrap().clone();
 
 		self.render_env.borrow_mut().pre_render(ci);
-		let child_fragment=component.render();
+
+		//println!("calling render");
+		let child_fragment=(component.render)();
+		//println!("called render, c={}",child_fragment.len());
+		//println!("{:?}",child_fragment);
 		self.render_env.borrow_mut().post_render();
 
 		self.render_fragment(child_fragment,this_path);
@@ -85,7 +105,7 @@ impl Appy {
 		}
 	}
 
-	pub fn run(fragment: ComponentFragment) {
+	pub fn run(fragment: Elements) {
 		let mut appy=Self{
 			instances: HashMap::new(),
 			root_fragment: fragment,
