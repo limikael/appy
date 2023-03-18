@@ -61,12 +61,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "closure"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6173fd61b610d15a7566dd7b7620775627441c4ab9dac8906e17cb93a24b782"
-
-[[package]]
 name = "gl"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -91,15 +85,6 @@ name = "khronos_api"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
-
-[[package]]
-name = "lab"
-version = "0.1.0"
-dependencies = [
- "appy",
- "appy-macros",
- "closure",
-]
 
 [[package]]
 name = "lazy_static"

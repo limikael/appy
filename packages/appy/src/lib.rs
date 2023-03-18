@@ -8,7 +8,7 @@ mod hooks;
 pub use hooks::{*};
 
 mod appy;
-pub use appy::{*};
+pub use crate::appy::{*};
 
 mod gl_window;
 pub use gl_window::{*};
@@ -33,3 +33,6 @@ macro_rules! with_clone {
 		}
 	}
 }
+
+#[cfg(test)]
+mod tests;

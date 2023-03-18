@@ -1,10 +1,49 @@
 use proc_macro::{*};
 use std::str::FromStr;
 use minidom::{Element, Children};
-use syn::{parse_macro_input, DeriveInput, parse::Parser};
 use quote::quote;
+use syn::{
+	parse_macro_input, DeriveInput, ItemFn, Ident, FnArg, TypePath,
+	PatType, Type, Path
+};
+use syn::parse::Parser;
 //use std::any::Any;
 //use std::any::TypeId;
+
+#[proc_macro_attribute]
+pub fn function_component(_attr: TokenStream, input: TokenStream) -> TokenStream {
+	let ast=parse_macro_input!(input as ItemFn);
+	let name=ast.sig.ident.clone();
+	let alias_name=format!("Props_{}",name.to_string());
+	let alias_ident=Ident::new(&alias_name,Span::call_site().into());
+
+	let arg_type=match ast.sig.inputs.first().unwrap() {
+		FnArg::Typed(PatType{ty, ..})=>{
+			match &**ty {
+				Type::Path(TypePath{path: Path{segments, ..}, ..})=>{
+					segments.first().unwrap().ident.clone()
+				},
+				_=>{panic!("unexpected")}
+			}
+		}
+		_=>{panic!("uexpected")}
+	};
+
+	TokenStream::from(quote!{
+		type #alias_ident=#arg_type;
+		#ast
+	})
+}
+
+#[proc_macro_derive(Props)]
+pub fn derive_props(input: TokenStream) -> TokenStream {
+	let ast=parse_macro_input!(input as DeriveInput);
+	let name=ast.ident;
+
+	TokenStream::from(quote!{
+		impl Props for #name {}
+	})
+}
 
 #[proc_macro_attribute]
 pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
