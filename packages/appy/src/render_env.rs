@@ -78,23 +78,18 @@ impl RenderEnv {
 		});
 	}
 
-	pub fn get_current_hook_data<F, T: 'static>(&mut self, ctor: F)->Rc<RefCell<T>>
-			where F: Fn()->T {
+	pub fn have_hook_data(&self)->bool {
 		let ci_ref=self.component_instance.clone().unwrap();
-		let mut ci=ci_ref.borrow_mut();
+		let ci=ci_ref.borrow();
 
 		if self.hook_index>=ci.hook_data.len() {
-			ci.hook_data.push(Rc::new(RefCell::new(ctor())));
+			return false;
 		}
 
-		let use_hook_index=self.hook_index;
-		self.hook_index+=1;
-		let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
-
-		a.downcast::<RefCell<T>>().unwrap()
+		true
 	}
 
-	pub fn get_current_hook_data_no_ctor<T: 'static>(&mut self)->Rc<RefCell<T>> {
+	pub fn get_hook_data<T: 'static>(&mut self)->Rc<RefCell<T>> {
 		let ci_ref=self.component_instance.clone().unwrap();
 		let ci=ci_ref.borrow();
 
@@ -109,18 +104,7 @@ impl RenderEnv {
 		a.downcast::<RefCell<T>>().unwrap()
 	}
 
-	pub fn have_current_hook_data(&self)->bool {
-		let ci_ref=self.component_instance.clone().unwrap();
-		let ci=ci_ref.borrow();
-
-		if self.hook_index>=ci.hook_data.len() {
-			return false;
-		}
-
-		true
-	}
-
-	pub fn create_current_hook_data<T: 'static>(&mut self, data:T)->Rc<RefCell<T>> {
+	pub fn create_hook_data<T: 'static>(&mut self, data:T) {
 		let ci_ref=self.component_instance.clone().unwrap();
 		let mut ci=ci_ref.borrow_mut();
 
@@ -129,11 +113,5 @@ impl RenderEnv {
 		}
 
 		ci.hook_data.push(Rc::new(RefCell::new(data)));
-
-		let use_hook_index=self.hook_index;
-		self.hook_index+=1;
-		let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
-
-		a.downcast::<RefCell<T>>().unwrap()
 	}
 }

@@ -7,13 +7,12 @@ use crate::{*};
 pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
 		where F:Fn()->T {
 	let env_ref=RenderEnv::get_current();
-	if env_ref.borrow().have_current_hook_data() {
-		return env_ref.borrow_mut().get_current_hook_data_no_ctor::<T>();
+	if !env_ref.borrow().have_hook_data() {
+		let data=ctor();
+		env_ref.borrow_mut().create_hook_data(data);
 	}
 
-	let data=ctor();
-	let mut env=env_ref.borrow_mut();
-	env.create_current_hook_data(data)
+	return env_ref.borrow_mut().get_hook_data::<T>();
 }
 
 pub struct RefData<T> {
