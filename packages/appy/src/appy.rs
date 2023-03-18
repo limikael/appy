@@ -6,22 +6,6 @@ use std::collections::HashMap;
 
 use crate::{*};
 
-#[derive(Clone)]
-pub struct Element {
-	render: Rc<dyn Fn()->Elements>
-}
-
-impl Element {
-	pub fn new(render:Rc<dyn Fn()->Elements>)->Self {
-		Self {
-			render: render
-		}
-	}
-}
-
-//pub type Element=Rc<dyn Fn()->Vec<Rc<dyn Any>>>;
-pub type Elements=Vec<Element>;
-
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
 enum ComponentPathComponent {
 	Index(i32),
@@ -32,7 +16,7 @@ type ComponentPath=Vec<ComponentPathComponent>;
 
 pub struct Appy {
 	instances: HashMap<ComponentPath,Rc<RefCell<ComponentInstance>>>,
-	root_fragment: Elements,
+	root: fn()->Elements,
 	render_env: Rc<RefCell<RenderEnv>>
 }
 
@@ -49,7 +33,7 @@ impl Appy {
 		}
 	}
 
-	fn render_component(&mut self, component: Element, component_path:ComponentPath) {
+	fn render_component(&mut self, component: Box<dyn ElementT>, component_path:ComponentPath) {
 		let mut this_path=component_path.clone();
 		this_path.push(ComponentPathComponent::TypeId(component.type_id()));
 
@@ -61,11 +45,7 @@ impl Appy {
 		let ci=self.instances.get(&this_path).unwrap().clone();
 
 		self.render_env.borrow_mut().pre_render(ci);
-
-		//println!("calling render");
-		let child_fragment=(component.render)();
-		//println!("called render, c={}",child_fragment.len());
-		//println!("{:?}",child_fragment);
+		let child_fragment=component.render();
 		self.render_env.borrow_mut().post_render();
 
 		self.render_fragment(child_fragment,this_path);
@@ -74,7 +54,7 @@ impl Appy {
 	fn render(&mut self) {
 		self.render_env.borrow_mut().pre_render_tree();
 		RenderEnv::set_current(Some(self.render_env.clone()));
-		self.render_fragment(self.root_fragment.clone(),vec![]);
+		self.render_fragment((self.root)(),vec![]);
 		RenderEnv::set_current(None);
 	}
 
@@ -105,10 +85,10 @@ impl Appy {
 		}
 	}
 
-	pub fn run(fragment: Elements) {
+	pub fn run(root: fn()->Elements) {
 		let mut appy=Self{
 			instances: HashMap::new(),
-			root_fragment: fragment,
+			root: root,
 			render_env: Rc::new(RefCell::new(RenderEnv::new()))
 		};
 

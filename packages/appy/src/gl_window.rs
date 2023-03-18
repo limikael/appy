@@ -54,8 +54,8 @@ pub struct GlWindowProps {
 }
 
 #[function_component]
-pub fn gl_window(props:GlWindowProps, children:Elements)->Elements {
-	println!("render window!!");
+pub fn gl_window(_props:GlWindowProps, children:Elements)->Elements {
+	//println!("render window!!");
 
 	let instance_ref=use_instance(||GlWindowInstance::new());
 	instance_ref.borrow_mut().event_listeners=vec![];
@@ -87,6 +87,5 @@ pub fn gl_window(props:GlWindowProps, children:Elements)->Elements {
 		}
 	})));
 
-//	self.children.clone()
 	children
 }

@@ -1,62 +1,70 @@
-use crate::{*};
-use std::rc::Rc;
-use std::any::Any;
+//use crate::{*};
+//use std::rc::Rc;
+//use std::any::Any;
 
-struct MyStruct{
-	i: i32
-}
-
-fn mycomp(p: &MyStruct) {
-	println!("****** mycomp {:?}",p.i);
-}
-
-struct Other{
+/*pub struct HelloProps {
 	x: i32
 }
 
-fn othercomp(p: &Other) {
-	println!("********* other {:?}",p.x);
+#[function_component]
+pub fn hello(p:HelloProps, c:Elements)->Elements {
+	println!("render hello...");
+
+	apx!{}	
 }
-
-trait Elem {
-	fn render(&self);
-}
-
-struct El<T> {
-	props: T,
-	renderer: fn(&T)
-}
-
-impl<T: 'static> El<T> {
-	pub fn call_render(&self) {
-		(&self.renderer)(&self.props)
-	}
-
-	pub fn create(renderer: fn(&T), props:T)->Rc<dyn Elem> {
-		Rc::new(Self{renderer,props})
-	}
-}
-
-impl<T: 'static> Elem for El<T> {
-	fn render(&self) {
-		self.call_render()
-	}
-}
-
-type Elements=Vec<Rc<dyn Elem>>;
 
 #[test]
 fn test() {
-	let v=vec![
-		El::create(mycomp,MyStruct{i: 123}),
-		El::create(othercomp,Other{x: 321})
-	];
+	println!("** test");
+	let e=Element::create(hello,HelloProps{x: 123},vec![]);
 
-/*	let a:Rc<dyn Elem>=Rc::new(El::create(mycomp,MyStruct{i: 123}));
-	let b:Rc<dyn Elem>=Rc::new(El::create(othercomp,Other{x: 321}));
+	let v=e.render();
 
-	let v=vec![a,b];
+//	e.render();
+//	*e.render();
 
-	v[0].render();
-	v[1].render();*/
+//	let x:Elements=apx!{
+//		<hello x="5"/>
+//	};
 }
+*/
+
+/*trait MyTrait {
+	fn consume_trait(self: Box<Self>);
+}
+
+struct MyStruct {} 
+
+impl MyTrait for MyStruct {
+	fn consume_trait(self: Box<Self>) {
+
+	}
+}
+
+impl MyStruct {
+	fn consume_struct(self) {
+
+	}
+
+	fn other(&self) {
+
+	}
+}
+
+#[test]
+fn test2() {
+	let a:Box<dyn MyTrait>=Box::new(MyStruct{});
+	a.consume_trait();
+
+//	let b:Box<dyn MyTrait>=a;
+//	let c:Box<dyn Any+'static>=a;
+
+//	let pv=a.downcast::<MyStruct>();
+
+//	a.consume_trait();
+//	a.consume_struct();
+
+//	a.other();
+
+//	let a:Box<dyn MyTrait>=Box::new(MyStruct{});
+}*/

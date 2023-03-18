@@ -16,6 +16,9 @@ pub use gl_components::{*};
 mod utils;
 pub use utils::{*};
 
+mod element;
+pub use element::{*};
+
 mod gl_utils;
 pub use gl_utils::{*};
 

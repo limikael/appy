@@ -6,7 +6,7 @@ use syn::{
 	parse_macro_input, DeriveInput, ItemFn, Ident, FnArg, TypePath,
 	PatType, Type, Path
 };
-use syn::parse::Parser;
+//use syn::parse::Parser;
 //use std::any::Any;
 //use std::any::TypeId;
 
@@ -95,23 +95,15 @@ fn process_fragment_to_vec(fragment_els: Children)->String {
 	let mut fragment_parts:Vec<String>=vec![];
 	for el in fragment_els {
 		let mut s="".to_owned();
-		s+=&format!("Element::new(Rc::new(move||{}(Props_{}{{",el.name(),el.name());
+		s+=&format!("Element::create({},Props_{}{{",el.name(),el.name());
 
-//		let mut have_children:bool=false;
 		let mut attr_parts:Vec<String>=vec![];
 		for (key, val) in el.attrs() {
 			attr_parts.push(format!("{}: {}",key,val));
-/*			if key=="children" {
-				have_children=true;
-			}*/
 		}
 
-/*		if !have_children {
-			attr_parts.push(format!("children: {}",process_fragment_to_vec(el.children())));
-		}*/
-
 		s+=&attr_parts.join(",");
-		s+=&format!("}},{})))",process_fragment_to_vec(el.children()));
+		s+=&format!("}},{})",process_fragment_to_vec(el.children()));
 
 		fragment_parts.push(s);
 	}
@@ -128,7 +120,7 @@ pub fn apx(input: TokenStream) -> TokenStream {
 
 	//println!("{:?}", root);
 	let s=process_fragment_to_vec(root.children());
-	println!("{:?}", s);
+	//println!("{:?}", s);
 
 	TokenStream::from_str(&s).unwrap()
 }

@@ -10,17 +10,16 @@ pub struct InteractiveProps {
 
 #[function_component]
 fn interactive(p: InteractiveProps, _children:Elements)->Elements {
-	let s=p.clone();
-	use_gl_window_event(Rc::new(move|e|{
+	use_gl_window_event(Rc::new(with_clone!([p],move|e|{
 		match *e {
 			Event::MouseButtonDown {x, y, ..} => {
-				if x>=s.x && y>=s.y && x <s.x+s.w && y <s.y+s.h {
-					(s.on_mouse_down)();
+				if x>=p.x && y>=p.y && x <p.x+p.w && y <p.y+p.h {
+					(p.on_mouse_down)();
 				}
 			},
 			_ => {},
 		}
-	}));
+	})));
 
 	apx!{}
 }
@@ -32,18 +31,16 @@ pub struct ButtonProps {
 }
 
 #[function_component]
-pub fn button(props: ButtonProps, _children: Elements)->Elements {
-	let s=props.clone();
-
-	let on_mouse_down=Rc::new(move||{
-		(s.on_click)();
-	});
+pub fn button(p: ButtonProps, _children: Elements)->Elements {
+	let on_mouse_down=Rc::new(with_clone!([p],move||{
+		(p.on_click)();
+	}));
 
 	apx!{
-		<rect x="s.x" y="s.y" w="s.w" h="s.h"/>
+		<rect x="p.x" y="p.y" w="p.w" h="p.h"/>
 		<interactive
-				x="s.x" y="s.y" w="s.w" h="s.h"
-				on_mouse_down="on_mouse_down.clone()"/>
+				x="p.x" y="p.y" w="p.w" h="p.h"
+				on_mouse_down="on_mouse_down"/>
 	}
 }
 
@@ -52,8 +49,8 @@ pub struct RectProps {
 }
 
 #[function_component]
-pub fn rect(p: RectProps, children: Vec<Element>)->Vec<Element> {
+pub fn rect(p: RectProps, children: Elements)->Elements {
 	let instance=use_context::<GlWindowInstance>();
 	instance.borrow().rect_renderer.draw(p.x,p.y,p.w,p.h);
-	apx!{}
+	children
 }
