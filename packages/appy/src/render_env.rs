@@ -89,7 +89,7 @@ impl RenderEnv {
 		true
 	}
 
-	pub fn get_hook_data<T: 'static>(&mut self)->Rc<RefCell<T>> {
+	pub fn get_hook_data<T: 'static>(&mut self)->Rc<T> {
 		let ci_ref=self.component_instance.clone().unwrap();
 		let ci=ci_ref.borrow();
 
@@ -101,10 +101,10 @@ impl RenderEnv {
 		self.hook_index+=1;
 		let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
 
-		a.downcast::<RefCell<T>>().unwrap()
+		a.downcast::<T>().unwrap()
 	}
 
-	pub fn create_hook_data<T: 'static>(&mut self, data:T) {
+	pub fn create_hook_data<T: 'static>(&mut self, data:Rc<T>) {
 		let ci_ref=self.component_instance.clone().unwrap();
 		let mut ci=ci_ref.borrow_mut();
 
@@ -112,6 +112,6 @@ impl RenderEnv {
 			panic!("hook data already exists");
 		}
 
-		ci.hook_data.push(Rc::new(RefCell::new(data)));
+		ci.hook_data.push(data);
 	}
 }

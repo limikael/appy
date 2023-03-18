@@ -4,15 +4,20 @@ use std::cell::RefCell;
 use std::any::TypeId;
 use crate::{*};
 
-pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
-		where F:Fn()->T {
+fn use_hook_data<F, T: 'static>(ctor: F)->Rc<T>
+		where F:Fn()->Rc<T> {
 	let env_ref=RenderEnv::get_current();
 	if !env_ref.borrow().have_hook_data() {
 		let data=ctor();
 		env_ref.borrow_mut().create_hook_data(data);
 	}
 
-	return env_ref.borrow_mut().get_hook_data::<T>();
+	return env_ref.borrow_mut().get_hook_data();
+}
+
+pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
+		where F:Fn()->T {
+	use_hook_data(||Rc::new(RefCell::new(ctor())))
 }
 
 pub struct RefData<T> {
