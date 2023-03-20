@@ -37,10 +37,10 @@ pub fn button(p: ButtonProps, _children: Elements)->Elements {
 	}));
 
 	apx!{
-		<rect x="p.x" y="p.y" w="p.w" h="p.h"/>
+		<rect x=p.x y=p.y w=p.w h=p.h/>
 		<interactive
-				x="p.x" y="p.y" w="p.w" h="p.h"
-				on_mouse_down="on_mouse_down"/>
+				x=p.x y=p.y w=p.w h=p.h
+				on_mouse_down=on_mouse_down/>
 	}
 }
 

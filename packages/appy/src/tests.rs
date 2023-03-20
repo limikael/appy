@@ -1,4 +1,4 @@
-//use crate::{*};
+use crate::{*};
 //use std::rc::Rc;
 //use std::any::Any;
 
@@ -68,3 +68,19 @@ fn test2() {
 
 //	let a:Box<dyn MyTrait>=Box::new(MyStruct{});
 }*/
+
+struct HelloProps {
+	x: i32,
+	y: i32
+}
+
+#[function_component]
+fn hello(p:HelloProps, c:Elements) -> Elements {
+	vec![]
+}
+
+#[test]
+fn test2() {
+//	let t:Elements=apx!{};
+	let t:Elements=apx2!{<hello x=5+10 y=123 />};
+}

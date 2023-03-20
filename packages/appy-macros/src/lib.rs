@@ -1,14 +1,11 @@
+use proc_macro2;
 use proc_macro::{*};
-use std::str::FromStr;
-use minidom::{Element, Children};
 use quote::quote;
+use syn_rsx::{parse2, Node};
 use syn::{
 	parse_macro_input, DeriveInput, ItemFn, Ident, FnArg, TypePath,
 	PatType, Type, Path
 };
-//use syn::parse::Parser;
-//use std::any::Any;
-//use std::any::TypeId;
 
 #[proc_macro_attribute]
 pub fn function_component(_attr: TokenStream, input: TokenStream) -> TokenStream {
@@ -45,82 +42,37 @@ pub fn derive_props(input: TokenStream) -> TokenStream {
 	})
 }
 
-/*
-#[proc_macro_attribute]
-pub fn component(_attr: TokenStream, input: TokenStream) -> TokenStream {
-	let mut ast = parse_macro_input!(input as DeriveInput);
-	match &mut ast.data {
-		syn::Data::Struct(ref mut struct_data) => {           
-			match &mut struct_data.fields {
-				syn::Fields::Named(fields) => {
-					fields
-						.named
-						.push(syn::Field::parse_named.parse2(quote! { pub children: ComponentFragment }).unwrap());
-				}   
-				_ => {
-					()
-				}
-			}              
+fn process_rsx_node(node: &Node)->proc_macro2::TokenStream {
+	let Node::Element(element) = &node else { panic!("parse error") };
 
-			return quote! {
-				#[derive(Clone)]
-				#ast
-			}.into();
-		}
-		_ => panic!("`component` has to be used with structs "),
-	}
-}*/
-
-fn parse_xml_token_stream(input: TokenStream)->Element {
-	let mut s="".to_owned();
-	for i in input {
-		let tok=&i.to_string();
-		s+=&tok;
-
-		if tok!="<" && tok!="/" {
-			s+=&" ";
-		}
+	let mut attrs=quote!();
+	for attr_element in &element.attributes {
+		let Node::Attribute(attr)=attr_element else { panic!("parse error") };
+		let key=&attr.key;
+		let value=attr.value.as_ref().unwrap().as_ref();
+		attrs.extend(quote!(#key: #value,));
 	}
 
-	let mut xml_source="<fragment xmlns=\"apx\">".to_owned();
-	xml_source+=&s;
-	xml_source+=&"</fragment>";
+	let name=&element.name;
+	let props=Ident::new(&format!("Props_{}",name.to_string()),Span::call_site().into());
+	let children=process_rsx_fragment(&element.children);
 
-	xml_source.parse().unwrap()
+	quote!(Element::create(#name,#props{#attrs},#children))
 }
 
-fn process_fragment_to_vec(fragment_els: Children)->String {
-	let mut res="vec![".to_owned();
-
-	let mut fragment_parts:Vec<String>=vec![];
-	for el in fragment_els {
-		let mut s="".to_owned();
-		s+=&format!("Element::create({},Props_{}{{",el.name(),el.name());
-
-		let mut attr_parts:Vec<String>=vec![];
-		for (key, val) in el.attrs() {
-			attr_parts.push(format!("{}: {}",key,val));
-		}
-
-		s+=&attr_parts.join(",");
-		s+=&format!("}},{})",process_fragment_to_vec(el.children()));
-
-		fragment_parts.push(s);
+fn process_rsx_fragment(nodes: &Vec<Node>)->proc_macro2::TokenStream {
+	let mut elements=quote!();
+	for node in nodes {
+		elements.extend(process_rsx_node(node));
+		elements.extend(quote!(,));
 	}
 
-	res+=&fragment_parts.join(",");
-
-	res+="]";
-	res
+	quote!(vec![#elements])
 }
 
 #[proc_macro]
 pub fn apx(input: TokenStream) -> TokenStream {
-	let root=parse_xml_token_stream(input);
-
-	//println!("{:?}", root);
-	let s=process_fragment_to_vec(root.children());
-	//println!("{:?}", s);
-
-	TokenStream::from_str(&s).unwrap()
+	let nodes=parse2(input.into()).unwrap();
+	process_rsx_fragment(&nodes).into()
 }
+
