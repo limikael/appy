@@ -57,7 +57,7 @@ fn process_rsx_node(node: &Node)->proc_macro2::TokenStream {
 	let props=Ident::new(&format!("Props_{}",name.to_string()),Span::call_site().into());
 	let children=process_rsx_fragment(&element.children);
 
-	quote!(Element::create(#name,#props{#attrs},#children))
+	quote!(Element::create(#name,#props{#attrs ..Default::default()},#children))
 }
 
 fn process_rsx_fragment(nodes: &Vec<Node>)->proc_macro2::TokenStream {

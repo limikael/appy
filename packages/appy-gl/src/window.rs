@@ -17,7 +17,7 @@ impl GlWindowInstance {
 		let sdl=sdl2::init().unwrap();
 		let video_subsystem=sdl.video().unwrap();
 		let window=video_subsystem
-			.window("App", 800, 600)
+			.window("App", 480, 640)
 			.opengl()
 			.resizable()
 			.build()
@@ -27,10 +27,10 @@ impl GlWindowInstance {
 		let _gl_loaded=gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
 		let mut rect_renderer=RectRenderer::new();
-		rect_renderer.window_width=800;
-		rect_renderer.window_height=600;
+		rect_renderer.window_width=480;
+		rect_renderer.window_height=640;
 
-		let rect=Rect{x:0, y:0, w:800, h:600};
+		let rect=Rect{x:0, y:0, w:480, h:640};
 
 		unsafe {
 			gl::ClearColor(0.0,0.0,0.0,1.0);
@@ -54,8 +54,8 @@ pub fn use_gl_window_event(listener: Rc<dyn Fn(&Event)>) {
 	instance.borrow_mut().event_listeners.push(listener);
 }
 
-pub struct GlWindowProps {
-}
+#[derive(Default)]
+pub struct GlWindowProps {}
 
 #[function_component]
 pub fn window(_props:GlWindowProps, children:Elements)->Elements {
