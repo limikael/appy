@@ -2,7 +2,7 @@ use crate::{*};
 use std::rc::Rc;
 use sdl2::event::Event;
 
-#[derive(Clone)]
+/*#[derive(Clone)]
 pub struct InteractiveProps {
 	pub x: i32, pub y: i32, pub w: i32, pub h: i32,
 	pub on_mouse_down: Rc<dyn Fn()>
@@ -43,14 +43,35 @@ pub fn button(p: ButtonProps, _children: Elements)->Elements {
 				on_mouse_down=on_mouse_down/>
 	}
 }
+*/
 
 pub struct RectProps {
-	pub x: i32, pub y: i32, pub w: i32, pub h: i32,
+	pub col: u32
 }
 
 #[function_component]
 pub fn rect(p: RectProps, children: Elements)->Elements {
-	let instance=use_context::<GlWindowInstance>();
-	instance.borrow().rect_renderer.draw(p.x,p.y,p.w,p.h);
+	let instance_ref=use_context::<GlWindowInstance>();
+	let instance=instance_ref.borrow();
+
+	instance.rect_renderer.draw(&instance.rect,p.col);
+
+	children
+}
+
+pub struct AbsProps {
+	pub x: i32,
+	pub y: i32,
+	pub w: i32,
+	pub h: i32
+}
+
+#[function_component]
+pub fn abs(p: AbsProps, children: Elements)->Elements {
+	let instance_ref=use_context::<GlWindowInstance>();
+	let mut instance=instance_ref.borrow_mut();
+
+	instance.rect=instance.rect.abs(p.x,p.y,p.w,p.h);
+
 	children
 }

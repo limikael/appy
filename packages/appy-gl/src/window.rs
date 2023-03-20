@@ -8,7 +8,8 @@ pub struct GlWindowInstance {
 	_gl_context: sdl2::video::GLContext,
 	_video_subsystem: sdl2::VideoSubsystem,
 	pub rect_renderer: RectRenderer,
-	event_listeners: Vec<Rc<dyn Fn(&Event)>>
+	event_listeners: Vec<Rc<dyn Fn(&Event)>>,
+	pub rect: Rect
 }
 
 impl GlWindowInstance {
@@ -29,6 +30,8 @@ impl GlWindowInstance {
 		rect_renderer.window_width=800;
 		rect_renderer.window_height=600;
 
+		let rect=Rect{x:0, y:0, w:800, h:600};
+
 		unsafe {
 			gl::ClearColor(0.0,0.0,0.0,1.0);
 			gl::Clear(gl::COLOR_BUFFER_BIT);
@@ -40,7 +43,8 @@ impl GlWindowInstance {
 			_video_subsystem: video_subsystem,
 			_gl_context: gl_context,
 			rect_renderer: rect_renderer,
-			event_listeners: vec![]
+			event_listeners: vec![],
+			rect
 		}
 	}
 }

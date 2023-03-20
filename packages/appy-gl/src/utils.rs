@@ -164,8 +164,10 @@ impl RectRenderer {
 		program.add_fragment_shader("
 			#version 330 core
 			out vec4 Color;
+			uniform vec4 col;
+
 			void main() {
-			    Color = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+			    Color = col*vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 		");
 
@@ -184,20 +186,45 @@ impl RectRenderer {
 		}
 	}
 
-	pub fn draw(&self, left:i32, top:i32, width:i32, height:i32) {
+	pub fn draw(&self, rect:&Rect, col:u32) {
 		let m=glm::ortho(0.0,self.window_width as f32,self.window_height as f32,0.0,-1.0,1.0);
+		let c=glm::vec4(
+			((col&0xff0000)>>16) as f32/255.0,
+			((col&0x00ff00)>>8) as f32/255.0,
+			((col&0x0000ff)>>0) as f32/255.0,
+			1.0
+		);
 
 		self.program.use_program();
 
 		unsafe { 
-			gl::Uniform1f(self.program.get_uniform_location("left"),left as f32); 
-			gl::Uniform1f(self.program.get_uniform_location("top"),top as f32); 
-			gl::Uniform1f(self.program.get_uniform_location("width"),width as f32); 
-			gl::Uniform1f(self.program.get_uniform_location("height"),height as f32); 
+			gl::Uniform1f(self.program.get_uniform_location("left"),rect.x as f32); 
+			gl::Uniform1f(self.program.get_uniform_location("top"),rect.y as f32); 
+			gl::Uniform1f(self.program.get_uniform_location("width"),rect.w as f32); 
+			gl::Uniform1f(self.program.get_uniform_location("height"),rect.h as f32); 
+			gl::Uniform4fv(self.program.get_uniform_location("col"),1,c.as_ptr());
 
 			gl::UniformMatrix4fv(self.program.get_uniform_location("MVP"),1,gl::FALSE,m.as_ptr())
 		}
 
 		self.buf.draw();
+	}
+}
+
+pub struct Rect {
+	pub x: i32,
+	pub y: i32,
+	pub w: i32,
+	pub h: i32
+}
+
+impl Rect {
+	pub fn abs(&self, x:i32, y:i32, w:i32, h:i32)->Rect {
+		Self{
+			x: self.x+x,
+			y: self.y+y,
+			w: w,
+			h: h,
+		}
 	}
 }
