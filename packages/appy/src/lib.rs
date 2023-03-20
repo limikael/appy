@@ -7,20 +7,20 @@ pub use hooks::{*};
 mod appy;
 pub use crate::appy::{*};
 
-mod gl_window;
+/*mod gl_window;
 pub use gl_window::{*};
 
 mod gl_components;
 pub use gl_components::{*};
+
+mod gl_utils;
+pub use gl_utils::{*};*/
 
 mod utils;
 pub use utils::{*};
 
 mod element;
 pub use element::{*};
-
-mod gl_utils;
-pub use gl_utils::{*};
 
 pub use appy_macros::{*};
 

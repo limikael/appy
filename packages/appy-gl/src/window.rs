@@ -54,7 +54,7 @@ pub struct GlWindowProps {
 }
 
 #[function_component]
-pub fn gl_window(_props:GlWindowProps, children:Elements)->Elements {
+pub fn window(_props:GlWindowProps, children:Elements)->Elements {
 	//println!("render window!!");
 
 	let instance_ref=use_instance(||GlWindowInstance::new());
