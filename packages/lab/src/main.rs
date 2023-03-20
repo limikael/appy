@@ -11,9 +11,13 @@ fn app(_p: AppProps, _c: Elements)->Elements {
 		set_x(*x+10)
 	}));
 
-	let dec=Rc::new(with_clone!([x,set_x],move||{
+	/*let dec=Rc::new(with_clone!([x,set_x],move||{
 		set_x(*x-10)
-	}));
+	}));*/
+
+	let dec=with_clone_rc!([x,set_x],move||{
+		set_x(*x-10)
+	});
 
 	apx!{
 		<gl_window>

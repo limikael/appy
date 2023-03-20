@@ -34,5 +34,14 @@ macro_rules! with_clone {
 	}
 }
 
+#[macro_export]
+macro_rules! with_clone_rc {
+	($args:tt,$body:expr) => {
+		{
+			Rc::new(with_clone!($args,$body))
+		}
+	}
+}
+
 #[cfg(test)]
 mod tests;

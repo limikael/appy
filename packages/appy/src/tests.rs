@@ -82,5 +82,5 @@ fn hello(p:HelloProps, c:Elements) -> Elements {
 #[test]
 fn test2() {
 //	let t:Elements=apx!{};
-	let t:Elements=apx2!{<hello x=5+10 y=123 />};
+	let t:Elements=apx!{<hello x=5+10 y=123 />};
 }
