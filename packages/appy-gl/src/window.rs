@@ -59,7 +59,7 @@ pub struct GlWindowProps {
 
 #[function_component]
 pub fn window(_props:GlWindowProps, children:Elements)->Elements {
-	println!("render window!!");
+	//println!("render window!!");
 
 	let instance_ref=use_instance(||GlWindowInstance::new());
 	instance_ref.borrow_mut().event_listeners=vec![];
@@ -86,7 +86,7 @@ pub fn window(_props:GlWindowProps, children:Elements)->Elements {
 
 		match e {
 			Event::Window {win_event: WindowEvent::Resized(x,y), ..} => {
-				println!("resize..");
+				//println!("resize..");
 				instance.rect_renderer.window_width=x.try_into().unwrap();
 				instance.rect_renderer.window_height=y.try_into().unwrap();
 				instance.rect=Rect{x:0, y:0,
