@@ -53,7 +53,8 @@ pub fn use_state<F, T: 'static>(ctor: F)->(Rc<T>,Rc<dyn Fn(T)>)
 }
 
 pub fn use_post_render(f: Rc<dyn Fn()>) {
-	RenderEnv::get_current().borrow_mut().post_render_handlers.push(f);
+	let ci_ref=RenderEnv::get_current().borrow_mut().get_current_component_instance();
+	ci_ref.borrow_mut().post_render=Some(f);
 }
 
 pub fn use_idle(f: Rc<dyn Fn()>) {

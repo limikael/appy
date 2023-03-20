@@ -14,12 +14,21 @@ pub enum SignalHandler {
 
 pub struct ComponentInstance {
 	hook_data: Vec<Rc<dyn Any>>,
+	pub post_render: Option<Rc<dyn Fn()>>
 }
 
 impl ComponentInstance {
 	pub fn new()->Self {
 		Self {
 			hook_data: vec![],
+			post_render: None
+		}
+	}
+
+	pub fn run_post_render(&self) {
+		if self.post_render.is_some() {
+			let f=self.post_render.as_ref().unwrap();
+			(*f)();
 		}
 	}
 }
@@ -31,7 +40,6 @@ thread_local! {
 pub struct RenderEnv {
 	component_instance: Option<Rc<RefCell<ComponentInstance>>>,
 	hook_index: usize,
-	pub post_render_handlers: Vec<Rc<dyn Fn()>>,
 	pub idle_handlers: Vec<Rc<dyn Fn()>>,
 	pub dirty: Trigger,
 	pub quit: Trigger,
@@ -43,7 +51,7 @@ impl RenderEnv {
 		Self {
 			component_instance: None,
 			hook_index: 0,
-			post_render_handlers: vec![],
+			//post_render_handlers: vec![],
 			idle_handlers: vec![],
 			dirty: Trigger::new(),
 			quit: Trigger::new(),
@@ -52,12 +60,13 @@ impl RenderEnv {
 	}
 
 	pub fn pre_render_tree(&mut self) {
-		self.post_render_handlers=vec![];
+		//self.post_render_handlers=vec![];
 		self.idle_handlers=vec![];
 		self.contexts=HashMap::new();
 	}
 
 	pub fn pre_render(&mut self, ci:Rc<RefCell<ComponentInstance>>) {
+		ci.clone().borrow_mut().post_render=None;
 		self.component_instance=Some(ci.clone());
 		self.hook_index=0;
 	}
@@ -76,6 +85,10 @@ impl RenderEnv {
 		CURRENT_RENDER_ENV.with(|instance| {
 			*instance.borrow_mut()=c;
 		});
+	}
+
+	pub fn get_current_component_instance(&self)->Rc<RefCell<ComponentInstance>> {
+		self.component_instance.clone().unwrap()
 	}
 
 	pub fn have_hook_data(&self)->bool {

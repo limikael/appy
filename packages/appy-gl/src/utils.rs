@@ -211,6 +211,7 @@ impl RectRenderer {
 	}
 }
 
+#[derive(Clone)]
 pub struct Rect {
 	pub x: i32,
 	pub y: i32,
@@ -226,5 +227,16 @@ impl Rect {
 			w: w,
 			h: h,
 		}
+	}
+
+	pub fn contains(&self, x:i32, y:i32)->bool {
+		if x>=self.x && 
+				y>=self.y && 
+				x <self.x+self.w && 
+				y <self.y+self.h {
+			return true;					
+		}
+
+		false
 	}
 }

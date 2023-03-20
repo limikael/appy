@@ -44,11 +44,13 @@ impl Appy {
 
 		let ci=self.instances.get(&this_path).unwrap().clone();
 
-		self.render_env.borrow_mut().pre_render(ci);
+		self.render_env.borrow_mut().pre_render(ci.clone());
 		let child_fragment=component.render();
 		self.render_env.borrow_mut().post_render();
 
 		self.render_fragment(child_fragment,this_path);
+
+		ci.borrow().run_post_render();
 	}
 
 	fn render(&mut self) {
@@ -68,7 +70,7 @@ impl Appy {
 		loop {
 			self.render_env.borrow().dirty.set_state(false);
 			self.render();
-			Self::run_handlers(&self.render_env.borrow().post_render_handlers);
+			//Self::run_handlers(&self.render_env.borrow().post_render_handlers);
 
 			if self.render_env.borrow().dirty.get_state() {
 				panic!("dirty during render, unsupported for now");

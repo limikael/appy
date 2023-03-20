@@ -1,5 +1,5 @@
 use std::rc::Rc;
-use sdl2::event::Event;
+use sdl2::event::{Event, WindowEvent};
 use crate::{*};
 
 pub struct GlWindowInstance {
@@ -59,13 +59,14 @@ pub struct GlWindowProps {
 
 #[function_component]
 pub fn window(_props:GlWindowProps, children:Elements)->Elements {
-	//println!("render window!!");
+	println!("render window!!");
 
 	let instance_ref=use_instance(||GlWindowInstance::new());
 	instance_ref.borrow_mut().event_listeners=vec![];
 	use_context_provider(instance_ref.clone());
 
 	let quit_trigger=use_quit_trigger();
+	let dirty_trigger=use_dirty_trigger();
 
 	unsafe {
 		gl::Clear(gl::COLOR_BUFFER_BIT);
@@ -76,7 +77,7 @@ pub fn window(_props:GlWindowProps, children:Elements)->Elements {
 	})));
 
 	use_idle(Rc::new(with_clone!([instance_ref],move||{
-		let instance=instance_ref.borrow_mut();
+		let mut instance=instance_ref.borrow_mut();
 		let mut event_pump=instance.sdl.event_pump().unwrap();
 		let e=event_pump.wait_event();
 		for listener in &instance.event_listeners {
@@ -84,6 +85,18 @@ pub fn window(_props:GlWindowProps, children:Elements)->Elements {
 		}
 
 		match e {
+			Event::Window {win_event: WindowEvent::Resized(x,y), ..} => {
+				println!("resize..");
+				instance.rect_renderer.window_width=x.try_into().unwrap();
+				instance.rect_renderer.window_height=y.try_into().unwrap();
+				instance.rect=Rect{x:0, y:0,
+					w: x.try_into().unwrap(),
+					h: y.try_into().unwrap(),
+				};
+				unsafe { gl::Viewport(0,0,x,y) };
+				dirty_trigger();
+			},
+
 			Event::Quit {..} => {
 				quit_trigger();
 			},
