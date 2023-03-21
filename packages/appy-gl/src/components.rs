@@ -2,17 +2,9 @@ use crate::{*};
 use std::rc::Rc;
 use sdl2::event::Event;
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Interactive {
-	pub on_mouse_down: Rc<dyn Fn()>
-}
-
-impl Default for Interactive {
-	fn default()->Self {
-		Self {
-			on_mouse_down: Rc::new(||{})
-		}
-	}
+	pub on_mouse_down: Cb
 }
 
 #[function_component]
@@ -38,7 +30,7 @@ pub fn interactive(p: Interactive, children:Elements)->Elements {
 	children
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct RectProps {
 	pub col: u32
 }
@@ -131,19 +123,3 @@ pub fn blk(p: Blk, children: Elements)->Elements {
 
 	children
 }
-
-/*#[function_component]
-pub fn abs(p: Abs, children: Elements)->Elements {
-	let instance_ref=use_context::<GlWindowInstance>();
-	let mut instance=instance_ref.borrow_mut();
-
-	let old_rect=instance.rect.clone();
-	instance.rect=instance.rect.abs(p.x,p.y,p.w,p.h);
-
-	use_post_render(Rc::new(with_clone!([instance_ref],move||{
-		let mut instance=instance_ref.borrow_mut();
-		instance.rect=old_rect.clone();
-	})));
-
-	children
-}*/

@@ -1,59 +1,18 @@
 use appy_gl::{*};
-use std::rc::Rc;
-
 use Dim::{*};
 
-/*#[derive(Clone)]
-struct Cb {
-	func: Rc<dyn Fn(String)>
-}
-
-/*impl std::ops::Deref for Cb {
-    type Target = dyn Fn();
-
-    fn deref(&self) -> &dyn Fn() {
-        &self.func
-    }
-}*/
-
-impl Cb {
-/*	fn new(f: &dyn Fn(String))->Self {
-		Self {
-			func: Rc::new(f)
-		}
-	}*/
-}
-
-impl Default for Cb {
-	fn default()->Self {
-		Self {
-			func: Rc::new(|s|{})
-		}
-	}
-}*/
-
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Button {
 	left: Dim,
-	on_click: Rc<dyn Fn(char)>,
+	on_click: CbP<char>,
 	id: char
-}
-
-impl Default for Button {
-	fn default()->Self {
-		Self {
-			on_click: Rc::new(|_s|{}),
-			id: ' ',
-			left: None
-		}
-	}
 }
 
 #[function_component]
 fn button(p: Button, _c: Elements)->Elements {
-	let on_click=Rc::new(with_clone!([p],move||{
+	let on_click=cb_with_clone!([p],move||{
 		(p.on_click)(p.id)
-	}));
+	});
 
 	apx!(
 		<blk left=p.left height=Pc(100.0) width=Pc(25.0)>
@@ -65,21 +24,11 @@ fn button(p: Button, _c: Elements)->Elements {
 	)
 }
 
-#[derive( Clone)]
+#[derive(Clone, Default)]
 pub struct ButtonRow {
 	top: Dim,
-	on_click: Rc<dyn Fn(char)>,
+	on_click: CbP<char>,
 	ids: Vec<char>
-}
-
-impl Default for ButtonRow {
-	fn default()->Self {
-		Self {
-			on_click: Rc::new(|_s|{}),
-			top: None,
-			ids: vec![]
-		}
-	}
 }
 
 #[function_component]
@@ -99,7 +48,7 @@ pub struct AppProps {}
 
 #[function_component]
 fn app(_p: AppProps, _c: Elements)->Elements {
-	let on_click=Rc::new(move|s:char|{
+	let on_click=cb_p_with_clone!([],move|s:char|{
 		println!("click!!!,{}",s)
 	});
 

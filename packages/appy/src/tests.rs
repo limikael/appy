@@ -1,86 +1,55 @@
 use crate::{*};
-//use std::rc::Rc;
-//use std::any::Any;
+use std::rc::Rc;
 
-/*pub struct HelloProps {
-	x: i32
+// dyn Fn()
+
+#[derive(Clone)]
+struct Cb {
+    f: Rc<dyn Fn()>,
 }
 
-#[function_component]
-pub fn hello(p:HelloProps, c:Elements)->Elements {
-	println!("render hello...");
+impl<T: Fn() + 'static> From <T> for Cb {
+	fn from(f: T)->Cb {
+	    Self {
+	        f: Rc::new(f) //||println!("hello")),
+	    }
+	}
+}
 
-	apx!{}	
+impl std::ops::Deref for Cb {
+    type Target = Rc<dyn Fn()>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.f
+    }
+}
+
+#[derive(Clone)]
+struct CbP<P> {
+    f: Rc<dyn Fn(P)>,
+}
+
+impl<P, T: Fn(P) + 'static> From <T> for CbP<P> {
+	fn from(f: T)->CbP<P> {
+	    Self {
+	        f: Rc::new(f) //||println!("hello")),
+	    }
+	}
+}
+
+impl<P> std::ops::Deref for CbP<P> {
+    type Target = Rc<dyn Fn(P)>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.f
+    }
 }
 
 #[test]
 fn test() {
-	println!("** test");
-	let e=Element::create(hello,HelloProps{x: 123},vec![]);
+	let cb=Cb::from(||println!("hello..."));
+	cb();
 
-	let v=e.render();
-
-//	e.render();
-//	*e.render();
-
-//	let x:Elements=apx!{
-//		<hello x="5"/>
-//	};
-}
-*/
-
-/*trait MyTrait {
-	fn consume_trait(self: Box<Self>);
-}
-
-struct MyStruct {} 
-
-impl MyTrait for MyStruct {
-	fn consume_trait(self: Box<Self>) {
-
-	}
-}
-
-impl MyStruct {
-	fn consume_struct(self) {
-
-	}
-
-	fn other(&self) {
-
-	}
-}
-
-#[test]
-fn test2() {
-	let a:Box<dyn MyTrait>=Box::new(MyStruct{});
-	a.consume_trait();
-
-//	let b:Box<dyn MyTrait>=a;
-//	let c:Box<dyn Any+'static>=a;
-
-//	let pv=a.downcast::<MyStruct>();
-
-//	a.consume_trait();
-//	a.consume_struct();
-
-//	a.other();
-
-//	let a:Box<dyn MyTrait>=Box::new(MyStruct{});
-}*/
-
-struct HelloProps {
-	x: i32,
-	y: i32
-}
-
-#[function_component]
-fn hello(p:HelloProps, c:Elements) -> Elements {
-	vec![]
-}
-
-#[test]
-fn test2() {
-//	let t:Elements=apx!{};
-	let t:Elements=apx!{<hello x=5+10 y=123 />};
+	let cb=CbP::from(|i:(i32)|println!("hello: {}",i));
+	cb((123));
 }
