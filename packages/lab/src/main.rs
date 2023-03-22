@@ -18,7 +18,7 @@ fn button(p: Button, _c: Elements)->Elements {
 			<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
 				<interactive on_mouse_down=on_click />
 				<bg col=0xc0c0ff/>
-				<text text=p.id.to_string() size=50.0 align=Align::Center col=0x000000/>
+				<text text=p.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
 			</blk>
 		</blk>
 	)
@@ -55,7 +55,7 @@ fn app(_p: AppProps, _c: Elements)->Elements {
 	apx!(
 		<window>
 			<blk height=Pc(25.0) top=Pc(0.0) left=Pc(5.0) right=Pc(5.0)>
-				<text align=Align::Right text="123".to_string() size=100.0/>
+				<text align=Align::Right text="123".to_string() size=Pc(65.0)/>
 			</blk>
 			<blk top=Pc(25.0)>
 				<bg col=0x202020/>
