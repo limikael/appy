@@ -8,6 +8,7 @@ pub struct GlWindowInstance {
 	_gl_context: sdl2::video::GLContext,
 	_video_subsystem: sdl2::VideoSubsystem,
 	pub rect_renderer: RectRenderer,
+	pub text_renderer: TextRenderer,
 	event_listeners: Vec<Rc<dyn Fn(&Event)>>,
 	pub rect: Rect
 }
@@ -26,6 +27,10 @@ impl GlWindowInstance {
 		let gl_context=window.gl_create_context().unwrap();
 		let _gl_loaded=gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
+		let mut text_renderer=TextRenderer::new();
+		text_renderer.window_width=480;
+		text_renderer.window_height=640;
+
 		let mut rect_renderer=RectRenderer::new();
 		rect_renderer.window_width=480;
 		rect_renderer.window_height=640;
@@ -37,12 +42,15 @@ impl GlWindowInstance {
 			gl::Clear(gl::COLOR_BUFFER_BIT);
 		};
 
+		println!("****** window opened, opengl is available...");
+
 		Self {
 			sdl,
 			window,
 			_video_subsystem: video_subsystem,
 			_gl_context: gl_context,
 			rect_renderer: rect_renderer,
+			text_renderer,
 			event_listeners: vec![],
 			rect
 		}
@@ -89,6 +97,8 @@ pub fn window(_props:GlWindowProps, children:Elements)->Elements {
 				//println!("resize..");
 				instance.rect_renderer.window_width=x.try_into().unwrap();
 				instance.rect_renderer.window_height=y.try_into().unwrap();
+				instance.text_renderer.window_width=x.try_into().unwrap();
+				instance.text_renderer.window_height=y.try_into().unwrap();
 				instance.rect=Rect{x:0, y:0,
 					w: x.try_into().unwrap(),
 					h: y.try_into().unwrap(),

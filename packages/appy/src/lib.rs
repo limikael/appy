@@ -1,47 +1,29 @@
-mod render_env;
-pub use render_env::{*};
-
-mod hooks;
-pub use hooks::{*};
-
-mod appy;
-pub use crate::appy::{*};
-
-/*mod gl_window;
-pub use gl_window::{*};
-
-mod gl_components;
-pub use gl_components::{*};
-
-mod gl_utils;
-pub use gl_utils::{*};*/
-
-mod utils;
-pub use utils::{*};
-
-mod element;
-pub use element::{*};
+#[path="utils/export.rs"]
+mod export;
 
 pub use appy_macros::{*};
 
-#[macro_export]
-macro_rules! with_clone {
-	([$ ($var:ident), *],$body:expr) => {
-		{
-			$(let $var=($var).clone();)*
-			$body
-		}
-	}
-}
+export!(render_env,"appy/render_env.rs");
+export!(hooks,"appy/hooks.rs");
+export!(appy,"appy/appy.rs");
+export!(element,"appy/element.rs");
 
-#[macro_export]
-macro_rules! rc_with_clone {
-	($args:tt,$body:expr) => {
-		{
-			Rc::new(with_clone!($args,$body))
-		}
-	}
-}
+export!(window,"components/window.rs");
+export!(bg,"components/bg.rs");
+export!(blk,"components/blk.rs");
+export!(text,"components/text.rs");
+export!(interactive,"components/interactive.rs");
+
+export!(trigger,"utils/trigger.rs");
+export!(cb,"utils/cb.rs");
+export!(with_clone,"utils/with_clone.rs");
+export!(rect,"utils/rect.rs");
+export!(shader_program,"utils/shader_program.rs");
+export!(array_buffer,"utils/array_buffer.rs");
+export!(rect_renderer,"utils/rect_renderer.rs");
+export!(text_renderer,"utils/text_renderer.rs");
+
+pub use Dim::{Px,Pc};
 
 #[cfg(test)]
 mod tests;
