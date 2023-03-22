@@ -18,7 +18,7 @@ pub enum VAlign {
 pub struct Text {
 	pub col: u32,
 	pub size: f32,
-	pub text: &'static str,
+	pub text: String,
 	pub align: Align,
 	pub valign: VAlign
 }
@@ -28,19 +28,21 @@ impl Default for Text {
 		Self {
 			col: 0xffffff,
 			size: 24.0,
-			text: &"<text>",
+			text: "<text>".to_string(),
 			align: Align::Left,
 			valign: VAlign::Middle
 		}
 	}
 }
 
+//todo!("percentage height");
+
 #[function_component]
 pub fn text(p: Text, children: Elements)->Elements {
 	let instance_ref=use_context::<GlWindowInstance>();
 	let mut instance=instance_ref.borrow_mut();
 	let r=instance.rect.clone();
-	let w=instance.text_renderer.get_str_width(p.text,p.size) as i32;
+	let w=instance.text_renderer.get_str_width(&p.text,p.size) as i32;
 
 	let x=match p.align {
 		Align::Left => r.x,
@@ -54,7 +56,7 @@ pub fn text(p: Text, children: Elements)->Elements {
 		VAlign::Bottom => r.y+r.h-p.size as i32,
 	};
 
-	instance.text_renderer.draw(p.text, x as f32, y as f32, p.size, p.col);
+	instance.text_renderer.draw(&p.text, x as f32, y as f32, p.size, p.col);
 
 	children
 }
