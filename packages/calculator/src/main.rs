@@ -12,15 +12,22 @@ pub struct Button {
 
 #[function_component]
 fn button(p: Button, _c: Elements)->Elements {
+	let hover_state_ref=use_hover_state_ref();
 	let on_click=cb_with_clone!([p],move||{
 		(p.on_click)(p.id)
 	});
 
+	let col=match *hover_state_ref {
+		HoverState::Normal=>0xD58936,
+		HoverState::Hover=>0xDEA260,
+		HoverState::Active=>0xB36F25
+	};
+
 	apx!(
 		<blk left=p.left height=Pc(100.0) width=Pc(25.0)>
 			<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
-				<interactive on_mouse_down=on_click />
-				<bg col=0xD58936/>
+				<interaction on_click=on_click hover_state_ref=hover_state_ref/>
+				<bg col=col/>
 				<text text=p.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
 			</blk>
 		</blk>
@@ -51,6 +58,8 @@ pub struct AppProps {}
 
 #[function_component]
 fn app(_p: AppProps, _c: Elements)->Elements {
+	//println!("render...");
+
 	let trigger=use_dirty_trigger();
 	let model_ref=use_instance(||CalculatorModel::new(trigger.clone()));
 	let on_click=cb_p_with_clone!([model_ref],move|c:char|{

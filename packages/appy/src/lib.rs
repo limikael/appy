@@ -12,7 +12,7 @@ export!(window,"components/window.rs");
 export!(bg,"components/bg.rs");
 export!(blk,"components/blk.rs");
 export!(text,"components/text.rs");
-export!(interactive,"components/interactive.rs");
+export!(interaction,"components/interaction.rs");
 
 export!(trigger,"utils/trigger.rs");
 export!(cb,"utils/cb.rs");
