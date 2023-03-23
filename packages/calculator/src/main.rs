@@ -60,7 +60,9 @@ fn app(_p: AppProps, _c: Elements)->Elements {
 	let model=model_ref.borrow();
 
 	apx!(
-		<window>
+		<window title="Calculator".to_string()
+				init_width=360
+				init_height=480>
 			<blk height=Pc(25.0) top=Pc(0.0)>
 				<bg col=0x3C1518/>
 				<blk left=Pc(5.0) right=Pc(5.0)>

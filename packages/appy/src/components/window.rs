@@ -14,11 +14,11 @@ pub struct GlWindowInstance {
 }
 
 impl GlWindowInstance {
-	fn new()->GlWindowInstance {
+	fn new(props:Window)->GlWindowInstance {
 		let sdl=sdl2::init().unwrap();
 		let video_subsystem=sdl.video().unwrap();
 		let window=video_subsystem
-			.window("App", 480, 640)
+			.window(&props.title, props.init_width, props.init_height)
 			.opengl()
 			.resizable()
 			.build()
@@ -28,21 +28,21 @@ impl GlWindowInstance {
 		let _gl_loaded=gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
 
 		let mut text_renderer=TextRenderer::new();
-		text_renderer.window_width=480;
-		text_renderer.window_height=640;
+		text_renderer.window_width=props.init_width as i32;
+		text_renderer.window_height=props.init_height as i32;
 
 		let mut rect_renderer=RectRenderer::new();
-		rect_renderer.window_width=480;
-		rect_renderer.window_height=640;
+		rect_renderer.window_width=props.init_width as i32;
+		rect_renderer.window_height=props.init_height as i32;
 
-		let rect=Rect{x:0, y:0, w:480, h:640};
+		let rect=Rect{x:0, y:0, w:props.init_width as i32, h:props.init_height as i32};
 
 		unsafe {
 			gl::ClearColor(0.0,0.0,0.0,1.0);
 			gl::Clear(gl::COLOR_BUFFER_BIT);
 		};
 
-		println!("****** window opened, opengl is available...");
+		//println!("****** window opened, opengl is available...");
 
 		Self {
 			sdl,
@@ -62,14 +62,31 @@ pub fn use_gl_window_event(listener: Rc<dyn Fn(&Event)>) {
 	instance.borrow_mut().event_listeners.push(listener);
 }
 
-#[derive(Default)]
-pub struct GlWindowProps {}
+#[derive(Clone)]
+pub struct Window {
+	pub title: String,
+	pub init_width: u32,
+	pub init_height: u32
+}
+
+impl Default for Window {
+	fn default()->Window {
+		Self {
+			title: "Untitled".to_string(),
+			init_width: 640,
+			init_height: 480
+		}
+	}
+}
 
 #[function_component]
-pub fn window(_props:GlWindowProps, children:Elements)->Elements {
+pub fn window(props:Window, children:Elements)->Elements {
 	//println!("render window!!");
 
-	let instance_ref=use_instance(||GlWindowInstance::new());
+	let instance_ref=use_instance(move||{
+		GlWindowInstance::new(props.clone())
+	});
+
 	instance_ref.borrow_mut().event_listeners=vec![];
 	use_context_provider(instance_ref.clone());
 
