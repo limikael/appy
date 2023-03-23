@@ -10,7 +10,8 @@ pub struct GlWindowInstance {
 	pub rect_renderer: RectRenderer,
 	pub text_renderer: TextRenderer,
 	event_listeners: Vec<Rc<dyn Fn(&Event)>>,
-	pub rect: Rect
+	pub rect: Rect,
+	first_render: bool
 }
 
 impl GlWindowInstance {
@@ -21,6 +22,7 @@ impl GlWindowInstance {
 			.window(&props.title, props.init_width, props.init_height)
 			.opengl()
 			.resizable()
+			.hidden()
 			.build()
 			.unwrap();
 
@@ -52,7 +54,8 @@ impl GlWindowInstance {
 			rect_renderer: rect_renderer,
 			text_renderer,
 			event_listeners: vec![],
-			rect
+			rect,
+			first_render: true
 		}
 	}
 }
@@ -98,7 +101,14 @@ pub fn window(props:Window, children:Elements)->Elements {
 	};
 
 	use_post_render(Rc::new(with_clone!([instance_ref],move||{
-		instance_ref.borrow_mut().window.gl_swap_window();
+		let mut instance=instance_ref.borrow_mut();
+
+		if instance.first_render {
+			instance.window.show();
+			instance.first_render=false;
+		}
+
+		instance.window.gl_swap_window();
 	})));
 
 	use_idle(Rc::new(with_clone!([instance_ref],move||{
