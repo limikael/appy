@@ -26,7 +26,7 @@ fn button(p: Button, _c: Elements)->Elements {
 	apx!(
 		<blk left=p.left height=Pc(100.0) width=Pc(25.0)>
 			<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
-				<interaction on_click=on_click hover_state_ref=hover_state_ref/>
+				<interaction on_click=on_click hover_state_ref=Some(hover_state_ref)/>
 				<bg col=col/>
 				<text text=p.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
 			</blk>
