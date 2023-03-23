@@ -1,5 +1,8 @@
 use appy::{*};
 
+mod calculator_model;
+use calculator_model::{*};
+
 #[derive(Clone, Default)]
 pub struct Button {
 	left: Dim,
@@ -17,7 +20,7 @@ fn button(p: Button, _c: Elements)->Elements {
 		<blk left=p.left height=Pc(100.0) width=Pc(25.0)>
 			<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
 				<interactive on_mouse_down=on_click />
-				<bg col=0xc0c0ff/>
+				<bg col=0xD58936/>
 				<text text=p.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
 			</blk>
 		</blk>
@@ -48,23 +51,30 @@ pub struct AppProps {}
 
 #[function_component]
 fn app(_p: AppProps, _c: Elements)->Elements {
-	let on_click=cb_p_with_clone!([],move|s:char|{
-		println!("click!!!,{}",s)
+	let trigger=use_dirty_trigger();
+	let model_ref=use_instance(||CalculatorModel::new(trigger.clone()));
+	let on_click=cb_p_with_clone!([model_ref],move|c:char|{
+		model_ref.borrow_mut().input(c);
 	});
+
+	let model=model_ref.borrow();
 
 	apx!(
 		<window>
-			<blk height=Pc(25.0) top=Pc(0.0) left=Pc(5.0) right=Pc(5.0)>
-				<text align=Align::Right text="123".to_string() size=Pc(65.0)/>
+			<blk height=Pc(25.0) top=Pc(0.0)>
+				<bg col=0x3C1518/>
+				<blk left=Pc(5.0) right=Pc(5.0)>
+					<text align=Align::Right text=model.get_display_value() size=Pc(50.0)/>
+				</blk>
 			</blk>
 			<blk top=Pc(25.0)>
-				<bg col=0x202020/>
+				<bg col=0x69140E/>
 				<blk left=Pc(2.0) top=Pc(2.0) right=Pc(2.0) bottom=Pc(2.0)>
-					<button_row top=Pc(0.0)  on_click=on_click.clone() ids=vec!['C','±','%','/']/>
+					<button_row top=Pc(0.0)  on_click=on_click.clone() ids=vec!['C','«','%','/']/>
 					<button_row top=Pc(20.0) on_click=on_click.clone() ids=vec!['7','8','9','*']/>
 					<button_row top=Pc(40.0) on_click=on_click.clone() ids=vec!['4','5','6','-']/>
 					<button_row top=Pc(60.0) on_click=on_click.clone() ids=vec!['1','2','3','+']/>
-					<button_row top=Pc(80.0) on_click=on_click.clone() ids=vec![' ','0','.','=']/>
+					<button_row top=Pc(80.0) on_click=on_click.clone() ids=vec!['±','0','.','=']/>
 				</blk>
 			</blk>
 		</window>
