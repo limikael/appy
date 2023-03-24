@@ -119,6 +119,8 @@ pub fn window(props:Window, children:Elements)->Elements {
 			listener(&e);
 		}
 
+		//println!("{:?}",e);
+
 		match e {
 			Event::Window {win_event: WindowEvent::Resized(x,y), ..} => {
 				//println!("resize..");
@@ -131,6 +133,10 @@ pub fn window(props:Window, children:Elements)->Elements {
 					h: y.try_into().unwrap(),
 				};
 				unsafe { gl::Viewport(0,0,x,y) };
+				dirty_trigger();
+			},
+
+			Event::Window {win_event: WindowEvent::Exposed, ..} => {
 				dirty_trigger();
 			},
 
