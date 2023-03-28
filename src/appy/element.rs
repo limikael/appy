@@ -1,4 +1,4 @@
-//use crate::{*};
+use crate::{*};
 //use std::rc::Rc;
 //use std::any::Any;
 
@@ -30,3 +30,10 @@ impl<T: 'static> ElementT for Element<T> {
 }
 
 pub type Elements=Vec<Box<dyn ElementT>>;
+
+pub struct Fragment{}
+
+#[function_component]
+pub fn fragment(_p:Fragment, c:Elements)->Elements {
+	c
+}

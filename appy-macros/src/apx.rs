@@ -5,21 +5,30 @@ use syn_rsx::{parse2, Node};
 use syn::{Ident};
 
 fn process_rsx_node(node: &Node)->proc_macro2::TokenStream {
-	let Node::Element(element) = &node else { panic!("parse error") };
+	if let Node::Element(element)=&node {
+		let mut attrs=quote!();
+		for attr_element in &element.attributes {
+			let Node::Attribute(attr)=attr_element else { panic!("parse error") };
+			let key=&attr.key;
+			let value=attr.value.as_ref().unwrap().as_ref();
+			attrs.extend(quote!(#key: #value,));
+		}
 
-	let mut attrs=quote!();
-	for attr_element in &element.attributes {
-		let Node::Attribute(attr)=attr_element else { panic!("parse error") };
-		let key=&attr.key;
-		let value=attr.value.as_ref().unwrap().as_ref();
-		attrs.extend(quote!(#key: #value,));
+		let name=&element.name;
+		let props=Ident::new(&format!("Props_{}",name.to_string()),Span::call_site().into());
+		let children=process_rsx_fragment(&element.children);
+
+		quote!(Element::create(#name,#props{#attrs ..Default::default()},#children))
 	}
 
-	let name=&element.name;
-	let props=Ident::new(&format!("Props_{}",name.to_string()),Span::call_site().into());
-	let children=process_rsx_fragment(&element.children);
+	else if let Node::Block(block)=&node {
+		let value=block.value.as_ref();
+		quote!(Element::create(fragment,Props_fragment{},#value))
+	}
 
-	quote!(Element::create(#name,#props{#attrs ..Default::default()},#children))
+	else {
+		panic!("parse error");
+	}
 }
 
 fn process_rsx_fragment(nodes: &Vec<Node>)->proc_macro2::TokenStream {
@@ -34,5 +43,7 @@ fn process_rsx_fragment(nodes: &Vec<Node>)->proc_macro2::TokenStream {
 
 pub fn apx(input: TokenStream) -> TokenStream {
 	let nodes=parse2(input.into()).unwrap();
-	process_rsx_fragment(&nodes).into()
+	let tokens=process_rsx_fragment(&nodes);
+	//println!("{}",tokens.to_string());
+	tokens.into()
 }
