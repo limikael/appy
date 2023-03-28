@@ -49,45 +49,42 @@ impl TextRenderer {
 			);
 		}
 
-		let mut program=ShaderProgram::new();
+		let program=ShaderProgram::new(vec![
+			ShaderSource::VertexShader("
+				#version 300 es
+				precision mediump float;
+				uniform mat4 mvp;
+				in vec2 vertex;
+				in vec2 tex_coord;
+				out vec2 fragment_tex_coord;
+				void main() {
+					gl_Position=mvp*vec4(vertex,0.0,1.0);
+					fragment_tex_coord=tex_coord;
+				}
+			".to_string()),
 
-		program.add_vertex_shader("
-			#version 300 es
-			precision mediump float;
-			uniform mat4 mvp;
-			in vec2 vertex;
-			in vec2 tex_coord;
-			out vec2 fragment_tex_coord;
-			void main() {
-	    		gl_Position=mvp*vec4(vertex,0.0,1.0);
-	    		fragment_tex_coord=tex_coord;
-			}
-		");
+			ShaderSource::FragmentShader("
+				#version 300 es
+				precision mediump float;
+				uniform vec4 col;
+				uniform sampler2D texture0;
+				in vec2 fragment_tex_coord;
+				out vec4 fragment_color;
+				void main() {
+					vec4 tex_data=texture(texture0,fragment_tex_coord);
+					fragment_color=vec4(col.r,col.g,col.b,tex_data.a);
+				}
+			".to_string()),
+		]);
 
-		program.add_fragment_shader("
-			#version 300 es
-			precision mediump float;
-			uniform vec4 col;
-			uniform sampler2D texture0;
-			in vec2 fragment_tex_coord;
-			out vec4 fragment_color;
-			void main() {
-				vec4 tex_data=texture(texture0,fragment_tex_coord);
-				fragment_color=vec4(col.r,col.g,col.b,tex_data.a);
-			}
-		");
-
-		program.link();
-		let buf=ArrayBuffer::new(4);
-
-		Self{
+		Self {
 			loc_vertex: program.get_attrib_location("vertex"),
 			loc_tex_coord: program.get_attrib_location("tex_coord"),
 			loc_col: program.get_uniform_location("col"),
 			loc_mvp: program.get_uniform_location("mvp"),
+			buf: ArrayBuffer::new(4),
 			program,
 			tex_id,
-			buf,
 			window_width: 100,
 			window_height: 100,
 			font,

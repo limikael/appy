@@ -10,34 +10,32 @@ pub struct RectRenderer {
 
 impl RectRenderer {
 	pub fn new()->Self {
-		let mut program=ShaderProgram::new();
+		let program=ShaderProgram::new(vec![
+			ShaderSource::VertexShader("
+				#version 300 es
+				precision mediump float;
+				in vec3 Position;
+				uniform float left, top, width, height;
+				uniform mat4 MVP;
 
-		program.add_vertex_shader("
-			#version 300 es
-			precision mediump float;
-			in vec3 Position;
-			uniform float left, top, width, height;
-			uniform mat4 MVP;
+				void main() {
+					vec3 scale=vec3(width,height,1.0);
+					vec3 pos=vec3(left,top,1.0);
+					gl_Position=MVP*vec4(pos+scale*Position, 1.0);
+				}
+			".to_string()),
 
-			void main() {
-				vec3 scale=vec3(width,height,1.0);
-				vec3 pos=vec3(left,top,1.0);
-	    		gl_Position=MVP*vec4(pos+scale*Position, 1.0);
-			}
-		");
+			ShaderSource::FragmentShader("
+				#version 300 es
+				precision mediump float;
+				out vec4 Color;
+				uniform vec4 col;
 
-		program.add_fragment_shader("
-			#version 300 es
-			precision mediump float;
-			out vec4 Color;
-			uniform vec4 col;
-
-			void main() {
-			    Color = col*vec4(1.0f, 1.0f, 1.0f, 1.0f);
-			}
-		");
-
-		program.link();
+				void main() {
+					Color = col*vec4(1.0f, 1.0f, 1.0f, 1.0f);
+				}
+			".to_string()),
+		]);
 
 		let mut buf=ArrayBuffer::new(2);
 		buf.set_data(vec![
