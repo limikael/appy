@@ -56,10 +56,8 @@ fn button_row(p: ButtonRow, _c: Elements)->Elements {
 #[derive(Default)]
 pub struct AppProps {}
 
-#[function_component]
-fn app(_p: AppProps, _c: Elements)->Elements {
-	//println!("render...");
-
+#[appy_main]
+fn app()->Elements {
 	let trigger=use_dirty_trigger();
 	let model_ref=use_instance(||CalculatorModel::new(trigger.clone()));
 	let on_click=cb_p_with_clone!([model_ref],move|c:char|{
@@ -70,8 +68,7 @@ fn app(_p: AppProps, _c: Elements)->Elements {
 
 	apx!(
 		<window title="Calculator".to_string()
-				init_width=360
-				init_height=480>
+				desktop_init_size=(360,480)>
 			<blk height=Pc(25.0) top=Pc(0.0)>
 				<bg col=0x3C1518/>
 				<blk left=Pc(5.0) right=Pc(5.0)>
@@ -90,8 +87,4 @@ fn app(_p: AppProps, _c: Elements)->Elements {
 			</blk>
 		</window>
 	)
-}
-
-fn main() {
-	Appy::run(||apx!{<app/>});
 }

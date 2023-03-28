@@ -20,6 +20,14 @@ pub struct Appy {
 	render_env: Rc<RefCell<RenderEnv>>
 }
 
+struct RootElement {
+	root: fn()->Elements
+}
+
+fn root_element(p:RootElement, _c:Elements)->Elements {
+	(p.root)()
+}
+
 impl Appy {
 	fn render_fragment(&mut self, fragment: Elements, component_path:ComponentPath) {
 		let mut i=0;
@@ -56,7 +64,9 @@ impl Appy {
 	fn render(&mut self) {
 		self.render_env.borrow_mut().pre_render_tree();
 		RenderEnv::set_current(Some(self.render_env.clone()));
-		self.render_fragment((self.root)(),vec![]);
+//		self.render_fragment((self.root)(),vec![]);
+
+		self.render_component(Element::create(root_element,RootElement{root:self.root},vec![]),vec![]);
 		RenderEnv::set_current(None);
 	}
 

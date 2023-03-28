@@ -22,8 +22,11 @@ impl TextRenderer {
 	const CACHE_SIZE:u32=512;
 
 	pub fn new()->Self {
+		log_debug!("creating text renderer...");
 		let font_data=include_bytes!("../../assets/Roboto-Regular.ttf");
 		let font=Font::try_from_bytes(font_data as &[u8]).unwrap();
+
+		log_debug!("font loaded, creating font cache");
 
 		let cache:Cache<'static>=Cache::builder()
 			.dimensions(Self::CACHE_SIZE as u32,Self::CACHE_SIZE as u32)
@@ -33,24 +36,35 @@ impl TextRenderer {
 		unsafe { gl::GenTextures(1, &mut tex_id); }
 		unsafe { gl::BindTexture(gl::TEXTURE_2D, tex_id); }
 
+		log_debug!("creating teximage for cache");
+
 		unsafe {
+			gl::ActiveTexture(gl::TEXTURE0+0);
+
 			gl::TexImage2D(
 				gl::TEXTURE_2D,				// target
 				0,							// level
-				gl::RED as i32,				// internal format
+//				gl::RED as i32,				// internal format
+//				gl::RGBA as i32,				// internal format
+				gl::ALPHA as i32,				// internal format
 				Self::CACHE_SIZE as i32,						// width
 				Self::CACHE_SIZE as i32,						// height
 				0,							// border, must be 0
-				gl::RED,					// format
+//				gl::RED,				// internal format
+//				gl::RGBA,					// format
+				gl::ALPHA,					// format
 				gl::UNSIGNED_BYTE,
 				0 as *const _
 			);
 		}
 
+		log_debug!("will create shader prg");
+
 		let mut program=ShaderProgram::new();
 
 		program.add_vertex_shader("
-			#version 330 core
+			#version 300 es
+			precision mediump float;
 			uniform mat4 mvp;
 			in vec2 vertex;
 			in vec2 tex_coord;
@@ -62,14 +76,15 @@ impl TextRenderer {
 		");
 
 		program.add_fragment_shader("
-			#version 330 core
+			#version 300 es
+			precision mediump float;
 			uniform vec4 col;
 			uniform sampler2D texture0;
 			in vec2 fragment_tex_coord;
 			out vec4 fragment_color;
 			void main() {
 				vec4 tex_data=texture(texture0,fragment_tex_coord);
-				fragment_color=vec4(col.r,col.g,col.b,tex_data[0]);
+				fragment_color=vec4(col.r,col.g,col.b,tex_data.a);
 			}
 		");
 
@@ -100,6 +115,8 @@ impl TextRenderer {
 	}
 
 	fn compute_glyph_vertex_data(&mut self, c:char, pos:Point<f32>, s:Scale)->Vec<f32> {
+		unsafe { gl::BindTexture(gl::TEXTURE_2D, self.tex_id); }
+
 		let base_glyph=self.font.glyph(c);
 
 		let glyph = base_glyph.scaled(s).positioned(pos);
@@ -109,8 +126,9 @@ impl TextRenderer {
 
 		self.cache.queue_glyph(0,glyph.clone());
 		self.cache.cache_queued(|rect, data| {
-			//println!("copy w: {:?}",rect.width());
+			//log_debug!("copy data: {:?}",data.as_ptr());
 			unsafe {
+				gl::ActiveTexture(gl::TEXTURE0+0);
 				gl::PixelStorei(gl::UNPACK_ALIGNMENT,1);
 				gl::TexSubImage2D(
 					gl::TEXTURE_2D,
@@ -119,14 +137,14 @@ impl TextRenderer {
 					rect.min.y as i32,
 					(rect.width()) as i32,
 					rect.height() as i32,
-					gl::RED,
+					gl::ALPHA,
 					gl::UNSIGNED_BYTE,
 					data.as_ptr() as *const _
 				);
 			}
 		}).unwrap();
 
-		unsafe { gl::GenerateMipmap(gl::TEXTURE_2D) };
+		//unsafe { gl::GenerateMipmap(gl::TEXTURE_2D) };
 
 		let rect=self.cache.rect_for(0,&glyph).unwrap();
 		if !rect.is_some() {
@@ -138,6 +156,9 @@ impl TextRenderer {
 		vec![
 			screen.min.x as f32,screen.min.y as f32, uv.min.x,uv.min.y,
 			screen.max.x as f32,screen.min.y as f32, uv.max.x,uv.min.y,
+			screen.max.x as f32,screen.max.y as f32, uv.max.x,uv.max.y,
+
+			screen.min.x as f32,screen.min.y as f32, uv.min.x,uv.min.y,
 			screen.max.x as f32,screen.max.y as f32, uv.max.x,uv.max.y,
 			screen.min.x as f32,screen.max.y as f32, uv.min.x,uv.max.y,
 		]
@@ -192,7 +213,7 @@ impl TextRenderer {
 			gl::UniformMatrix4fv(self.loc_mvp,1,gl::FALSE,m.as_ptr());
 			gl::Enable(gl::BLEND);
 			gl::BlendFunc(gl::SRC_ALPHA,gl::ONE_MINUS_SRC_ALPHA);
-			gl::DrawArrays(gl::QUADS,0,self.buf.len() as i32);
+			gl::DrawArrays(gl::TRIANGLES,0,self.buf.len() as i32);
 		}
 	}
 }

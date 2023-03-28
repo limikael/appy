@@ -13,7 +13,8 @@ impl RectRenderer {
 		let mut program=ShaderProgram::new();
 
 		program.add_vertex_shader("
-			#version 330 core
+			#version 300 es
+			precision mediump float;
 			in vec3 Position;
 			uniform float left, top, width, height;
 			uniform mat4 MVP;
@@ -26,7 +27,8 @@ impl RectRenderer {
 		");
 
 		program.add_fragment_shader("
-			#version 330 core
+			#version 300 es
+			precision mediump float;
 			out vec4 Color;
 			uniform vec4 col;
 
@@ -39,8 +41,8 @@ impl RectRenderer {
 
 		let mut buf=ArrayBuffer::new(2);
 		buf.set_data(vec![
-			0.0, 0.0,
 			1.0, 0.0,
+			0.0, 0.0,
 			1.0, 1.0,
 			0.0, 1.0,
 		]);
@@ -77,7 +79,7 @@ impl RectRenderer {
 
 		unsafe {
 			gl::Disable(gl::BLEND);
-			gl::DrawArrays(gl::QUADS,0,4);
+			gl::DrawArrays(gl::TRIANGLE_STRIP,0,self.buf.len() as i32);
     	}
 
 		//self.buf.draw();

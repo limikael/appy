@@ -41,13 +41,15 @@ pub enum HoverState {
 
 #[derive(Clone, Default)]
 pub struct Interaction {
-	pub on_mouse_down: Cb,
+	/*pub on_mouse_down: Cb,
 	pub on_mouse_up: Cb,
 	pub on_mouse_over: Cb,
-	pub on_mouse_out: Cb,
+	pub on_mouse_out: Cb,*/
 	pub on_click: Cb,
 	pub hover_state_ref: Option<HoverStateRef>
 }
+
+const SDL_TOUCH_MOUSEID:u32 = u32::MAX;
 
 #[function_component]
 pub fn interaction(p: Interaction, children:Elements)->Elements {
@@ -76,28 +78,32 @@ pub fn interaction(p: Interaction, children:Elements)->Elements {
 			Event::MouseButtonDown {x,y,..}=>{
 				if rect.contains(x,y) {
 					update_h_state(HoverState::Active);
-					(p.on_mouse_down)();
 				}
 			},
-			Event::MouseButtonUp {x,y,..}=>{
+			Event::MouseButtonUp {x,y,which,..}=>{
 				if rect.contains(x,y) {
-					(p.on_mouse_up)();
 					if *h_state==HoverState::Active {
 						(p.on_click)();
 					}
 
-					update_h_state(HoverState::Hover);
+					if which==SDL_TOUCH_MOUSEID {
+						update_h_state(HoverState::Normal);
+					}
+
+					else {
+						update_h_state(HoverState::Hover);
+					}
 				}
 			},
-			Event::MouseMotion {x,y,..}=>{
-				if rect.contains(x,y) && *h_state==HoverState::Normal {
+			Event::MouseMotion {x,y,which,..}=>{
+				if rect.contains(x,y) &&
+						*h_state==HoverState::Normal &&
+						which!=SDL_TOUCH_MOUSEID {
 					update_h_state(HoverState::Hover);
-					(p.on_mouse_over)();
 				}
 
 				else if !rect.contains(x,y) && *h_state!=HoverState::Normal {
 					update_h_state(HoverState::Normal);
-					(p.on_mouse_out)();
 				}
 			},
 			_ => {},

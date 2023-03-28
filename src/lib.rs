@@ -14,7 +14,9 @@ export!(blk,"components/blk.rs");
 export!(text,"components/text.rs");
 export!(interaction,"components/interaction.rs");
 
+export!(glutil,"utils/glutil.rs");
 export!(trigger,"utils/trigger.rs");
+export!(log,"utils/log.rs");
 export!(cb,"utils/cb.rs");
 export!(with_clone,"utils/with_clone.rs");
 export!(rect,"utils/rect.rs");

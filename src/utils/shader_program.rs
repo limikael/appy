@@ -1,4 +1,5 @@
 use std::ffi::CString;
+use crate::{*};
 
 pub struct ShaderProgram {
 	pub program_id: gl::types::GLuint,
@@ -49,7 +50,27 @@ impl ShaderProgram {
 		}
 
 		if success==0 {
-			panic!("Unable to compile shader")
+			let mut len:gl::types::GLint = 0;
+			unsafe { gl::GetShaderiv(shader_id, gl::INFO_LOG_LENGTH, &mut len); }
+			log_debug!("l={}",len);
+
+			let mut buffer: Vec<u8> = Vec::with_capacity(len as usize + 10);
+			buffer.extend([b' '].iter().cycle().take(len as usize));
+			let error: CString = unsafe { CString::from_vec_unchecked(buffer) };
+
+			let mut len_out:gl::types::GLint = 0;
+
+			unsafe {
+				gl::GetShaderInfoLog(
+					shader_id,
+					len+5,
+					&mut len_out,
+					error.as_ptr() as *mut gl::types::GLchar
+				);
+			}
+
+			let s=error.to_string_lossy();
+			log_panic!("Unable to compile shader: {:?}",s);
 		}
 
 		unsafe {
@@ -76,7 +97,7 @@ impl ShaderProgram {
 		}
 
 		if loc < 0 {
-			panic!("Can't find uniform")
+			log_panic!("Can't find uniform")
 		}
 
 		return loc;
@@ -93,7 +114,7 @@ impl ShaderProgram {
 		}
 
 		if loc < 0 {
-			panic!("Can't find uniform")
+			log_panic!("Can't find uniform: {}",name)
 		}
 
 		return loc as u32;
