@@ -13,6 +13,7 @@ export!(bg,"components/bg.rs");
 export!(blk,"components/blk.rs");
 export!(text,"components/text.rs");
 export!(interaction,"components/interaction.rs");
+export!(grid,"components/grid.rs");
 
 export!(glutil,"utils/glutil.rs");
 export!(trigger,"utils/trigger.rs");

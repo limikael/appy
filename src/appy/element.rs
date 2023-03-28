@@ -1,4 +1,4 @@
-use crate::{*};
+//use crate::{*};
 //use std::rc::Rc;
 //use std::any::Any;
 
@@ -6,6 +6,7 @@ pub trait ElementT {
 	fn render(self: Box<Self>)->Elements;
 }
 
+//#[derive(Debug)]
 pub struct Element<T> {
 	props: T,
 	renderer: fn(T, Elements)->Elements,
@@ -25,15 +26,17 @@ impl<T: 'static> Element<T> {
 impl<T: 'static> ElementT for Element<T> {
 	fn render(self: Box<Self>)->Elements {
 		self.call_render()
-//		vec![]
 	}
 }
 
 pub type Elements=Vec<Box<dyn ElementT>>;
 
-pub struct Fragment{}
+pub fn flatten_elements(el: &mut Vec<Elements>)->Elements {
+	let mut res:Elements=vec![];
 
-#[function_component]
-pub fn fragment(_p:Fragment, c:Elements)->Elements {
-	c
+	for sub in el {
+		res.append(sub)
+	}
+
+	res
 }

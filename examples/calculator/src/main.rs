@@ -5,7 +5,6 @@ use calculator_model::{*};
 
 #[derive(Clone, Default)]
 pub struct Button {
-	left: Dim,
 	on_click: CbP<char>,
 	id: char
 }
@@ -24,37 +23,13 @@ fn button(p: Button, _c: Elements)->Elements {
 	};
 
 	apx!(
-		<blk left=p.left height=Pc(100.0) width=Pc(25.0)>
-			<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
-				<interaction on_click=on_click hover_state_ref=Some(hover_state_ref)/>
-				<bg col=col/>
-				<text text=p.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
-			</blk>
+		<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
+			<interaction on_click=on_click hover_state_ref=Some(hover_state_ref)/>
+			<bg col=col/>
+			<text text=p.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
 		</blk>
 	)
 }
-
-#[derive(Clone, Default)]
-pub struct ButtonRow {
-	top: Dim,
-	on_click: CbP<char>,
-	ids: Vec<char>
-}
-
-#[function_component]
-fn button_row(p: ButtonRow, _c: Elements)->Elements {
-	apx!(
-		<blk height=Pc(20.0) top=p.top>
-			<button left=Pc(0.0) on_click=p.on_click.clone() id=p.ids[0]/>
-			<button left=Pc(25.0) on_click=p.on_click.clone() id=p.ids[1]/>
-			<button left=Pc(50.0) on_click=p.on_click.clone() id=p.ids[2]/>
-			<button left=Pc(75.0) on_click=p.on_click.clone() id=p.ids[3]/>
-		</blk>
-	)
-}
-
-#[derive(Default)]
-pub struct AppProps {}
 
 #[appy_main]
 fn app()->Elements {
@@ -78,11 +53,13 @@ fn app()->Elements {
 			<blk top=Pc(25.0)>
 				<bg col=0x69140E/>
 				<blk left=Pc(2.0) top=Pc(2.0) right=Pc(2.0) bottom=Pc(2.0)>
-					<button_row top=Pc(0.0)  on_click=on_click.clone() ids=vec!['C','«','%','/']/>
-					<button_row top=Pc(20.0) on_click=on_click.clone() ids=vec!['7','8','9','*']/>
-					<button_row top=Pc(40.0) on_click=on_click.clone() ids=vec!['4','5','6','-']/>
-					<button_row top=Pc(60.0) on_click=on_click.clone() ids=vec!['1','2','3','+']/>
-					<button_row top=Pc(80.0) on_click=on_click.clone() ids=vec!['±','0','.','=']/>
+					<grid rows=5 cols=4>
+						{"C«%/789*456-123+±0.=".chars().into_iter().flat_map(|c| {
+							apx!{
+								<button id=c on_click=on_click.clone() />
+							}
+						}).collect()}
+					</grid>
 				</blk>
 			</blk>
 		</window>

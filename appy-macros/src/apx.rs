@@ -18,12 +18,12 @@ fn process_rsx_node(node: &Node)->proc_macro2::TokenStream {
 		let props=Ident::new(&format!("Props_{}",name.to_string()),Span::call_site().into());
 		let children=process_rsx_fragment(&element.children);
 
-		quote!(Element::create(#name,#props{#attrs ..Default::default()},#children))
+		quote!(vec![Element::create(#name,#props{#attrs ..Default::default()},#children)])
 	}
 
 	else if let Node::Block(block)=&node {
 		let value=block.value.as_ref();
-		quote!(Element::create(fragment,Props_fragment{},#value))
+		quote!(#value)
 	}
 
 	else {
@@ -38,7 +38,7 @@ fn process_rsx_fragment(nodes: &Vec<Node>)->proc_macro2::TokenStream {
 		elements.extend(quote!(,));
 	}
 
-	quote!(vec![#elements])
+	quote!(flatten_elements(&mut vec![#elements]))
 }
 
 pub fn apx(input: TokenStream) -> TokenStream {
