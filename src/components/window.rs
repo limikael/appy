@@ -42,7 +42,7 @@ impl GlWindowInstance {
 
 		let gl_context=window.gl_create_context().unwrap();
 		let _gl_loaded=gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
-		install_debug_output();
+		//install_debug_output();
 
 		let mut text_renderer=TextRenderer::new();
 		text_renderer.window_width=init_size.0 as i32;

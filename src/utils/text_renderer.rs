@@ -1,4 +1,4 @@
-use rusttype::{Font, Scale, point, Point};
+use rusttype::{Font, Scale, point, Point, PositionedGlyph};
 use rusttype::gpu_cache::{Cache};
 use gl::types::{GLint, GLuint};
 use crate::{*};
@@ -22,11 +22,8 @@ impl TextRenderer {
 	const CACHE_SIZE:u32=512;
 
 	pub fn new()->Self {
-		log_debug!("creating text renderer...");
-		let font_data=include_bytes!("../../assets/Roboto-Regular.ttf");
+		let font_data=include_bytes!("./assets/Roboto-Regular.ttf");
 		let font=Font::try_from_bytes(font_data as &[u8]).unwrap();
-
-		log_debug!("font loaded, creating font cache");
 
 		let cache:Cache<'static>=Cache::builder()
 			.dimensions(Self::CACHE_SIZE as u32,Self::CACHE_SIZE as u32)
@@ -36,29 +33,21 @@ impl TextRenderer {
 		unsafe { gl::GenTextures(1, &mut tex_id); }
 		unsafe { gl::BindTexture(gl::TEXTURE_2D, tex_id); }
 
-		log_debug!("creating teximage for cache");
-
 		unsafe {
 			gl::ActiveTexture(gl::TEXTURE0+0);
 
 			gl::TexImage2D(
 				gl::TEXTURE_2D,				// target
 				0,							// level
-//				gl::RED as i32,				// internal format
-//				gl::RGBA as i32,				// internal format
 				gl::ALPHA as i32,				// internal format
 				Self::CACHE_SIZE as i32,						// width
 				Self::CACHE_SIZE as i32,						// height
 				0,							// border, must be 0
-//				gl::RED,				// internal format
-//				gl::RGBA,					// format
 				gl::ALPHA,					// format
 				gl::UNSIGNED_BYTE,
 				0 as *const _
 			);
 		}
-
-		log_debug!("will create shader prg");
 
 		let mut program=ShaderProgram::new();
 
@@ -114,17 +103,33 @@ impl TextRenderer {
 		(h,v)
 	}
 
-	fn compute_glyph_vertex_data(&mut self, c:char, pos:Point<f32>, s:Scale)->Vec<f32> {
-		unsafe { gl::BindTexture(gl::TEXTURE_2D, self.tex_id); }
+	pub fn get_str_width(&self, str:&str, size:f32)->f32 {
+		let mut w:f32=0.0;
+		let s=Scale::uniform(size);
 
-		let base_glyph=self.font.glyph(c);
+		for c in str.chars() {
+			let (adv_x,_adv_y)=self.get_glyph_advance(c,s);
+			w+=adv_x;
+		}
 
-		let glyph = base_glyph.scaled(s).positioned(pos);
-		/*if let Some(bb) = glyph.pixel_bounding_box() {
-			println!("{:?}",bb);
-		}*/
+		w
+	}
 
-		self.cache.queue_glyph(0,glyph.clone());
+	fn create_glyphs<'a>(&self, str:&str, mut p:Point<f32>, s:Scale)->Vec<PositionedGlyph<'a>> {
+		let mut v=Vec::new();
+
+		for c in str.chars() {
+			let base_glyph=self.font.glyph(c);
+			v.push(base_glyph.scaled(s).positioned(p));
+
+			let (adv_x,_adv_y)=self.get_glyph_advance(c,s);
+			p=point(p.x+adv_x,p.y);
+		}
+
+		v
+	}
+
+	fn render_cache(&mut self) {
 		self.cache.cache_queued(|rect, data| {
 			//log_debug!("copy data: {:?}",data.as_ptr());
 			unsafe {
@@ -143,9 +148,9 @@ impl TextRenderer {
 				);
 			}
 		}).unwrap();
+	}
 
-		//unsafe { gl::GenerateMipmap(gl::TEXTURE_2D) };
-
+	fn vertices_for(&self, glyph:&PositionedGlyph)->Vec<f32> {
 		let rect=self.cache.rect_for(0,&glyph).unwrap();
 		if !rect.is_some() {
 			return vec![]
@@ -164,18 +169,6 @@ impl TextRenderer {
 		]
 	}
 
-	pub fn get_str_width(&mut self, str:&str, size:f32)->f32 {
-		let mut w:f32=0.0;
-		let s=Scale::uniform(size);
-
-		for c in str.chars() {
-			let (adv_x,_adv_y)=self.get_glyph_advance(c,s);
-			w+=adv_x;
-		}
-
-		w
-	}
-
 	pub fn draw(&mut self, str:&str, x:f32, y:f32, size:f32, col:u32) {
 		let m=glm::ortho(0.0,self.window_width as f32,self.window_height as f32,0.0,-1.0,1.0);
 		let c=glm::vec4(
@@ -187,15 +180,20 @@ impl TextRenderer {
 
 		let s=Scale::uniform(size);
 		let v_metrics=self.font.v_metrics(s);
-		//println!("{:?}",v_metrics);
+		let p=point(x,y+size+v_metrics.descent);
 
-		let mut p=point(x,y+size+v_metrics.descent);
-		let mut data:Vec<f32>=vec![];
-		for c in str.chars() {
-			data.append(&mut self.compute_glyph_vertex_data(c,p,s));
-			let (adv_x,_adv_y)=self.get_glyph_advance(c,s);
-			p=point(p.x+adv_x,p.y);
+		let glyphs=self.create_glyphs(str,p,s);
+		for glyph in glyphs.clone() {
+			self.cache.queue_glyph(0,glyph);
 		}
+
+		self.render_cache();
+		let mut data:Vec<f32>=vec![];
+		for glyph in glyphs {
+			let mut v=self.vertices_for(&glyph);
+			data.append(&mut v);
+		}
+
 		self.buf.set_data(data);
 
 		//println!("tex id: {}",self.tex_id);
