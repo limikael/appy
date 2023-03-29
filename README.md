@@ -9,7 +9,7 @@ Should be as easy as cloning the code, cd:ing into one of the example dirs and r
 
     cargo run
 
-### Running the examples on android
+### Running the examples on Android
 
 Prerequisites:
 
