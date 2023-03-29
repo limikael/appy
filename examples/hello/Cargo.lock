@@ -46,6 +46,7 @@ dependencies = [
  "quote",
  "syn 1.0.109",
  "syn-rsx",
+ "toml",
 ]
 
 [[package]]

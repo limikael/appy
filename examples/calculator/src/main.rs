@@ -31,7 +31,7 @@ fn button(p: Button, _c: Elements)->Elements {
 	)
 }
 
-#[appy_main]
+#[main_window]
 fn app()->Elements {
 	let trigger=use_dirty_trigger();
 	let model_ref=use_instance(||CalculatorModel::new(trigger.clone()));
@@ -41,27 +41,27 @@ fn app()->Elements {
 
 	let model=model_ref.borrow();
 
+// title="Calculator"
+// desktop_init_size=(360,480)
+
 	apx!(
-		<window title="Calculator".to_string()
-				desktop_init_size=(360,480)>
-			<blk height=Pc(25.0) top=Pc(0.0)>
-				<bg col=0x3C1518/>
-				<blk left=Pc(5.0) right=Pc(5.0)>
-					<text align=Align::Right text=model.get_display_value() size=Pc(50.0)/>
-				</blk>
+		<blk height=Pc(25.0) top=Pc(0.0)>
+			<bg col=0x3C1518/>
+			<blk left=Pc(5.0) right=Pc(5.0)>
+				<text align=Align::Right text=model.get_display_value() size=Pc(50.0)/>
 			</blk>
-			<blk top=Pc(25.0)>
-				<bg col=0x69140E/>
-				<blk left=Pc(2.0) top=Pc(2.0) right=Pc(2.0) bottom=Pc(2.0)>
-					<grid rows=5 cols=4>
-						{"C«%/789*456-123+±0.=".chars().into_iter().flat_map(|c| {
-							apx!{
-								<button id=c on_click=on_click.clone() />
-							}
-						}).collect()}
-					</grid>
-				</blk>
+		</blk>
+		<blk top=Pc(25.0)>
+			<bg col=0x69140E/>
+			<blk left=Pc(2.0) top=Pc(2.0) right=Pc(2.0) bottom=Pc(2.0)>
+				<grid rows=5 cols=4>
+					{"C«%/789*456-123+±0.=".chars().into_iter().flat_map(|c| {
+						apx!{
+							<button id=c on_click=on_click.clone() />
+						}
+					}).collect()}
+				</grid>
 			</blk>
-		</window>
+		</blk>
 	)
 }

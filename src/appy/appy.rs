@@ -20,11 +20,21 @@ pub struct Appy {
 	render_env: Rc<RefCell<RenderEnv>>
 }
 
-struct RootElement {
-	root: fn()->Elements
+#[derive(Clone)]
+pub struct RootElement {
+	pub root: fn()->Elements
 }
 
-fn root_element(p:RootElement, _c:Elements)->Elements {
+impl Default for RootElement {
+	fn default()->Self {
+		Self {
+			root: ||{vec![]}
+		}
+	}
+}
+
+#[function_component]
+pub fn root_element(p:RootElement, _c:Elements)->Elements {
 	(p.root)()
 }
 

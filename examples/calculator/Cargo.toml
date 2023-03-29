@@ -1,10 +1,11 @@
 [package]
-name = "calculator"
-version = "0.1.0"
-edition = "2021"
+name="calculator"
+version="0.1.0"
+edition="2021"
 
 [package.metadata]
 appid="dev.wayan.calc"
+appname="Appy Calculator"
 
 [lib]
 name="main"
@@ -12,4 +13,4 @@ path="src/main.rs"
 crate-type=["cdylib"]
 
 [dependencies]
-appy = {path="../.."}
+appy={path="../.."}

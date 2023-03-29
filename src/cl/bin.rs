@@ -42,6 +42,40 @@ fn path_concat(a:Vec<&str>)->String {
 	buf.into_os_string().into_string().unwrap()
 }
 
+fn get_toml_string(table:&Table, mut path:Vec<&str>)->Option<String> {
+	if path.len()==1 {
+		if !table.contains_key(path[0]) {
+			return None
+		}
+
+		return match table[path[0]].clone() {
+			Value::String(s)=>Some(s.clone()),
+			_=>None
+		}
+	}
+
+	let id=path.remove(0);
+	return match table[id].clone() {
+		Value::Table(t)=>get_toml_string(&t,path),
+		_=>None
+	}
+}
+
+fn get_cargo_toml_string(path:Vec<&str>)->Option<String> {
+	let config={
+		let f=read_to_string("Cargo.toml");
+		if f.is_ok() {
+			f.unwrap().parse::<Table>().unwrap()
+		}
+
+		else {
+			panic!("Unable to read Cargo.toml")
+		}
+	};
+
+	get_toml_string(&config,path)
+}
+
 fn toml_insert(mut config: Table, mut path: Vec<&str>, v:Value)->Table {
 	if path.len()==1 {
 		config.insert(path[0].to_string(),v);
@@ -166,36 +200,43 @@ fn build_android_targets() {
 }
 
 fn get_android_app_id()->String {
-	let config={
-		let f=read_to_string("Cargo.toml");
-		if f.is_ok() {
-			f.unwrap().parse::<Table>().unwrap()
-		}
-
-		else {
-			Table::new()
-		}
-	};
-
-	if let Value::String(id)=config["package"]["metadata"]["appid"].clone() {
-		id
-	}
-
-	else {
-		panic!("no app id");
-	}
+	get_cargo_toml_string(vec!["package","metadata","appid"])
+		.expect("Set appid in Cargo.toml metadata!")
 }
 
+fn change_android_project_file(file_name:&str, replacements:Vec<(&str,&str)>) {
+	let mut content=read_to_string(path_concat(vec![
+		&*get_env_var("SDL"),
+		"android-project",
+		file_name
+	])).expect("Unable to read manifest file");
+
+	for (from,to) in replacements {
+		content=content.replace(from,to);
+	}
+
+	write(
+		path_concat(vec![
+			"target/android-project",
+			file_name
+		]),
+		content.to_string()
+	).expect("Unable to write file");
+}
 
 fn create_android_project() {
 	let appid=get_android_app_id();
+	let appname=get_cargo_toml_string(vec!["package","metadata","appname"])
+		.unwrap_or("Untitled".to_string());
 
+	// Copy template project from SDL
 	copy_items(
 		&vec![Path::new(&*path_concat(vec![&*get_env_var("SDL"),"android-project"]))],
 		Path::new(&*path_concat(vec!["target"])),
 		&CopyOptions::new().skip_exist(true)
 	).unwrap();
 
+	// Create main activity class
 	let java_main_folder=Path::new("target/android-project/app/src/main/java").join(str::replace(&*appid,".","/"));
 	create_dir_all(java_main_folder.clone()).unwrap();
 	let main_class="
@@ -209,34 +250,26 @@ fn create_android_project() {
 	let main_class=str::replace(main_class,"$APP",&*appid);
 	write(java_main_folder.join("MainActivity.java"),main_class.to_string()).expect("Unable to write file");
 
-	let manifest=read_to_string(path_concat(vec![
-		&*get_env_var("SDL"),
-		"android-project/app/src/main/AndroidManifest.xml"
-	])).expect("Unable to read manifest file");
+	// Change project files
+	change_android_project_file("app/src/main/AndroidManifest.xml",vec![
+		("SDLActivity","MainActivity"),
+		("org.libsdl.app",&*appid)
+	]);
 
-	let manifest=manifest.replace("SDLActivity","MainActivity");
-	let manifest=manifest.replace("org.libsdl.app",&*appid);
-	write(
-		"target/android-project/app/src/main/AndroidManifest.xml",
-		manifest.to_string()
-	).expect("Unable to write file");
+	change_android_project_file("app/build.gradle",vec![
+		("org.libsdl.app",&*appid)
+	]);
 
-	let build_gradle=read_to_string(path_concat(vec![
-		&*get_env_var("SDL"),
-		"android-project/app/build.gradle"
-	])).expect("Unable to read gradle build file");
+	change_android_project_file("app/src/main/res/values/strings.xml",vec![
+		("Game",&*appname)
+	]);
 
-	let build_gradle=build_gradle.replace("org.libsdl.app",&*appid);
-
-	write(
-		"target/android-project/app/build.gradle",
-		build_gradle.to_string()
-	).expect("Unable to write file");
-
+	// Remove C sources
 	remove_items(&vec![Path::new(&*path_concat(
 		vec!["target","android-project","app","jni","src"]
 	))]).unwrap();
 
+	// Link SDL into project
 	if !Path::new("target/android-project/app/jni/SDL").is_dir() {
 		symlink_dir(
 			Path::new(&*get_env_var("SDL")),
@@ -244,6 +277,7 @@ fn create_android_project() {
 		).unwrap();
 	}
 
+	// Copy libmain.so to all targets
 	for (android_name,rust_name) in get_android_targets() {
 		let android_dir=path_concat(vec![
 			"target/android-project/app/src/main/jniLibs",

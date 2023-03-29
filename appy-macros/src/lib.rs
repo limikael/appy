@@ -10,10 +10,10 @@ pub fn derive_props(input: TokenStream) -> TokenStream {
 	})
 }*/
 
-mod appy_main;
+mod main_window;
 #[proc_macro_attribute]
-pub fn appy_main(attr: TokenStream, input: TokenStream) -> TokenStream {
-	appy_main::appy_main(attr,input)
+pub fn main_window(attr: TokenStream, input: TokenStream) -> TokenStream {
+	main_window::main_window(attr,input)
 }
 
 mod function_component;
