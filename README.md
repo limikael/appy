@@ -1,5 +1,5 @@
 # appy
-Declarative UI framework in Rust
+Declarative cross-platform UI framework in Rust for native applications.
 
 Read more at:
 
