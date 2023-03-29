@@ -32,7 +32,7 @@ In the future I'm planning to simplify this so the tool can download these depen
    ```
    appy build-android
    ```
-   This should give you and APK file in:
+   This should give you an APK file in:
    ```
    target/android-project/app/build/outputs/apk/debug/app-debug.apk
    ```
