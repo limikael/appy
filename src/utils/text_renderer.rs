@@ -19,7 +19,8 @@ pub struct TextRenderer {
 }
 
 impl TextRenderer {
-	const CACHE_SIZE:u32=512;
+	//const CACHE_SIZE:u32=512;
+	const CACHE_SIZE:u32=1024;
 
 	pub fn new()->Self {
 		let font_data=include_bytes!("./assets/Roboto-Regular.ttf");
