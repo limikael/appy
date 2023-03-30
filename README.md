@@ -1,7 +1,7 @@
 # appy
-Declarative cross-platform UI framework in Rust for native applications.
+Declarative cross-platform UI framework in Rust for native applications. More info in [this article](https://medium.com/@limikael/declarative-ui-programming-in-rust-for-native-applications-d93862886545).
 
-Read more at: [here](https://medium.com/@limikael/declarative-ui-programming-in-rust-for-native-applications-d93862886545)
+![a93a9729-828e-4270-a13e-95fec7d94188](https://user-images.githubusercontent.com/902911/228746390-06f3fbf4-4cf2-40cb-bef9-d1b30ddd1e23.jpeg)
 
 ### Running the examples locally
 
