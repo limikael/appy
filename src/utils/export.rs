@@ -3,6 +3,6 @@ macro_rules! export {
 	($mod:ident, $path:literal) => {
 		#[path=$path]
 		mod $mod;
-		pub use crate::$mod::{*};
+		pub use $crate::$mod::{*};
 	}
 }
