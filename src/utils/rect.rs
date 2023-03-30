@@ -11,8 +11,8 @@ impl Rect {
 		Self{
 			x: self.x+x,
 			y: self.y+y,
-			w: w,
-			h: h,
+			w,
+			h,
 		}
 	}
 

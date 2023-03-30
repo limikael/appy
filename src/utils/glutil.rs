@@ -15,6 +15,6 @@ extern "system" fn error_callback(
 pub fn install_debug_output() {
 	unsafe {
 		gl::Enable(gl::DEBUG_OUTPUT);
-		gl::DebugMessageCallback(Some(error_callback), 0 as *const _);
+		gl::DebugMessageCallback(Some(error_callback), std::ptr::null());
 	}
 }

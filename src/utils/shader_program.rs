@@ -95,7 +95,7 @@ impl ShaderProgram {
 			log_panic!("Can't find uniform")
 		}
 
-		return loc;
+		loc
 	}
 
 	pub fn get_attrib_location(&self, name: &str)->u32 {
@@ -112,6 +112,6 @@ impl ShaderProgram {
 			log_panic!("Can't find uniform: {}",name)
 		}
 
-		return loc as u32;
+		loc as u32
 	}
 }
