@@ -6,11 +6,11 @@ use std::rc::Rc;
 
 use crate::*;
 
-#[derive(Clone)]
+/*#[derive(Clone)]
 pub enum SignalHandler {
     PostRender(Rc<dyn Fn()>),
     Idle(Rc<dyn Fn()>),
-}
+}*/
 
 #[derive(Default)]
 pub struct ComponentInstance {
@@ -39,9 +39,8 @@ thread_local! {
 pub struct RenderEnv {
     component_instance: Option<Rc<RefCell<ComponentInstance>>>,
     hook_index: usize,
-    pub idle_handlers: Vec<Rc<dyn Fn()>>,
+    pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent)>>,
     pub dirty: Trigger,
-    pub quit: Trigger,
     pub contexts: HashMap<TypeId, Rc<dyn Any>>,
 }
 
@@ -51,9 +50,9 @@ impl RenderEnv {
     }
 
     pub fn pre_render_tree(&mut self) {
-        //self.post_render_handlers=vec![];
-        self.idle_handlers = vec![];
+        self.app_event_handlers=vec![];
         self.contexts = HashMap::new();
+        self.dirty.set_state(false);
     }
 
     pub fn pre_render(&mut self, ci: Rc<RefCell<ComponentInstance>>) {
@@ -115,5 +114,15 @@ impl RenderEnv {
         }
 
         ci.hook_data.push(data);
+    }
+
+    pub fn provide_context<T: 'static>(&mut self, t: Rc<RefCell<T>>) {
+        let type_id=TypeId::of::<T>();
+
+        if self.contexts.contains_key(&type_id) {
+            panic!("context already provided");
+        }
+
+        self.contexts.insert(type_id,t);
     }
 }

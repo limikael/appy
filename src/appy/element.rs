@@ -1,4 +1,4 @@
-//use crate::{*};
+use crate::*;
 //use std::rc::Rc;
 //use std::any::Any;
 
@@ -47,4 +47,20 @@ pub fn flatten_elements(el: &mut Vec<Elements>) -> Elements {
     }
 
     res
+}
+
+#[derive(Clone)]
+pub struct RootElement {
+    pub root: fn() -> Elements,
+}
+
+impl Default for RootElement {
+    fn default() -> Self {
+        Self { root: Vec::new }
+    }
+}
+
+#[function_component]
+pub fn root_element(p: RootElement, _c: Elements) -> Elements {
+    (p.root)()
 }

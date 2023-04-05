@@ -1,5 +1,5 @@
 pub struct ArrayBuffer {
-    //	_vertices: Vec<f32>,
+    vao: gl::types::GLuint,
     vbo: gl::types::GLuint,
     components: u32,
     len: usize,
@@ -7,24 +7,19 @@ pub struct ArrayBuffer {
 
 impl ArrayBuffer {
     pub fn new(components: u32) -> Self {
-        // set up vertex buffer
+        let mut vao:gl::types::GLuint = 0;
+        unsafe {
+            gl::GenVertexArrays(1, &mut vao);
+            gl::BindVertexArray(vao);
+        }
+
         let mut vbo: gl::types::GLuint = 0;
         unsafe {
             gl::GenBuffers(1, &mut vbo);
         }
 
-        /*unsafe {
-            gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-            gl::BufferData(
-                gl::ARRAY_BUFFER,                                                       // target
-                (vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr, // size of data in bytes
-                vertices.as_ptr() as *const gl::types::GLvoid, // pointer to data
-                gl::STATIC_DRAW,                               // usage
-            );
-        }*/
-
         Self {
-            //			_vertices: vertices,
+            vao,
             vbo,
             components,
             len: 0,
@@ -43,6 +38,7 @@ impl ArrayBuffer {
         self.len = vertices.len() / self.components as usize;
 
         unsafe {
+            gl::BindVertexArray(self.vao);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
             gl::BufferData(
                 gl::ARRAY_BUFFER,                                                       // target
@@ -55,6 +51,7 @@ impl ArrayBuffer {
 
     pub fn bind(&self, attrib_location: u32, offs: usize, num: u32) {
         unsafe {
+            gl::BindVertexArray(self.vao);
             gl::EnableVertexAttribArray(attrib_location); // this is "layout (location = 0)" in vertex shader
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
             gl::VertexAttribPointer(

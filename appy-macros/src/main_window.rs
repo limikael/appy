@@ -49,11 +49,9 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 	TokenStream::from(quote!{
 		#ast
 		pub fn main() {
-			Appy::run(||apx!{
-				<window title=#appname.to_string()>
-					<root_element root=#name/>
-				</window>
-			});
+			Appy::new(#appname.to_string(),||apx!{
+				<root_element root=#name/>
+			}).run();
 		}
 
 		#[no_mangle]

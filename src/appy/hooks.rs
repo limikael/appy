@@ -57,14 +57,12 @@ pub fn use_post_render(f: Rc<dyn Fn()>) {
 	ci_ref.borrow_mut().post_render=Some(f);
 }
 
-pub fn use_idle(f: Rc<dyn Fn()>) {
+/*pub fn use_idle(f: Rc<dyn Fn()>) {
 	RenderEnv::get_current().borrow_mut().idle_handlers.push(f);
-}
+}*/
 
-pub fn use_quit_trigger()->Rc<dyn Fn()> {
-	use_instance(||{
-		RenderEnv::get_current().borrow().quit.create_trigger()
-	}).borrow().clone()
+pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
+	RenderEnv::get_current().borrow_mut().app_event_handlers.push(f);
 }
 
 pub fn use_dirty_trigger()->Rc<dyn Fn()> {
@@ -73,7 +71,7 @@ pub fn use_dirty_trigger()->Rc<dyn Fn()> {
 	}).borrow().clone()
 }
 
-pub fn use_context_provider<T: 'static>(t: Rc<RefCell<T>>) {
+/*pub fn use_context_provider<T: 'static>(t: Rc<RefCell<T>>) {
 	let type_id=TypeId::of::<T>();
 
 	if RenderEnv::get_current().borrow().contexts.contains_key(&type_id) {
@@ -81,7 +79,7 @@ pub fn use_context_provider<T: 'static>(t: Rc<RefCell<T>>) {
 	}
 
 	RenderEnv::get_current().borrow_mut().contexts.insert(type_id,t);
-}
+}*/
 
 pub fn use_context<T: 'static>()->Rc<RefCell<T>> {
 	let type_id=TypeId::of::<T>();

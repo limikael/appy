@@ -39,7 +39,7 @@ impl Default for Text {
 
 #[function_component]
 pub fn text(p: Text, children: Elements)->Elements {
-	let instance_ref=use_context::<GlWindowInstance>();
+	let instance_ref=use_context::<AppContext>();
 	let mut instance=instance_ref.borrow_mut();
 	let r=instance.rect.clone();
 

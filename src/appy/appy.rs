@@ -18,22 +18,8 @@ pub struct Appy {
     instances: HashMap<ComponentPath, Rc<RefCell<ComponentInstance>>>,
     root: fn() -> Elements,
     render_env: Rc<RefCell<RenderEnv>>,
-}
-
-#[derive(Clone)]
-pub struct RootElement {
-    pub root: fn() -> Elements,
-}
-
-impl Default for RootElement {
-    fn default() -> Self {
-        Self { root: Vec::new }
-    }
-}
-
-#[function_component]
-pub fn root_element(p: RootElement, _c: Elements) -> Elements {
-    (p.root)()
+    app_context: Option<Rc<RefCell<AppContext>>>,
+    title: String
 }
 
 impl Appy {
@@ -69,8 +55,9 @@ impl Appy {
 
     fn render(&mut self) {
         self.render_env.borrow_mut().pre_render_tree();
+        self.render_env.borrow_mut().provide_context::<AppContext>(self.app_context.clone().unwrap());
+
         RenderEnv::set_current(Some(self.render_env.clone()));
-        //		self.render_fragment((self.root)(),vec![]);
 
         self.render_component(
             Element::create(root_element, RootElement { root: self.root }, vec![]),
@@ -79,41 +66,63 @@ impl Appy {
         RenderEnv::set_current(None);
     }
 
-    fn run_handlers(handlers: &Vec<Rc<dyn Fn()>>) {
-        for handler in handlers {
-            handler()
-        }
-    }
-
-    fn render_loop(&mut self) {
-        loop {
-            self.render_env.borrow().dirty.set_state(false);
-            self.render();
-            //Self::run_handlers(&self.render_env.borrow().post_render_handlers);
-
-            if self.render_env.borrow().dirty.get_state() {
-                panic!("dirty during render, unsupported for now");
-            }
-
-            while !self.render_env.borrow().dirty.get_state()
-                && !self.render_env.borrow().quit.get_state()
-            {
-                Self::run_handlers(&self.render_env.borrow().idle_handlers);
-            }
-
-            if self.render_env.borrow().quit.get_state() {
-                break;
-            }
-        }
-    }
-
-    pub fn run(root: fn() -> Elements) {
-        let mut appy = Self {
+    pub fn new(title: String, root: fn() -> Elements)->Self {
+        Self {
             instances: HashMap::new(),
             root,
             render_env: Rc::new(RefCell::new(RenderEnv::new())),
-        };
+            app_context: None,
+            title: title
+        }
+    }
 
-        appy.render_loop();
+    fn update_app_context_size(&mut self, w:i32, h:i32) {
+        let ac_ref=self.app_context.clone().unwrap();
+        let mut ac=ac_ref.borrow_mut();
+
+        ac.rect.w=w;
+        ac.rect.h=h;
+        ac.rect_renderer.window_width=w;
+        ac.rect_renderer.window_height=h;
+        ac.text_renderer.window_width=w;
+        ac.text_renderer.window_height=h;
+    }
+
+    pub fn run(mut self) {
+        let app_window=AppWindow::new(self.title.clone());
+
+        app_window.run(move|w,e|{
+            //log_debug!("app: {:?}",e);
+
+            for handler in &self.render_env.borrow().app_event_handlers {
+                handler(&e);
+            }
+
+            match e {
+                AppEvent::Show=>{
+                    if self.app_context.is_none() {
+                        self.app_context=Some(Rc::new(RefCell::new(AppContext {
+                            rect: Rect::empty(),
+                            rect_renderer: RectRenderer::new(),
+                            text_renderer: TextRenderer::new()
+                        })));
+
+                        self.update_app_context_size(w.width as i32,w.height as i32);
+                    }
+                },
+                AppEvent::Resize{width,height}=>{
+                    self.update_app_context_size(width as i32,height as i32);
+                }
+                AppEvent::Render=>{
+                    //println!("render");
+                    self.render();
+                },
+                _=>{}
+            }
+
+            if self.render_env.borrow().dirty.get_state() {
+                w.post_redisplay();
+            }
+        });
     }
 }

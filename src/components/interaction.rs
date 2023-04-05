@@ -1,5 +1,4 @@
 use crate::*;
-use sdl2::event::Event;
 use std::ops::Deref;
 use std::rc::Rc;
 
@@ -55,12 +54,10 @@ pub struct Interaction {
     pub hover_state_ref: Option<HoverStateRef>,
 }
 
-const SDL_TOUCH_MOUSEID: u32 = u32::MAX;
-
 #[function_component]
 pub fn interaction(p: Interaction, children: Elements) -> Elements {
     let (h_state, set_h_state) = use_state(|| HoverState::Normal);
-    let instance_ref = use_context::<GlWindowInstance>();
+    let instance_ref = use_context::<AppContext>();
     let rect = {
         let instance = instance_ref.borrow();
         instance.rect.clone()
@@ -77,33 +74,34 @@ pub fn interaction(p: Interaction, children: Elements) -> Elements {
         }
     });
 
-    use_gl_window_event(rc_with_clone!([], move |e| {
-        match *e {
-            Event::MouseButtonDown { x, y, .. } => {
-                if rect.contains(x, y) {
+    use_app_event(rc_with_clone!([], move |e| {
+        match e {
+            AppEvent::MouseDown { x, y, .. } => {
+                if rect.contains(*x, *y) {
                     update_h_state(HoverState::Active);
                 }
             }
-            Event::MouseButtonUp { x, y, which, .. } => {
-                if rect.contains(x, y) {
+            AppEvent::MouseUp { x, y, kind, .. } => {
+                if rect.contains(*x, *y) {
                     if *h_state == HoverState::Active {
                         (p.on_click)();
                     }
 
-                    if which == SDL_TOUCH_MOUSEID {
-                        update_h_state(HoverState::Normal);
-                    } else {
-                        update_h_state(HoverState::Hover);
+                    match kind {
+                        MouseKind::Touch=>update_h_state(HoverState::Normal),
+                        MouseKind::Mouse=>update_h_state(HoverState::Hover)
                     }
                 }
             }
-            Event::MouseMotion { x, y, which, .. } => {
-                if rect.contains(x, y)
+            AppEvent::MouseMove { x, y, kind, .. } => {
+                if rect.contains(*x, *y)
                     && *h_state == HoverState::Normal
-                    && which != SDL_TOUCH_MOUSEID
                 {
-                    update_h_state(HoverState::Hover);
-                } else if !rect.contains(x, y) && *h_state != HoverState::Normal {
+                    match kind {
+                        MouseKind::Touch=>{},
+                        MouseKind::Mouse=>update_h_state(HoverState::Hover)
+                    }
+                } else if !rect.contains(*x, *y) && *h_state != HoverState::Normal {
                     update_h_state(HoverState::Normal);
                 }
             }

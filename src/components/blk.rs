@@ -55,7 +55,7 @@ pub struct Blk {
 
 #[function_component]
 pub fn blk(p: Blk, children: Elements) -> Elements {
-    let instance_ref = use_context::<GlWindowInstance>();
+    let instance_ref = use_context::<AppContext>();
     let mut instance = instance_ref.borrow_mut();
 
     let old_rect = instance.rect.clone();
