@@ -9,7 +9,7 @@ Should be as easy as cloning the code, cd:ing into one of the example dirs (e.g.
 
     cargo run
 
-The `hello` example is using [SDL](https://www.libsdl.org/) to render its graphics. As an alternative, you can edit the `Cargo.toml` file
+The `hello` example is, by default, using [SDL](https://www.libsdl.org/) to render its graphics. As an alternative, you can edit the `Cargo.toml` file
 and change the line:
 
     appy = {path="../..",features=["sdl"]}
@@ -18,37 +18,21 @@ and change the line:
 
     appy = {path="../..",features=["glutin"]}
 
-And Appy will use [Glutin](https://crates.io/crates/glutin) instead.
+And Appy will use [Glutin](https://crates.io/crates/glutin) instead. The graphics pipeline in the Rust ecosystem is experiencing
+a kind of cambrian explosion at the moment, which is why it is good to be flexible possible when it comes to working with different
+underlying libraries and toolchains.
+
+Another very interesting library is [Miniquad](https://crates.io/crates/miniquad) which might be supported in the future.
 
 ### Running the examples on Android
 
-Prerequisites:
+If you got it to build and run the "Hello World" app, the next step would be to get it to run on Android. Depending on if you use Glutin or SDL,
+try the following:
 
-* The SDL source, clone it from [here](https://github.com/libsdl-org/SDL). Make sure you have the `release-2.26.x` branch.
-* Java. Muse be jdk17 (doesn't work with jdk19).
-* Android SDK with command line tools.
-* Android NDK.
+* **With SDL**
+  * Install [cargo-sdl-apk](https://github.com/limikael/cargo-sdl-apk).
+  * Run `cargo sdl-apk run` from inside the crate.
 
-In the future I'm planning to simplify this so the tool can download these dependencies automatically, but it doesn't do that at the moment.
-
-1. Install appy as a bin. Run in the cloned root folder:
-   ```
-   cargo install --path=.
-   ```
-2. Set the environment variables:
-   * `ANDROID_HOME` pointing to the Android SDK.
-   * `ANDROID_NDK_HOME` pointing to the Android NDK.
-   * `SDL` pointing to the SDL source dir.
-3. Run from inside an example dir:
-   ```
-   appy build-android
-   ```
-   This should give you an APK file in:
-   ```
-   target/android-project/app/build/outputs/apk/debug/app-debug.apk
-   ```
-4. Run the following command and adb will be used to upload the app to your phone and start it:
-   ```
-   appy run-android
-   ```
-   
+* **With Glutin**
+  * Install [cargo-apk](https://crates.io/crates/cargo-apk).
+  * Run `cargo apk run` from inside the crate.
