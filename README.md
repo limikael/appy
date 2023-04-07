@@ -5,9 +5,20 @@ Declarative cross-platform UI framework in Rust for native applications. More in
 
 ### Running the examples locally
 
-Should be as easy as cloning the code, cd:ing into one of the example dirs and running:
+Should be as easy as cloning the code, cd:ing into one of the example dirs (e.g. the `hello` example) and running:
 
     cargo run
+
+The `hello` example is using [SDL](https://www.libsdl.org/) to render its graphics. As an alternative, you can edit the `Cargo.toml` file
+and change the line:
+
+    appy = {path="../..",features=["sdl"]}
+
+...to...
+
+    appy = {path="../..",features=["glutin"]}
+
+And Appy will use [Glutin](https://crates.io/crates/glutin) instead.
 
 ### Running the examples on Android
 
