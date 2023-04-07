@@ -16,7 +16,21 @@ fn decode_mouse(mouse_id:u32, mouse_btn:sdl2::mouse::MouseButton)
 	}
 }
 
-pub struct AppWindow {
+pub struct SdlAppWindowBuilder {}
+
+impl AppWindowBuilder for SdlAppWindowBuilder {
+    fn build(&self)->Box<dyn AppWindow> {
+    	Box::new(SdlAppWindow::new("Hello".to_string()))
+    }
+}
+
+impl SdlAppWindowBuilder {
+	pub fn new()->Self {
+		Self {}
+	}
+}
+
+pub struct SdlAppWindow {
 	sdl: sdl2::Sdl,
 	window: sdl2::video::Window,
 	_gl_context: sdl2::video::GLContext,
@@ -27,7 +41,32 @@ pub struct AppWindow {
 	need_manual_expose: bool
 }
 
-impl AppWindow {
+impl AppWindow for SdlAppWindow {
+    fn width(&self)->i32 {
+    	self.width as i32
+    }
+
+    fn height(&self)->i32 {
+    	self.height as i32
+    }
+
+	fn post_redisplay(&mut self) {
+		if !self.expose_requested {
+			self.expose_requested=true;
+			self.sdl.event().unwrap().push_event(Event::Window{
+				timestamp: 0,
+				window_id: 0,
+				win_event:WindowEvent::Exposed
+			}).expect("Can't post expose event");
+		}
+	}
+
+    fn run(self: Box<Self>, handler:Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>) {
+    	self.run_impl(handler);
+    }
+}
+
+impl SdlAppWindow {
 	pub fn new(title:String)->Self {
 		let sdl=sdl2::init().unwrap();
 		let video_subsystem=sdl.video().unwrap();
@@ -60,19 +99,7 @@ impl AppWindow {
 		}
 	}
 
-	pub fn post_redisplay(&mut self) {
-		if !self.expose_requested {
-			self.expose_requested=true;
-			self.sdl.event().unwrap().push_event(Event::Window{
-				timestamp: 0,
-				window_id: 0,
-				win_event:WindowEvent::Exposed
-			}).expect("Can't post expose event");
-		}
-	}
-
-	pub fn run<F>(mut self, mut handler:F)->()
-            where F: 'static + FnMut(&mut AppWindow,AppEvent) {
+    fn run_impl(mut self, mut handler:Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>) {
 		let mut event_pump=self.sdl.event_pump().unwrap();
 
 		handler(&mut self,AppEvent::Show);
@@ -136,6 +163,6 @@ impl AppWindow {
 				}
 				_ => {}
 			}
-		};
+		}
     }
 }

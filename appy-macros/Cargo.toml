@@ -12,3 +12,7 @@ quote = "1.0.26"
 syn = { version = "1", features = ["full"] }
 syn-rsx = "0.9.0"
 toml = "0.7.3"
+
+[features]
+sdl=[]
+glutin=[]

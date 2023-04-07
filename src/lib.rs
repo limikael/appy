@@ -27,9 +27,16 @@ export!(array_buffer, "utils/array_buffer.rs");
 export!(rect_renderer, "utils/rect_renderer.rs");
 export!(text_renderer, "utils/text_renderer.rs");
 
-//export!(app_loop_glutin, "sys/app_loop_glutin.rs");
+export!(app_window, "sys/app_window.rs");
+
+#[cfg(feature="glutin")]
+export!(app_window_glutin, "sys/app_window_glutin.rs");
+
+#[cfg(feature="sdl")]
 export!(app_window_sdl, "sys/app_window_sdl.rs");
-export!(app_event, "sys/app_event.rs");
+
+#[cfg(all(target_os="android",feature="glutin"))]
+pub use winit::platform::android::activity::AndroidApp;
 
 pub use Dim::{Pc, Px};
 

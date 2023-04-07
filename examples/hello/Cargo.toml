@@ -8,9 +8,9 @@ appid="com.example.hello"
 appname="Hello Appy"
 
 [lib]
-name="main"
 path="src/main.rs"
 crate-type=["cdylib"]
 
 [dependencies]
-appy = {path="../.."}
+#appy = {path="../..",features=["sdl"]}
+appy = {path="../..",features=["glutin"]}

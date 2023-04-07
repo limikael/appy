@@ -11,29 +11,91 @@ use glutin::config::ConfigTemplateBuilder;
 use glutin::context::{ContextApi, ContextAttributesBuilder, Version};
 use glutin::display::GetGlDisplay;
 use glutin::prelude::*;
-use glutin::surface::SwapInterval;
+//use glutin::surface::SwapInterval;
 
 use glutin_winit::{self, DisplayBuilder, GlWindow};
 
 use crate::*;
 
-pub struct AppWindow {
-    gl_config: glutin::config::Config,
-    event_loop: winit::event_loop::EventLoop<()>,
-    window: Option<winit::window::Window>,
-    not_current_gl_context: Option<glutin::context::NotCurrentContext>
+#[cfg(target_os="android")]
+use winit::platform::android::EventLoopBuilderExtAndroid;
+
+#[derive(Default)]
+pub struct GlutinAppWindowBuilder {
+    #[cfg(target_os="android")]
+    android_app: Option<winit::platform::android::activity::AndroidApp>
 }
 
-impl AppWindow {
-	pub fn new()->Self {
-        let event_loop=EventLoopBuilder::new().build();
+impl AppWindowBuilder for GlutinAppWindowBuilder {
+    fn build(&mut self)->Box<dyn AppWindow> {
+        let mut event_loop_builder=EventLoopBuilder::new();
 
+        #[cfg(target_os="android")] {
+            event_loop_builder.with_android_app(self.android_app.take().unwrap());
+        }
+
+        Box::new(GlutinAppWindow::new(
+            event_loop_builder.build(),
+            "Hello".to_string()
+        ))
+    }
+}
+
+impl GlutinAppWindowBuilder {
+    pub fn new()->Self {
+        Self {..Default::default()}
+    }
+
+    #[cfg(target_os="android")]
+    pub fn with_android_app(mut self, android_app:winit::platform::android::activity::AndroidApp)
+            ->Self {
+        self.android_app=Some(android_app);
+        self
+    }
+}
+
+pub struct GlutinAppWindow {
+    gl_config: glutin::config::Config,
+    event_loop: Option<winit::event_loop::EventLoop<()>>,
+    window: Option<winit::window::Window>,
+    not_current_gl_context: Option<glutin::context::NotCurrentContext>,
+    pub width: u32,
+    pub height: u32,
+}
+
+impl AppWindow for GlutinAppWindow {
+    fn width(&self)->i32 {
+        if self.width==0 {
+            panic!("We have no window at this point");
+        }
+        self.width as i32
+    }
+
+    fn height(&self)->i32 {
+        if self.height==0 {
+            panic!("We have no window at this point");
+        }
+        self.height as i32
+    }
+
+    fn post_redisplay(&mut self) {
+        println!("request redraw...");
+        self.window.as_ref().unwrap().request_redraw();
+    }
+
+    fn run(self: Box<Self>, handler:Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>) {
+        self.run_impl(handler);
+    }
+}
+
+impl GlutinAppWindow {
+    pub fn new(event_loop:winit::event_loop::EventLoop<()>, _title:String)->Self {
         let window_builder=
             if cfg!(target_os = "android") {None}
             else {Some(WindowBuilder::new())};
 
         let template =
-            ConfigTemplateBuilder::new();
+            ConfigTemplateBuilder::new();//.with_alpha_size(8);.with_transparency(true);
 
         let display_builder = DisplayBuilder::new().with_window_builder(window_builder);
 
@@ -94,29 +156,44 @@ impl AppWindow {
             gl_display.get_proc_address(symbol.as_c_str()).cast()
         });
 
-		AppLoop {
+        //let inner_size=window.as_ref().unwrap().inner_size();
+
+        GlutinAppWindow {
             gl_config,
-            event_loop,
+            event_loop: Some(event_loop),
             window,
-            not_current_gl_context
+            not_current_gl_context,
+            width: 0, //inner_size.width,
+            height: 0, //inner_size.height
         }
-	}
+    }
 
-	pub fn run<F>(mut self, mut handler:F)->!
-            where F: 'static + FnMut(AppEvent) {
+    fn run_impl(mut self, mut handler:Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>) {
         let mut state = None;
+        let event_loop=self.event_loop.take().unwrap();
 
-        self.event_loop.run(move |event, window_target, control_flow| {
-            //control_flow.set_wait();
+        event_loop.run(move |event, window_target, control_flow| {
+            control_flow.set_wait();
+
+            //println!("{:?}",event);
             match event {
                 Event::Resumed => {
-                    let window = self.window.take().unwrap_or_else(|| {
+                    if self.window.is_none() {
+                        let window_builder = WindowBuilder::new();
+                        self.window=Some(glutin_winit::finalize_window(window_target, window_builder, &self.gl_config).unwrap());
+                    }
+
+                    /*let window = self.window.take().unwrap_or_else(|| {
                         let window_builder = WindowBuilder::new();
                         glutin_winit::finalize_window(window_target, window_builder, &self.gl_config)
                             .unwrap()
-                    });
+                    });*/
 
-                    let attrs = window.build_surface_attributes(<_>::default());
+                    let inner_size=self.window.as_ref().unwrap().inner_size();
+                    self.width=inner_size.width;
+                    self.height=inner_size.height;
+
+                    let attrs = self.window.as_ref().unwrap().build_surface_attributes(<_>::default());
                     let gl_surface = unsafe {
                         self.gl_config.display().create_window_surface(&self.gl_config, &attrs).unwrap()
                     };
@@ -132,9 +209,9 @@ impl AppWindow {
                         eprintln!("Error setting vsync: {res:?}");
                     }*/
 
-                    assert!(state.replace((gl_context, gl_surface, window)).is_none());
+                    assert!(state.replace((gl_context, gl_surface)).is_none());
 
-                    handler(AppEvent::Resume);
+                    handler(&mut self,AppEvent::Show);
                 },
                 Event::Suspended => {
                     // This event is only raised on Android, where the backing NativeWindow for a GL
@@ -148,15 +225,32 @@ impl AppWindow {
                         .replace(gl_context.make_not_current().unwrap())
                         .is_none());
                 },
+                /*Event::RedrawEventsCleared => {
+                    if let Some((gl_context, gl_surface, window)) = &state {
+                        handler(AppEvent::Render);
+                        window.request_redraw();
+                        gl_surface.swap_buffers(gl_context).unwrap();
+                    }
+                },*/
+                Event::RedrawRequested(_window_id)=>{
+                    if let Some((gl_context, gl_surface)) = &state {
+                        unsafe {
+                            gl::ClearColor(0.0,0.0,0.0,0.0);
+                            gl::Clear(gl::COLOR_BUFFER_BIT);
+                        }
+                        handler(&mut self,AppEvent::Render);
+                        //window.request_redraw();
+                        gl_surface.swap_buffers(gl_context).unwrap();
+                    }
+                },
                 Event::WindowEvent { event, .. } => match event {
                     WindowEvent::Resized(size) => {
-                        println!("resize..");
                         if size.width != 0 && size.height != 0 {
                             // Some platforms like EGL require resizing GL surface to update the size
                             // Notable platforms here are Wayland and macOS, other don't require it
                             // and the function is no-op, but it's wise to resize it for portability
                             // reasons.
-                            if let Some((gl_context, gl_surface, _)) = &state {
+                            if let Some((gl_context, gl_surface)) = &state {
                                 gl_surface.resize(
                                     gl_context,
                                     NonZeroU32::new(size.width).unwrap(),
@@ -166,28 +260,55 @@ impl AppWindow {
                                 unsafe {
                                     gl::Viewport(0, 0, size.width as i32, size.height as i32);
                                 }
+
+                                self.width=size.width;
+                                self.height=size.height;
+                                handler(&mut self,AppEvent::Resize{
+                                    width:size.width,
+                                    height:size.height
+                                });
+
+                                self.window.as_ref().unwrap().request_redraw();
                             }
+                        }
+                    },
+                    WindowEvent::ScaleFactorChanged{new_inner_size,..}=>{
+                        if let Some((gl_context, gl_surface)) = &state {
+                            println!("ochg w: {:?} new: {:?}",self.window.as_ref().unwrap().inner_size(),new_inner_size);
+
+                            let size=new_inner_size;
+                            gl_surface.resize(
+                                gl_context,
+                                NonZeroU32::new(size.width).unwrap(),
+                                NonZeroU32::new(size.height).unwrap(),
+                            );
+
+                            unsafe {
+                                gl::Viewport(0, 0, size.width as i32, size.height as i32);
+                            }
+
+                            self.width=size.width;
+                            self.height=size.height;
+                            handler(&mut self,AppEvent::Resize{
+                                width:size.width,
+                                height:size.height
+                            });
+
+                            self.window.as_ref().unwrap().request_redraw();
                         }
                     },
                     WindowEvent::CloseRequested => {
                         control_flow.set_exit();
                     },
+                    WindowEvent::CursorMoved{position,..}=>{
+                        handler(&mut self,AppEvent::MouseMove{
+                            x:position.x as i32,
+                            y:position.y as i32,
+                            kind:MouseKind::Mouse
+                        });
+                    }
                     _ => (),
                 },
-                Event::RedrawRequested(_window_id)=>{
-                    if let Some((gl_context, gl_surface, window)) = &state {
-                        handler(AppEvent::Render);
-                        //window.request_redraw();
-                        gl_surface.swap_buffers(gl_context).unwrap();
-                    }
-                },
-                /*Event::RedrawEventsCleared => {
-                    if let Some((gl_context, gl_surface, window)) = &state {
-                        handler(AppEvent::Render);
-                        window.request_redraw();
-                        gl_surface.swap_buffers(gl_context).unwrap();
-                    }
-                },*/
                 _ => (),
             }
         });

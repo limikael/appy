@@ -44,11 +44,11 @@ impl TextRenderer {
             gl::TexImage2D(
                 gl::TEXTURE_2D,          // target
                 0,                       // level
-                gl::ALPHA as i32,        // internal format
+                gl::R8 as i32,
                 Self::CACHE_SIZE as i32, // width
                 Self::CACHE_SIZE as i32, // height
                 0,                       // border, must be 0
-                gl::ALPHA,               // format
+                gl::RED as u32,
                 gl::UNSIGNED_BYTE,
                 std::ptr::null(),
             );
@@ -80,7 +80,7 @@ impl TextRenderer {
 				out vec4 fragment_color;
 				void main() {
 					vec4 tex_data=texture(texture0,fragment_tex_coord);
-					fragment_color=vec4(col.r,col.g,col.b,tex_data.a);
+					fragment_color=vec4(col.r,col.g,col.b,tex_data.r);
 				}
 			"
                 .to_string(),
@@ -155,7 +155,7 @@ impl TextRenderer {
                         rect.min.y as i32,
                         (rect.width()) as i32,
                         rect.height() as i32,
-                        gl::ALPHA,
+                        gl::RED,
                         gl::UNSIGNED_BYTE,
                         data.as_ptr() as *const _,
                     );

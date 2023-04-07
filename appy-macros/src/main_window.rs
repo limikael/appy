@@ -42,22 +42,46 @@ fn get_cargo_toml_string(path:Vec<&str>)->Option<String> {
 pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 	let ast=parse_macro_input!(input as ItemFn);
 	let name=ast.sig.ident.clone();
-
 	let appname=get_cargo_toml_string(vec!["package","metadata","appname"])
 		.unwrap_or("Untitled".to_string());
 
-	TokenStream::from(quote!{
-		#ast
-		pub fn main() {
-			Appy::new(#appname.to_string(),||apx!{
-				<root_element root=#name/>
-			}).run();
-		}
+	let mut out=quote!{#ast};
 
-		#[no_mangle]
-		#[allow(non_snake_case)]
-		pub fn SDL_main() {
-			main();
-		}
-	})
+	if cfg!(feature="glutin") {
+		out.extend(quote!{
+			pub fn main() {
+				#[cfg(not(target_os="android"))]
+				Appy::new(#name).run(&mut GlutinAppWindowBuilder::new()
+				);
+			}
+
+			#[cfg(target_os="android")]
+			#[no_mangle]
+			pub fn android_main(android_app: appy::AndroidApp) {
+				Appy::new(#name).run(&mut GlutinAppWindowBuilder::new()
+					.with_android_app(android_app)
+				);
+			}
+		});
+	}
+
+	if cfg!(feature="sdl") {
+		out.extend(quote!{
+			#[cfg(not(target_os="android"))]
+			pub fn main() {
+				Appy::new(#name).run(&SdlAppWindowBuilder::new()
+				);
+			}
+
+			#[cfg(target_os="android")]
+			#[no_mangle]
+			#[allow(non_snake_case)]
+			pub fn SDL_main() {
+				Appy::new(#name).run(&SdlAppWindowBuilder::new()
+				);
+			}
+		});
+	}
+
+	TokenStream::from(out)
 }

@@ -18,8 +18,7 @@ pub struct Appy {
     instances: HashMap<ComponentPath, Rc<RefCell<ComponentInstance>>>,
     root: fn() -> Elements,
     render_env: Rc<RefCell<RenderEnv>>,
-    app_context: Option<Rc<RefCell<AppContext>>>,
-    title: String
+    app_context: Option<Rc<RefCell<AppContext>>>
 }
 
 impl Appy {
@@ -66,13 +65,12 @@ impl Appy {
         RenderEnv::set_current(None);
     }
 
-    pub fn new(title: String, root: fn() -> Elements)->Self {
+    pub fn new(root: fn() -> Elements)->Self {
         Self {
             instances: HashMap::new(),
             root,
             render_env: Rc::new(RefCell::new(RenderEnv::new())),
             app_context: None,
-            title: title
         }
     }
 
@@ -88,10 +86,10 @@ impl Appy {
         ac.text_renderer.window_height=h;
     }
 
-    pub fn run(mut self) {
-        let app_window=AppWindow::new(self.title.clone());
+    pub fn run(mut self, app_window_builder:&mut dyn AppWindowBuilder) {
+        let app_window=app_window_builder.build();
 
-        app_window.run(move|w,e|{
+        app_window.run(Box::new(move|w,e|{
             //log_debug!("app: {:?}",e);
 
             for handler in &self.render_env.borrow().app_event_handlers {
@@ -100,6 +98,7 @@ impl Appy {
 
             match e {
                 AppEvent::Show=>{
+                    //install_debug_output();
                     if self.app_context.is_none() {
                         self.app_context=Some(Rc::new(RefCell::new(AppContext {
                             rect: Rect::empty(),
@@ -107,7 +106,7 @@ impl Appy {
                             text_renderer: TextRenderer::new()
                         })));
 
-                        self.update_app_context_size(w.width as i32,w.height as i32);
+                        self.update_app_context_size(w.width() as i32,w.height() as i32);
                     }
                 },
                 AppEvent::Resize{width,height}=>{
@@ -123,6 +122,6 @@ impl Appy {
             if self.render_env.borrow().dirty.get_state() {
                 w.post_redisplay();
             }
-        });
+        }));
     }
 }

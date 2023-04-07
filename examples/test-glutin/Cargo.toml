@@ -1,15 +1,15 @@
 [package]
-name = "hello-button"
+name = "test-glutin"
 version = "0.1.0"
 edition = "2021"
 
 [package.metadata]
-appid="com.example.hellobutton"
-appname="Hello Button"
+appid="com.example.testglutin"
+appname="Hello Glutin Appy"
 
 [lib]
 path="src/main.rs"
 crate-type=["cdylib"]
 
 [dependencies]
-appy = {path="../..", features=["glutin"]}
+appy = {path="../..",features=["glutin"]}
