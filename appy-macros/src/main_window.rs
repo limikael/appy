@@ -45,6 +45,10 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 	let appname=get_cargo_toml_string(vec!["package","metadata","appname"])
 		.unwrap_or("Untitled".to_string());
 
+	if cfg!(all(not(feature="glutin"),not(feature="sdl"))) {
+		panic!("Welcome to Appy! Please enable exactly one of the features \"sdl\" or \"glutin\" to select rendering backend. Enjoy!");
+	}
+
 	let mut out=quote!{#ast};
 
 	if cfg!(feature="glutin") {
@@ -69,7 +73,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 		out.extend(quote!{
 			#[cfg(not(target_os="android"))]
 			pub fn main() {
-				Appy::new(#name).run(&SdlAppWindowBuilder::new()
+				Appy::new(#name).run(&mut SdlAppWindowBuilder::new()
 				);
 			}
 
@@ -77,7 +81,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			#[no_mangle]
 			#[allow(non_snake_case)]
 			pub fn SDL_main() {
-				Appy::new(#name).run(&SdlAppWindowBuilder::new()
+				Appy::new(#name).run(&mut SdlAppWindowBuilder::new()
 				);
 			}
 		});

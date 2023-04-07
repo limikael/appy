@@ -19,7 +19,7 @@ fn decode_mouse(mouse_id:u32, mouse_btn:sdl2::mouse::MouseButton)
 pub struct SdlAppWindowBuilder {}
 
 impl AppWindowBuilder for SdlAppWindowBuilder {
-    fn build(&self)->Box<dyn AppWindow> {
+    fn build(&mut self)->Box<dyn AppWindow> {
     	Box::new(SdlAppWindow::new("Hello".to_string()))
     }
 }
