@@ -16,18 +16,28 @@ fn decode_mouse(mouse_id:u32, mouse_btn:sdl2::mouse::MouseButton)
 	}
 }
 
-pub struct SdlAppWindowBuilder {}
+pub struct SdlAppWindowBuilder {
+	title: String
+}
 
 impl AppWindowBuilder for SdlAppWindowBuilder {
     fn build(&mut self)->Box<dyn AppWindow> {
-    	Box::new(SdlAppWindow::new("Hello".to_string()))
+    	Box::new(SdlAppWindow::new(self.title.clone()))
     }
 }
 
 impl SdlAppWindowBuilder {
 	pub fn new()->Self {
-		Self {}
+		Self {
+			title: "Unknown".to_string()
+		}
 	}
+
+    pub fn title(mut self, title:String)
+            ->Self {
+        self.title=title;
+        self
+    }
 }
 
 pub struct SdlAppWindow {

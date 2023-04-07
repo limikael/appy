@@ -7,6 +7,9 @@ edition = "2021"
 appid="com.example.testglutin"
 appname="Hello Glutin Appy"
 
+[package.metadata.android.application]
+label="Hello Glutin Appy"
+
 [lib]
 path="src/main.rs"
 crate-type=["cdylib"]

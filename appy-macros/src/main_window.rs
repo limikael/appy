@@ -56,6 +56,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			pub fn main() {
 				#[cfg(not(target_os="android"))]
 				Appy::new(#name).run(&mut GlutinAppWindowBuilder::new()
+					.title(#appname.to_string())
 				);
 			}
 
@@ -63,6 +64,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			#[no_mangle]
 			pub fn android_main(android_app: appy::AndroidApp) {
 				Appy::new(#name).run(&mut GlutinAppWindowBuilder::new()
+					.title(#appname.to_string())
 					.with_android_app(android_app)
 				);
 			}
@@ -74,6 +76,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			#[cfg(not(target_os="android"))]
 			pub fn main() {
 				Appy::new(#name).run(&mut SdlAppWindowBuilder::new()
+					.title(#appname.to_string())
 				);
 			}
 
@@ -82,6 +85,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			#[allow(non_snake_case)]
 			pub fn SDL_main() {
 				Appy::new(#name).run(&mut SdlAppWindowBuilder::new()
+					.title(#appname.to_string())
 				);
 			}
 		});

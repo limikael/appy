@@ -23,7 +23,9 @@ use winit::platform::android::EventLoopBuilderExtAndroid;
 #[derive(Default)]
 pub struct GlutinAppWindowBuilder {
     #[cfg(target_os="android")]
-    android_app: Option<winit::platform::android::activity::AndroidApp>
+    android_app: Option<winit::platform::android::activity::AndroidApp>,
+
+    title:String,
 }
 
 impl AppWindowBuilder for GlutinAppWindowBuilder {
@@ -36,7 +38,7 @@ impl AppWindowBuilder for GlutinAppWindowBuilder {
 
         Box::new(GlutinAppWindow::new(
             event_loop_builder.build(),
-            "Hello".to_string()
+            self.title.clone()
         ))
     }
 }
@@ -50,6 +52,12 @@ impl GlutinAppWindowBuilder {
     pub fn with_android_app(mut self, android_app:winit::platform::android::activity::AndroidApp)
             ->Self {
         self.android_app=Some(android_app);
+        self
+    }
+
+    pub fn title(mut self, title:String)
+            ->Self {
+        self.title=title;
         self
     }
 }
@@ -92,7 +100,7 @@ impl AppWindow for GlutinAppWindow {
 }
 
 impl GlutinAppWindow {
-    pub fn new(event_loop:winit::event_loop::EventLoop<()>, _title:String)->Self {
+    pub fn new(event_loop:winit::event_loop::EventLoop<()>, title:String)->Self {
         let window_builder=
             if cfg!(target_os = "android") {None}
             else {Some(WindowBuilder::new())};
@@ -116,6 +124,10 @@ impl GlutinAppWindow {
                     .unwrap()
             })
             .unwrap();
+
+        if window.is_some() {
+            window.as_ref().unwrap().set_title(&*title);
+        }
 
         println!("Picked a config with {} samples", gl_config.num_samples());
 
