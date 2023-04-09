@@ -36,9 +36,10 @@ impl Appy {
         this_path.push(ComponentPathComponent::TypeId(component.type_id()));
 
         if !self.instances.contains_key(&this_path) {
-            let c = ComponentInstance::new();
-            self.instances
-                .insert(this_path.clone(), Rc::new(RefCell::new(c)));
+            self.instances.insert(
+                this_path.clone(), 
+                Rc::new(RefCell::new(ComponentInstance::new()))
+            );
         }
 
         let ci = self.instances.get(&this_path).unwrap().clone();
