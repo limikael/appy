@@ -2,11 +2,13 @@ use appy::{*};
 
 #[main_window]
 pub fn app()->Elements {
-	let (v,set_v)=use_state(||1);
+	let v=use_state(||1);
 	let hover_state=use_hover_state_ref();
 
-	let on_button_click=cb_with_clone!([v,set_v],move||{
-		set_v(*v+1);
+	let on_button_click=cb_with_clone!([v],move||{
+		//println!("set: {}",*v);
+
+		v.set(*v+1);
 	});
 
 	let s=format!("Hello: {}",*v);

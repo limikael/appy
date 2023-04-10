@@ -1,53 +1,69 @@
+use std::ops::Deref;
 use std::rc::Rc;
 use std::cell::RefCell;
 //use std::any::Any;
 use std::any::TypeId;
 use crate::{*};
 
-fn use_hook_data<F, T: 'static>(ctor: F)->Rc<T>
-		where F:Fn()->Rc<T> {
-	RenderEnv::with_hook_data(&|_env,hook_data| {
-		match hook_data {
-			None=>ctor(),
-			Some(data)=>data
-		}
+pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
+		where F:Fn()->T {
+	RenderEnv::use_hook_data(&|_env:&mut RenderEnv|{
+		RefCell::new(ctor())
 	})
 }
 
-pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
-		where F:Fn()->T {
-	use_hook_data(||Rc::new(RefCell::new(ctor())))
-}
-
-pub struct RefData<T> {
+/*pub struct RefData<T> {
 	pub current: T
 }
 
 pub fn use_ref<F, T: 'static>(ctor: F)->Rc<RefCell<RefData<T>>>
 		where F:Fn()->T {
 	use_instance(||RefData{current:ctor()})
-}
+}*/
 
 pub struct StateData<T> {
-	pub state_value: Rc<T>
+	pub value: Rc<T>,
+	pub dirty_trigger: Rc<dyn Fn()>
 }
 
-pub fn use_state<F, T: 'static>(ctor: F)->(Rc<T>,Rc<dyn Fn(T)>)
-		where F:Fn()->T {
-	let dirty_trigger=use_dirty_trigger();
-	let state_data_ref=use_instance(||StateData{
-		state_value: Rc::new(ctor())
-	});
+#[derive(Clone)]
+pub struct StateRef<T> {
+	data: Rc<RefCell<StateData<T>>>,
+	value: Rc<T>,
+}
 
-	let current_value=state_data_ref.borrow().state_value.clone();
-	(
-		current_value,
-		{
-			Rc::new(move|value:T|{
-				state_data_ref.borrow_mut().state_value=Rc::new(value);
-				dirty_trigger();
-			})
+impl<T> StateRef<T> {
+	pub fn new(data: Rc<RefCell<StateData<T>>>)->Self {
+		let value=data.borrow().value.clone();
+		Self {
+			value,
+			data
 		}
+	}
+
+    pub fn set(&self, value: T) {
+		self.data.borrow_mut().value=Rc::new(value);
+		(self.data.borrow().dirty_trigger)();
+	}
+}
+
+impl<T> Deref for StateRef<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &*self.value
+    }
+}
+
+pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
+		where F:Fn()->T {
+	StateRef::new(
+		RenderEnv::use_hook_data(&|env:&mut RenderEnv|{
+			RefCell::new(StateData{
+				value: Rc::new(ctor()),
+				dirty_trigger: env.dirty.create_trigger(),
+			})
+		})
 	)
 }
 
@@ -60,13 +76,15 @@ pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
 	RenderEnv::get_current().borrow_mut().app_event_handlers.push(f);
 }
 
-pub fn use_dirty_trigger()->Rc<Rc<dyn Fn()>> {
-	RenderEnv::with_hook_data(&|env,hook_data| {
-		match hook_data {
-			None=>Rc::new(env.dirty.create_trigger()),
-			Some(data)=>data
-		}
-	})
+pub fn use_dirty_trigger()->Rc<dyn Fn()> {
+	let t=RenderEnv::use_hook_data(&|env| {
+		RefCell::new(
+			env.dirty.create_trigger()
+		)
+	});
+
+	let f=t.borrow().clone();
+	f
 }
 
 /*pub fn use_context_provider<T: 'static>(t: Rc<RefCell<T>>) {

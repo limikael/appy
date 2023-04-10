@@ -2,38 +2,8 @@ use crate::*;
 use std::ops::Deref;
 use std::rc::Rc;
 
-#[derive(Clone)]
-pub struct HoverStateRef {
-    pub current: Rc<HoverState>,
-    pub set_current: Rc<dyn Fn(HoverState)>,
-}
-
-impl Deref for HoverStateRef {
-    type Target = HoverState;
-
-    fn deref(&self) -> &Self::Target {
-        &self.current
-    }
-}
-
-impl HoverStateRef {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl Default for HoverStateRef {
-    fn default() -> Self {
-        let (current, set_current) = use_state(|| HoverState::Normal);
-        Self {
-            current,
-            set_current,
-        }
-    }
-}
-
-pub fn use_hover_state_ref() -> HoverStateRef {
-    HoverStateRef::new()
+pub fn use_hover_state_ref()->StateRef<HoverState> {
+    use_state(||HoverState::Normal)
 }
 
 #[derive(Clone, PartialEq, Debug, Default, Copy)]
@@ -51,26 +21,26 @@ pub struct Interaction {
     pub on_mouse_over: Cb,
     pub on_mouse_out: Cb,*/
     pub on_click: Cb,
-    pub hover_state_ref: Option<HoverStateRef>,
+    pub hover_state_ref: Option<StateRef<HoverState>>
 }
 
 #[function_component]
 pub fn interaction(p: Interaction, children: Elements) -> Elements {
-    let (h_state, set_h_state) = use_state(|| HoverState::Normal);
+    let h_state = use_state(|| HoverState::Normal);
     let instance_ref = use_context::<AppContext>();
     let rect = {
         let instance = instance_ref.borrow();
         instance.rect.clone()
     };
 
-    if p.hover_state_ref.is_some() && p.hover_state_ref.as_ref().unwrap().current != h_state {
+    if p.hover_state_ref.is_some() && *h_state!=**p.hover_state_ref.as_ref().unwrap() {
         panic!("they are different!!!");
     }
 
-    let update_h_state = rc_with_clone!([], move |new_state| {
-        set_h_state(new_state);
+    let update_h_state = rc_with_clone!([h_state], move |new_state| {
+        h_state.set(new_state);
         if p.hover_state_ref.is_some() {
-            (p.hover_state_ref.as_ref().unwrap().set_current)(new_state);
+            p.hover_state_ref.as_ref().unwrap().set(new_state);
         }
     });
 

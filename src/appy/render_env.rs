@@ -79,26 +79,21 @@ impl RenderEnv {
         self.component_instance.clone().unwrap()
     }
 
-    pub fn with_hook_data<T: 'static>(f:&dyn Fn(&mut RenderEnv, Option<Rc<T>>)->Rc<T>)->Rc<T> {
+    pub fn use_hook_data<T: 'static>(f:&dyn Fn(&mut RenderEnv)->T)->Rc<T> {
         let env_ref=RenderEnv::get_current();
         let mut env=env_ref.borrow_mut();
 
-        env.with_hook_data_impl(f)
+        env.use_hook_data_impl(f)
     }
 
-    fn with_hook_data_impl<T: 'static>(&mut self, f:&dyn Fn(&mut RenderEnv, Option<Rc<T>>)->Rc<T>)->Rc<T> {
+    pub fn use_hook_data_impl<T: 'static>(&mut self, f:&dyn Fn(&mut RenderEnv)->T)->Rc<T> {
         let ci_ref = self.component_instance.clone().unwrap();
         let mut ci = ci_ref.borrow_mut();
 
         let use_hook_index=self.hook_index;
         if self.hook_index >= ci.hook_data.len() {
-            ci.hook_data.push(f(self,None))
+            ci.hook_data.push(Rc::new(f(self)))
         }
-
-        else {
-            let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
-            ci.hook_data[use_hook_index]=f(self,Some(a.downcast::<T>().unwrap()))
-        };
 
         self.hook_index += 1;
 
