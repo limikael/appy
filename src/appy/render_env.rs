@@ -79,14 +79,16 @@ impl RenderEnv {
         self.component_instance.clone().unwrap()
     }
 
-    pub fn use_hook_data<T: 'static>(f:&dyn Fn(&mut RenderEnv)->T)->Rc<T> {
+    pub fn use_hook_data<F, T: 'static>(f:F)->Rc<T>
+            where F: Fn(&mut RenderEnv)->T {
         let env_ref=RenderEnv::get_current();
         let mut env=env_ref.borrow_mut();
 
         env.use_hook_data_impl(f)
     }
 
-    pub fn use_hook_data_impl<T: 'static>(&mut self, f:&dyn Fn(&mut RenderEnv)->T)->Rc<T> {
+    pub fn use_hook_data_impl<F, T: 'static>(&mut self, f:F)->Rc<T>
+            where F: Fn(&mut RenderEnv)->T {
         let ci_ref = self.component_instance.clone().unwrap();
         let mut ci = ci_ref.borrow_mut();
 

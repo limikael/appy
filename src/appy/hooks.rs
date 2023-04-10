@@ -58,7 +58,7 @@ impl<T> Deref for StateRef<T> {
 pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 		where F:Fn()->T {
 	StateRef::new(
-		RenderEnv::use_hook_data(&|env:&mut RenderEnv|{
+		RenderEnv::use_hook_data(|env|{
 			RefCell::new(StateData{
 				value: Rc::new(ctor()),
 				dirty_trigger: env.dirty.create_trigger(),
@@ -77,7 +77,7 @@ pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
 }
 
 pub fn use_dirty_trigger()->Rc<dyn Fn()> {
-	let t=RenderEnv::use_hook_data(&|env| {
+	let t=RenderEnv::use_hook_data(|env| {
 		RefCell::new(
 			env.dirty.create_trigger()
 		)
