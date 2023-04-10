@@ -79,41 +79,31 @@ impl RenderEnv {
         self.component_instance.clone().unwrap()
     }
 
-    pub fn have_hook_data(&self) -> bool {
-        let ci_ref = self.component_instance.clone().unwrap();
-        let ci = ci_ref.borrow();
+    pub fn with_hook_data<T: 'static>(f:&dyn Fn(&mut RenderEnv, Option<Rc<T>>)->Rc<T>)->Rc<T> {
+        let env_ref=RenderEnv::get_current();
+        let mut env=env_ref.borrow_mut();
 
-        if self.hook_index >= ci.hook_data.len() {
-            return false;
-        }
-
-        true
+        env.with_hook_data_impl(f)
     }
 
-    pub fn get_hook_data<T: 'static>(&mut self) -> Rc<T> {
-        let ci_ref = self.component_instance.clone().unwrap();
-        let ci = ci_ref.borrow();
-
-        if self.hook_index >= ci.hook_data.len() {
-            panic!("hook not found");
-        }
-
-        let use_hook_index = self.hook_index;
-        self.hook_index += 1;
-        let a: Rc<dyn Any> = ci.hook_data[use_hook_index].clone();
-
-        a.downcast::<T>().unwrap()
-    }
-
-    pub fn create_hook_data<T: 'static>(&mut self, data: Rc<T>) {
+    fn with_hook_data_impl<T: 'static>(&mut self, f:&dyn Fn(&mut RenderEnv, Option<Rc<T>>)->Rc<T>)->Rc<T> {
         let ci_ref = self.component_instance.clone().unwrap();
         let mut ci = ci_ref.borrow_mut();
 
-        if self.hook_index < ci.hook_data.len() {
-            panic!("hook data already exists");
+        let use_hook_index=self.hook_index;
+        if self.hook_index >= ci.hook_data.len() {
+            ci.hook_data.push(f(self,None))
         }
 
-        ci.hook_data.push(data);
+        else {
+            let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
+            ci.hook_data[use_hook_index]=f(self,Some(a.downcast::<T>().unwrap()))
+        };
+
+        self.hook_index += 1;
+
+        let a:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
+        a.downcast::<T>().unwrap()
     }
 
     pub fn provide_context<T: 'static>(&mut self, t: Rc<RefCell<T>>) {

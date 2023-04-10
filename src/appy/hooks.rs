@@ -6,13 +6,12 @@ use crate::{*};
 
 fn use_hook_data<F, T: 'static>(ctor: F)->Rc<T>
 		where F:Fn()->Rc<T> {
-	let env_ref=RenderEnv::get_current();
-	if !env_ref.borrow().have_hook_data() {
-		let data=ctor();
-		env_ref.borrow_mut().create_hook_data(data);
-	}
-
-	return env_ref.borrow_mut().get_hook_data();
+	RenderEnv::with_hook_data(&|_env,hook_data| {
+		match hook_data {
+			None=>ctor(),
+			Some(data)=>data
+		}
+	})
 }
 
 pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
@@ -57,18 +56,17 @@ pub fn use_post_render(f: Rc<dyn Fn()>) {
 	ci_ref.borrow_mut().post_render=Some(f);
 }
 
-/*pub fn use_idle(f: Rc<dyn Fn()>) {
-	RenderEnv::get_current().borrow_mut().idle_handlers.push(f);
-}*/
-
 pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
 	RenderEnv::get_current().borrow_mut().app_event_handlers.push(f);
 }
 
-pub fn use_dirty_trigger()->Rc<dyn Fn()> {
-	use_instance(||{
-		RenderEnv::get_current().borrow().dirty.create_trigger()
-	}).borrow().clone()
+pub fn use_dirty_trigger()->Rc<Rc<dyn Fn()>> {
+	RenderEnv::with_hook_data(&|env,hook_data| {
+		match hook_data {
+			None=>Rc::new(env.dirty.create_trigger()),
+			Some(data)=>data
+		}
+	})
 }
 
 /*pub fn use_context_provider<T: 'static>(t: Rc<RefCell<T>>) {
