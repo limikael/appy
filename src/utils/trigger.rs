@@ -1,14 +1,23 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::*;
 
-#[derive(Default)]
 pub struct Trigger {
-    pub state: Rc<RefCell<bool>>,
+    state: Rc<RefCell<bool>>,
+    trigger: Rc<dyn Fn()>
 }
 
 impl Trigger {
     pub fn new() -> Self {
-        Self::default()
+        let state=Rc::new(RefCell::new(false));
+        let trigger=Rc::new(with_clone!([state],move||{
+            *state.borrow_mut() = true;
+        }));
+
+        Trigger {
+            state,
+            trigger
+        }
     }
 
     pub fn get_state(&self) -> bool {
@@ -20,9 +29,6 @@ impl Trigger {
     }
 
     pub fn create_trigger(&self) -> Rc<dyn Fn()> {
-        let state_rc = self.state.clone();
-        Rc::new(move || {
-            *state_rc.borrow_mut() = true;
-        })
+        self.trigger.clone()
     }
 }

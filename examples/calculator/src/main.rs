@@ -33,16 +33,10 @@ fn button(p: Button, _c: Elements)->Elements {
 
 #[main_window]
 fn app()->Elements {
-	let trigger=use_dirty_trigger();
-	let model_ref=use_instance(||CalculatorModel::new(trigger.clone()));
-	let on_click=cb_p_with_clone!([model_ref],move|c:char|{
-		model_ref.borrow_mut().input(c);
+	let model=use_reducer(CalculatorModel::action,CalculatorModel::new);
+	let on_click=cb_p_with_clone!([model],move|c:char|{
+		model.dispatch(c);
 	});
-
-	let model=model_ref.borrow();
-
-// title="Calculator"
-// desktop_init_size=(360,480)
 
 	apx!(
 		<blk height=Pc(25.0) top=Pc(0.0)>

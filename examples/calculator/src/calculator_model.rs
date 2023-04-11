@@ -1,8 +1,8 @@
 use std::rc::Rc;
 use std::cmp::min;
 
+#[derive(Clone)]
 pub struct CalculatorModel {
-	trigger: Rc<dyn Fn()>,
 	accum: f64,
 	input: String,
 	current_op: Option<char>
@@ -31,9 +31,8 @@ fn calc_fmt(v:f64)->String {
 }
 
 impl CalculatorModel {
-	pub fn new(trigger:Rc<dyn Fn()>)->CalculatorModel {
+	pub fn new()->CalculatorModel {
 		CalculatorModel {
-			trigger,
 			accum: 0.0,
 			input: "".to_string(),
 			current_op: None
@@ -46,6 +45,12 @@ impl CalculatorModel {
 		}
 
 		self.input.parse::<f64>().unwrap()
+	}
+
+	pub fn action(&self, c:char)->Self {
+		let mut res=self.clone();
+		res.input(c);
+		res
 	}
 
 	pub fn input(&mut self, c:char) {
@@ -101,8 +106,6 @@ impl CalculatorModel {
 
 			_=>panic!("unexpected input")
 		};
-
-		(self.trigger)();
 	}
 
 	fn apply_current_op(&mut self) {
