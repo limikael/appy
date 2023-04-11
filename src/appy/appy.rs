@@ -27,7 +27,7 @@ impl Appy {
         }).unwrap()
     }
 
-    pub fn use_hook_ref<F, T: 'static>(mut ctor:F)->HookRef<T>
+    pub fn use_hook_ref<F, T: 'static>(ctor:F)->HookRef<T>
             where F: FnMut()->T {
         appy_instance::with(move|appy|{
             let ci_ref = appy.current_component_instance.clone().unwrap();
@@ -35,9 +35,9 @@ impl Appy {
 
             appy.current_hook_index+=1;
 
-            ci.get_hook_ref(
+            ci.create_hook_ref(
                 appy.current_hook_index-1,
-                move||ctor(),
+                ctor,
                 appy.dirty.create_trigger()
             )
         }).unwrap()
