@@ -69,16 +69,11 @@ impl Appy {
         ci.borrow_mut().post_render = None;
         self.current_component_instance = Some(ci.clone());
         self.current_hook_index = 0;
-
-        let mut child_fragment:Option<Elements>=None;
-        appy_instance::using(self,||{
-            child_fragment=Some(component.render());
+        let child_fragment=appy_instance::using(self,||{
+            component.render()
         });
 
-        self.current_component_instance=None;
-
-        self.render_fragment(child_fragment.unwrap(), this_path);
-
+        self.render_fragment(child_fragment,this_path);
         ci.borrow().run_post_render();
     }
 
