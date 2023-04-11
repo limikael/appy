@@ -12,6 +12,56 @@ pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
 	})
 }
 
+pub struct ReducerData<T> {
+	pub value: Rc<T>,
+	pub dirty_trigger: Rc<dyn Fn()>
+}
+
+#[derive(Clone)]
+pub struct ReducerRef<T, A> {
+	data: Rc<RefCell<ReducerData<T>>>,
+	value: Rc<T>,
+	reducer: Rc<dyn Fn(Rc<T>,A)->Rc<T>>
+}
+
+impl<T, A> ReducerRef<T, A> {
+	pub fn new(data: Rc<RefCell<ReducerData<T>>>, reducer:Rc<dyn Fn(Rc<T>,A)->Rc<T>>)->Self {
+		let value=data.borrow().value.clone();
+		Self {
+			value,
+			data,
+			reducer
+		}
+	}
+
+	pub fn dispatch(&self, action: A) {
+		let reduced:Rc<T>=(self.reducer)(self.value.clone(),action);
+		self.data.borrow_mut().value=reduced;
+		(self.data.borrow().dirty_trigger)();
+	}
+}
+
+impl<T, A> Deref for ReducerRef<T, A> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &*self.value
+    }
+}
+
+pub fn use_reducer<F, A, T: 'static>(reducer: Rc<dyn Fn(Rc<T>,A)->Rc<T>>, ctor: F)->ReducerRef<T, A>
+		where F:Fn()->T {
+	ReducerRef::new(
+		Appy::use_hook_data(|env|{
+			RefCell::new(ReducerData{
+				value: Rc::new(ctor()),
+				dirty_trigger: env.dirty.create_trigger(),
+			})
+		}),
+		reducer
+	)
+}
+
 pub struct StateData<T> {
 	pub value: Rc<T>,
 	pub dirty_trigger: Rc<dyn Fn()>
