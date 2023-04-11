@@ -52,17 +52,6 @@ pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
 	})
 }
 
-/*pub fn use_dirty_trigger()->Rc<dyn Fn()> {
-	let t=Appy::use_hook_data(|appy| {
-		RefCell::new(
-			appy.dirty.create_trigger()
-		)
-	});
-
-	let f=t.borrow().clone();
-	f
-}*/
-
 /*pub fn use_context_provider<T: 'static>(t: Rc<RefCell<T>>) {
 	let type_id=TypeId::of::<T>();
 

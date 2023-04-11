@@ -33,14 +33,11 @@ impl Appy {
             let ci_ref = appy.current_component_instance.clone().unwrap();
             let mut ci = ci_ref.borrow_mut();
 
-            let use_hook_index=appy.current_hook_index;
-            if appy.current_hook_index >= ci.hook_data.len() {
-                ci.hook_data.push(HookData::new(Rc::new(ctor())))
-            }
+            appy.current_hook_index+=1;
 
-            appy.current_hook_index += 1;
-            HookRef::new(
-                ci.hook_data[use_hook_index].clone(),
+            ci.get_hook_ref(
+                appy.current_hook_index-1,
+                move||ctor(),
                 appy.dirty.create_trigger()
             )
         }).unwrap()

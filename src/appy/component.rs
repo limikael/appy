@@ -69,6 +69,22 @@ impl ComponentInstance {
             (*f)();
         }
     }
+
+    pub fn get_hook_ref<F, T: 'static>(&mut self, index:usize, mut ctor:F, trigger:Rc<dyn Fn()>)->HookRef<T>
+            where F:FnMut()->T {
+        if index>self.hook_data.len() {
+            panic!("Hooks are wrong");
+        }
+
+        if index==self.hook_data.len() {
+            self.hook_data.push(HookData::new(Rc::new(ctor())))
+        }
+
+        HookRef::new(
+            self.hook_data[index].clone(),
+            trigger
+        )
+    }
 }
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
