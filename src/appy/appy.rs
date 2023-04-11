@@ -27,20 +27,22 @@ impl Appy {
         }).unwrap()
     }
 
-    pub fn use_hook_data<F, T: 'static>(f:F)->Rc<T>
-            where F: Fn(&mut Appy)->T {
-        appy_instance::with(|appy|{
+    pub fn use_hook_ref<F, T: 'static>(mut ctor:F)->HookRef<T>
+            where F: FnMut()->T {
+        appy_instance::with(move|appy|{
             let ci_ref = appy.current_component_instance.clone().unwrap();
             let mut ci = ci_ref.borrow_mut();
 
             let use_hook_index=appy.current_hook_index;
             if appy.current_hook_index >= ci.hook_data.len() {
-                ci.hook_data.push(Rc::new(f(appy)))
+                ci.hook_data.push(HookData::new(Rc::new(ctor())))
             }
 
             appy.current_hook_index += 1;
-            let any:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
-            any.downcast::<T>().unwrap()
+            HookRef::new(
+                ci.hook_data[use_hook_index].clone(),
+                appy.dirty.create_trigger()
+            )
         }).unwrap()
     }
 

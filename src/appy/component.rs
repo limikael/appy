@@ -1,10 +1,59 @@
+use std::ops::Deref;
+use std::cell::RefCell;
 use std::any::TypeId;
 use std::any::Any;
 use std::rc::Rc;
 
+#[derive(Clone)]
+pub struct HookData {
+    value: Rc<RefCell<Rc<dyn Any>>>
+}
+
+impl HookData {
+    pub fn new(value: Rc<dyn Any>)->Self {
+        HookData {
+            value: Rc::new(RefCell::new(value))
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct HookRef<T>
+        where T: ?Sized {
+    value: Rc<T>,
+    hook_data: HookData,
+    trigger: Rc<dyn Fn()>
+}
+
+impl<T: 'static> HookRef<T> {
+    pub fn new(hook_data: HookData, trigger: Rc<dyn Fn()>)->Self {
+        let any:Rc<dyn Any>=hook_data.value.borrow().clone();
+        let value:Rc<T>=any.downcast::<T>().unwrap();
+
+        HookRef {
+            value,
+            hook_data,
+            trigger
+        }
+    }
+
+    pub fn set(&self, v: T) {
+        *self.hook_data.value.borrow_mut()=Rc::new(v);
+        (self.trigger)();
+    }
+}
+
+impl<T> Deref for HookRef<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &*self.value
+    }
+}
+
 #[derive(Default)]
 pub struct ComponentInstance {
-    pub hook_data: Vec<Rc<dyn Any>>,
+    pub hook_data: Vec<HookData>,
     pub post_render: Option<Rc<dyn Fn()>>,
 }
 

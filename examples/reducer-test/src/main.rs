@@ -13,10 +13,10 @@ struct AppState {
 }
 
 impl AppState {
-	fn reducer(state:Rc<Self>, a:Action)->Rc<Self> {
+	fn reducer(&self, a:Action)->Self {
 		match a {
-			Action::Add=>Rc::new(Self{v: (*state).v+1}),
-			Action::Sub=>Rc::new(Self{v: (*state).v-1})
+			Action::Add=>Self{v: self.v+1},
+			Action::Sub=>Self{v: self.v-1}
 		}
 	}
 }
@@ -45,7 +45,7 @@ pub fn text_button(p:TextButton, _c:Elements)->Elements {
 
 #[main_window]
 pub fn app()->Elements {
-	let state=use_reducer(Rc::new(AppState::reducer),||AppState{v:1});
+	let state=use_reducer(AppState::reducer,||AppState{v:1});
 
 	let s=format!("Value: {}",(*state).v);
 
