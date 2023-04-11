@@ -3,25 +3,47 @@ use std::any::TypeId;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-
+use environmental::environmental;
 use crate::*;
 
-#[derive(Clone, Debug, Hash, Eq, PartialEq)]
-enum ComponentPathComponent {
-    Index(i32),
-    TypeId(TypeId),
-}
-
-type ComponentPath = Vec<ComponentPathComponent>;
+environmental!(appy_instance:Appy);
 
 pub struct Appy {
     instances: HashMap<ComponentPath, Rc<RefCell<ComponentInstance>>>,
     root: fn() -> Elements,
-    render_env: Rc<RefCell<RenderEnv>>,
-    app_context: Option<Rc<RefCell<AppContext>>>
+    app_context: Option<Rc<RefCell<AppContext>>>,
+    pub current_component_instance: Option<Rc<RefCell<ComponentInstance>>>,
+    current_hook_index: usize,
+    pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent)>>,
+    pub dirty: Trigger,
+    pub contexts: HashMap<TypeId, Rc<dyn Any>>,
 }
 
 impl Appy {
+    pub fn with<F, T: 'static>(mut f:F)->T
+            where F: FnMut(&mut Appy)->T {
+        appy_instance::with(|appy|{
+            f(appy)
+        }).unwrap()
+    }
+
+    pub fn use_hook_data<F, T: 'static>(f:F)->Rc<T>
+            where F: Fn(&mut Appy)->T {
+        appy_instance::with(|appy|{
+            let ci_ref = appy.current_component_instance.clone().unwrap();
+            let mut ci = ci_ref.borrow_mut();
+
+            let use_hook_index=appy.current_hook_index;
+            if appy.current_hook_index >= ci.hook_data.len() {
+                ci.hook_data.push(Rc::new(f(appy)))
+            }
+
+            appy.current_hook_index += 1;
+            let any:Rc<dyn Any>=ci.hook_data[use_hook_index].clone();
+            any.downcast::<T>().unwrap()
+        }).unwrap()
+    }
+
     fn render_fragment(&mut self, fragment: Elements, component_path: ComponentPath) {
         for (i, component) in fragment.into_iter().enumerate() {
             let mut this_path = component_path.clone();
@@ -44,34 +66,54 @@ impl Appy {
 
         let ci = self.instances.get(&this_path).unwrap().clone();
 
-        self.render_env.borrow_mut().pre_render(ci.clone());
-        let child_fragment = component.render();
-        self.render_env.borrow_mut().post_render();
+        ci.borrow_mut().post_render = None;
+        self.current_component_instance = Some(ci.clone());
+        self.current_hook_index = 0;
 
-        self.render_fragment(child_fragment, this_path);
+        let mut child_fragment:Option<Elements>=None;
+        appy_instance::using(self,||{
+            child_fragment=Some(component.render());
+        });
+
+        self.current_component_instance=None;
+
+        self.render_fragment(child_fragment.unwrap(), this_path);
 
         ci.borrow().run_post_render();
     }
 
+    fn provide_context<T: 'static>(&mut self, t: Rc<RefCell<T>>) {
+        let type_id=TypeId::of::<T>();
+
+        if self.contexts.contains_key(&type_id) {
+            panic!("context already provided");
+        }
+
+        self.contexts.insert(type_id,t);
+    }
+
     fn render(&mut self) {
-        self.render_env.borrow_mut().pre_render_tree();
-        self.render_env.borrow_mut().provide_context::<AppContext>(self.app_context.clone().unwrap());
+        self.app_event_handlers=vec![];
+        self.contexts = HashMap::new();
+        self.dirty.set_state(false);
 
-        RenderEnv::set_current(Some(self.render_env.clone()));
-
+        self.provide_context(self.app_context.clone().unwrap());
         self.render_component(
             Element::create(root_element, RootElement { root: self.root }, vec![]),
             vec![],
         );
-        RenderEnv::set_current(None);
     }
 
     pub fn new(root: fn() -> Elements)->Self {
         Self {
-            instances: HashMap::new(),
             root,
-            render_env: Rc::new(RefCell::new(RenderEnv::new())),
+            instances: HashMap::new(),
             app_context: None,
+            app_event_handlers: vec![],
+            contexts: HashMap::new(),
+            dirty: Trigger::new(),
+            current_component_instance: None,
+            current_hook_index: 0
         }
     }
 
@@ -79,12 +121,7 @@ impl Appy {
         let ac_ref=self.app_context.clone().unwrap();
         let mut ac=ac_ref.borrow_mut();
 
-        ac.rect.w=w;
-        ac.rect.h=h;
-        ac.rect_renderer.window_width=w;
-        ac.rect_renderer.window_height=h;
-        ac.text_renderer.window_width=w;
-        ac.text_renderer.window_height=h;
+        ac.set_size(w,h);
     }
 
     pub fn run(mut self, app_window_builder:&mut dyn AppWindowBuilder) {
@@ -93,7 +130,7 @@ impl Appy {
         app_window.run(Box::new(move|w,e|{
             //log_debug!("app: {:?}",e);
 
-            for handler in &self.render_env.borrow().app_event_handlers {
+            for handler in &self.app_event_handlers {
                 handler(&e);
             }
 
@@ -101,12 +138,7 @@ impl Appy {
                 AppEvent::Show=>{
                     //install_debug_output();
                     if self.app_context.is_none() {
-                        self.app_context=Some(Rc::new(RefCell::new(AppContext {
-                            rect: Rect::empty(),
-                            rect_renderer: RectRenderer::new(),
-                            text_renderer: TextRenderer::new()
-                        })));
-
+                        self.app_context=Some(Rc::new(RefCell::new(AppContext::new())));
                         self.update_app_context_size(w.width() as i32,w.height() as i32);
                     }
                 },
@@ -120,7 +152,7 @@ impl Appy {
                 _=>{}
             }
 
-            if self.render_env.borrow().dirty.get_state() {
+            if self.dirty.get_state() {
                 w.post_redisplay();
             }
         }));

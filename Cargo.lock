@@ -78,6 +78,7 @@ version = "0.1.0"
 dependencies = [
  "android_log-sys",
  "appy-macros",
+ "environmental",
  "gl",
  "glium",
  "glutin 0.30.7",
@@ -458,6 +459,12 @@ dependencies = [
  "winapi",
  "wio",
 ]
+
+[[package]]
+name = "environmental"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e48c92028aaa870e83d51c64e5d4e0b6981b360c522198c23959f219a4e1b15b"
 
 [[package]]
 name = "expat-sys"

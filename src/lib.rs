@@ -3,13 +3,13 @@ mod export;
 
 pub use appy_macros::*;
 
-export!(render_env, "appy/render_env.rs");
+//export!(render_env, "appy/render_env.rs");
 export!(hooks, "appy/hooks.rs");
 export!(appy, "appy/appy.rs");
 export!(element, "appy/element.rs");
 export!(app_context, "appy/app_context.rs");
+export!(component, "appy/component.rs");
 
-//export!(window, "components/window.rs");
 export!(bg, "components/bg.rs");
 export!(blk, "components/blk.rs");
 export!(text, "components/text.rs");

@@ -24,11 +24,12 @@ raw-window-handle = {version="0.5.2", optional=true}
 
 # Glium deps
 glium={version="0.32.1",optional=true}
+environmental = "1.1.4"
 
 [target.'cfg(target_os="android")'.dependencies]
 android_log-sys = "0.3.0"
 
 [features]
 #default=["sdl"]
-sdl=["dep:sdl2","appy-macros/sdl"]
-glutin=["dep:glutin","dep:winit","dep:glutin-winit","dep:raw-window-handle","appy-macros/glutin"]
+sdl=["dep:sdl2", "appy-macros/sdl"]
+glutin=["dep:glutin", "dep:winit", "dep:glutin-winit", "dep:raw-window-handle", "appy-macros/glutin"]

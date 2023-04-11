@@ -7,19 +7,10 @@ use crate::{*};
 
 pub fn use_instance<F, T: 'static>(ctor: F)->Rc<RefCell<T>>
 		where F:Fn()->T {
-	RenderEnv::use_hook_data(&|_env:&mut RenderEnv|{
+	Appy::use_hook_data(&|_appy:&mut Appy|{
 		RefCell::new(ctor())
 	})
 }
-
-/*pub struct RefData<T> {
-	pub current: T
-}
-
-pub fn use_ref<F, T: 'static>(ctor: F)->Rc<RefCell<RefData<T>>>
-		where F:Fn()->T {
-	use_instance(||RefData{current:ctor()})
-}*/
 
 pub struct StateData<T> {
 	pub value: Rc<T>,
@@ -58,7 +49,7 @@ impl<T> Deref for StateRef<T> {
 pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 		where F:Fn()->T {
 	StateRef::new(
-		RenderEnv::use_hook_data(|env|{
+		Appy::use_hook_data(|env|{
 			RefCell::new(StateData{
 				value: Rc::new(ctor()),
 				dirty_trigger: env.dirty.create_trigger(),
@@ -68,18 +59,22 @@ pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 }
 
 pub fn use_post_render(f: Rc<dyn Fn()>) {
-	let ci_ref=RenderEnv::get_current().borrow_mut().get_current_component_instance();
-	ci_ref.borrow_mut().post_render=Some(f);
+	Appy::with(|appy|{
+		let ci_ref=appy.current_component_instance.as_ref().unwrap();
+		ci_ref.borrow_mut().post_render=Some(f.clone());
+	})
 }
 
 pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
-	RenderEnv::get_current().borrow_mut().app_event_handlers.push(f);
+	Appy::with(|appy|{
+		appy.app_event_handlers.push(f.clone());
+	})
 }
 
 pub fn use_dirty_trigger()->Rc<dyn Fn()> {
-	let t=RenderEnv::use_hook_data(|env| {
+	let t=Appy::use_hook_data(|appy| {
 		RefCell::new(
-			env.dirty.create_trigger()
+			appy.dirty.create_trigger()
 		)
 	});
 
@@ -100,6 +95,8 @@ pub fn use_dirty_trigger()->Rc<dyn Fn()> {
 pub fn use_context<T: 'static>()->Rc<RefCell<T>> {
 	let type_id=TypeId::of::<T>();
 
-	let any=RenderEnv::get_current().borrow_mut().contexts.get(&type_id).unwrap().clone();
-	any.downcast::<RefCell<T>>().unwrap()
+	Appy::with(|appy|{
+		let any=appy.contexts.get(&type_id).unwrap().clone();
+		any.downcast::<RefCell<T>>().unwrap()
+	})
 }
