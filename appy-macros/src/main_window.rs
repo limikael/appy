@@ -18,6 +18,10 @@ fn get_toml_string(table:&Table, mut path:Vec<&str>)->Option<String> {
 	}
 
 	let id=path.remove(0);
+	if !table.contains_key(id) {
+		return None
+	}
+
 	return match table[id].clone() {
 		Value::Table(t)=>get_toml_string(&t,path),
 		_=>None
