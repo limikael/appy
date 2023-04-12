@@ -27,20 +27,23 @@ impl Appy {
         }).unwrap()
     }
 
-    pub fn use_hook_ref<F, T: 'static>(ctor:F)->HookRef<T>
+    pub fn use_hook_ref<F, T: 'static>(&mut self, ctor:F)->HookRef<T>
             where F: FnOnce()->T {
-        Appy::with(|appy|{
-            let ci_ref = appy.current_component_instance.clone().unwrap();
-            let mut ci = ci_ref.borrow_mut();
+        let i=self.current_hook_index;
+        let t=self.dirty.create_trigger();
 
-            appy.current_hook_index+=1;
-
-            ci.create_hook_ref(
-                appy.current_hook_index-1,
-                ctor,
-                appy.dirty.create_trigger()
-            )
+        self.current_hook_index+=1;
+        self.with_current_component_instance(|ci|{
+            ci.create_hook_ref(i,ctor,t)
         })
+    }
+
+    pub fn with_current_component_instance<F, T: 'static>(&self, f:F)->T
+           where F: FnOnce(&mut ComponentInstance)->T {
+        let ci_ref = self.current_component_instance.clone().unwrap();
+        let ci=&mut *ci_ref.borrow_mut();
+
+        f(ci)
     }
 
     fn render_fragment(&mut self, fragment: Elements, component_path: ComponentPath) {

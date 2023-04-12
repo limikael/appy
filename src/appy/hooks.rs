@@ -25,24 +25,29 @@ impl<T, A> Deref for ReducerRef<T, A> {
     }
 }
 
-pub fn use_reducer<F, G, A, T: 'static>(reducer: G, ctor: F)->ReducerRef<T, A>
+pub fn use_reducer<F, G, A: 'static, T: 'static>(reducer: G, ctor: F)->ReducerRef<T, A>
 		where F:Fn()->T, G: Fn(&T,A)->T + 'static {
-	ReducerRef {
-		hook_ref: Appy::use_hook_ref(||ctor()),
-		reducer: Rc::new(reducer)
-	}
+	Appy::with(|appy|{
+		ReducerRef {
+			hook_ref: appy.use_hook_ref(ctor),
+			reducer: Rc::new(reducer)
+		}
+	})
 }
 
 pub type StateRef<T>=HookRef<T>;
 pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 		where F:Fn()->T {
-	Appy::use_hook_ref(||ctor())
+	Appy::with(|appy|{
+		appy.use_hook_ref(ctor)
+	})
 }
 
 pub fn use_post_render(f: Rc<dyn Fn()>) {
 	Appy::with(|appy|{
-		let ci_ref=appy.current_component_instance.as_ref().unwrap();
-		ci_ref.borrow_mut().post_render=Some(f.clone());
+		appy.with_current_component_instance(|ci|{
+			ci.post_render=Some(f.clone());
+		})
 	})
 }
 
