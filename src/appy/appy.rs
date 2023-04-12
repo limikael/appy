@@ -9,11 +9,11 @@ use crate::*;
 environmental!(appy_instance:Appy);
 
 pub struct Appy {
-    instances: HashMap<ComponentPath, Rc<RefCell<ComponentInstance>>>,
+    instances: HashMap<ComponentPath, ComponentInstance>,
     root: fn() -> Elements,
     app_context: Option<Rc<RefCell<AppContext>>>,
-    pub current_component_instance: Option<Rc<RefCell<ComponentInstance>>>,
     current_hook_index: usize,
+    current_component_path: Option<ComponentPath>,
     pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent)>>,
     pub dirty: Trigger,
     pub contexts: HashMap<TypeId, Rc<dyn Any>>,
@@ -38,11 +38,10 @@ impl Appy {
         })
     }
 
-    pub fn with_current_component_instance<F, T: 'static>(&self, f:F)->T
+    pub fn with_current_component_instance<F, T: 'static>(&mut self, f:F)->T
            where F: FnOnce(&mut ComponentInstance)->T {
-        let ci_ref = self.current_component_instance.clone().unwrap();
-        let ci=&mut *ci_ref.borrow_mut();
-
+        let p=self.current_component_path.as_ref().unwrap().clone();
+        let ci = self.instances.get_mut(&p).unwrap();
         f(ci)
     }
 
@@ -62,21 +61,19 @@ impl Appy {
         if !self.instances.contains_key(&this_path) {
             self.instances.insert(
                 this_path.clone(), 
-                Rc::new(RefCell::new(ComponentInstance::new()))
+                ComponentInstance::new()
             );
         }
 
-        let ci = self.instances.get(&this_path).unwrap().clone();
-
-        ci.borrow_mut().post_render = None;
-        self.current_component_instance = Some(ci.clone());
+        self.instances.get_mut(&this_path).unwrap().pre_render();
+        self.current_component_path=Some(this_path.clone());
         self.current_hook_index = 0;
         let child_fragment=appy_instance::using(self,||{
             component.render()
         });
 
-        self.render_fragment(child_fragment,this_path);
-        ci.borrow().run_post_render();
+        self.render_fragment(child_fragment,this_path.clone());
+        self.instances.get_mut(&this_path).unwrap().post_render();
     }
 
     fn provide_context<T: 'static>(&mut self, t: Rc<RefCell<T>>) {
@@ -109,7 +106,7 @@ impl Appy {
             app_event_handlers: vec![],
             contexts: HashMap::new(),
             dirty: Trigger::new(),
-            current_component_instance: None,
+            current_component_path: None,
             current_hook_index: 0
         }
     }
