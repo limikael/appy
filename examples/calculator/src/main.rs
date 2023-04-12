@@ -31,11 +31,42 @@ fn button(p: Button, _c: Elements)->Elements {
 	)
 }
 
+#[derive(Clone, Default)]
+pub struct ButtonBg {
+    pub on_click: Cb,
+	pub normal: u32,
+	pub active: u32,
+	pub hover: u32
+}
+
+#[function_component]
+pub fn button_bg(p:ButtonBg, _c:Elements)->Elements {
+	let hover_state=use_hover_state_ref();
+	//println!("state: {:?}",*hover_state);
+
+	let c=match *hover_state {
+		HoverState::Normal=>p.normal,
+		HoverState::Hover=>p.hover,
+		HoverState::Active=>p.active
+	};
+
+	apx!{
+		<bg col=c/>
+		<interaction on_click=p.on_click hover_state_ref=Some(hover_state)/>
+	}
+}
+
 #[main_window]
 fn app()->Elements {
 	let model=use_reducer(CalculatorModel::action,CalculatorModel::new);
+	let show_info=use_state(||false);
+
 	let on_click=cb_p_with_clone!([model],move|c:char|{
 		model.dispatch(c);
+	});
+
+	let on_info_click=cb_with_clone!([show_info],move||{
+		show_info.set(!*show_info);
 	});
 
 	apx!(
@@ -57,5 +88,23 @@ fn app()->Elements {
 				</grid>
 			</blk>
 		</blk>
+		<blk top=Pc(5.0) left=Pc(5.0) width=Pc(10.0) height=Pc(10.0)>
+			<button_bg normal=0x000000 active=0x404040 hover=0x808080
+					on_click=on_info_click.clone()/>
+			<text text="i".to_string() size=Pc(100.0) align=Align::Center/>
+		</blk>
+		{if *show_info {
+			apx!(
+				<blk top=Pc(10.0) left=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
+					<bg col=0x102030/>
+					<blk bottom=Pc(10.0) width=Pc(50.0) height=Pc(10.0)>
+						<button_bg normal=0x0000f0 active=0x4040f0 hover=0x8080f0
+								on_click=on_info_click.clone()/>
+						<text text="Ok".to_string() align=Align::Center/>
+					</blk>
+					<text text="This is a little calculator...".to_string() align=Align::Center/>
+				</blk>
+			)
+		} else {apx!()}}
 	)
 }
