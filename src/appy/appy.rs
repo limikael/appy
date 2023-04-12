@@ -1,3 +1,4 @@
+use std::mem::take;
 use std::any::Any;
 use std::any::TypeId;
 use std::cell::RefCell;
@@ -10,6 +11,7 @@ environmental!(appy_instance:Appy);
 
 pub struct Appy {
     instances: HashMap<ComponentPath, ComponentInstance>,
+    previous_instances: HashMap<ComponentPath, ComponentInstance>,
     root: fn() -> Elements,
     app_context: Option<Rc<RefCell<AppContext>>>,
     current_hook_index: usize,
@@ -41,6 +43,16 @@ impl Appy {
     pub fn with_current_component_instance<F, T: 'static>(&mut self, f:F)->T
            where F: FnOnce(&mut ComponentInstance)->T {
         let p=self.current_component_path.as_ref().unwrap().clone();
+        if !self.instances.contains_key(&p) {
+            let ci=if self.previous_instances.contains_key(&p) {
+                self.previous_instances.remove(&p).unwrap()
+            } else {
+                ComponentInstance::new()
+            };
+
+            self.instances.insert(p.clone(),ci);
+        }
+
         let ci = self.instances.get_mut(&p).unwrap();
         f(ci)
     }
@@ -58,22 +70,22 @@ impl Appy {
         let mut this_path = component_path;
         this_path.push(ComponentPathComponent::TypeId(component.type_id()));
 
-        if !self.instances.contains_key(&this_path) {
-            self.instances.insert(
-                this_path.clone(), 
-                ComponentInstance::new()
-            );
+        if self.instances.contains_key(&this_path) {
+            self.instances.get_mut(&this_path).unwrap().pre_render();
         }
 
-        self.instances.get_mut(&this_path).unwrap().pre_render();
         self.current_component_path=Some(this_path.clone());
         self.current_hook_index = 0;
         let child_fragment=appy_instance::using(self,||{
             component.render()
         });
 
+        self.current_component_path=None;
         self.render_fragment(child_fragment,this_path.clone());
-        self.instances.get_mut(&this_path).unwrap().post_render();
+
+        if self.instances.contains_key(&this_path) {
+            self.instances.get_mut(&this_path).unwrap().post_render();
+        }
     }
 
     fn provide_context<T: 'static>(&mut self, t: Rc<RefCell<T>>) {
@@ -91,17 +103,25 @@ impl Appy {
         self.contexts = HashMap::new();
         self.dirty.set_state(false);
 
+        self.previous_instances=take(&mut self.instances);
+        self.instances=HashMap::new();
+
         self.provide_context(self.app_context.clone().unwrap());
         self.render_component(
             Element::create(root_element, RootElement { root: self.root }, vec![]),
             vec![],
         );
+
+        self.previous_instances=HashMap::new();
+
+        //println!("instances post render: {}",self.instances.len());
     }
 
     pub fn new(root: fn() -> Elements)->Self {
         Self {
             root,
             instances: HashMap::new(),
+            previous_instances: HashMap::new(),
             app_context: None,
             app_event_handlers: vec![],
             contexts: HashMap::new(),
