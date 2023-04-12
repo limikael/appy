@@ -20,16 +20,16 @@ pub struct Appy {
 }
 
 impl Appy {
-    pub fn with<F, T: 'static>(mut f:F)->T
-            where F: FnMut(&mut Appy)->T {
+    pub fn with<F, T: 'static>(f:F)->T
+            where F: FnOnce(&mut Appy)->T {
         appy_instance::with(|appy|{
             f(appy)
         }).unwrap()
     }
 
     pub fn use_hook_ref<F, T: 'static>(ctor:F)->HookRef<T>
-            where F: FnMut()->T {
-        appy_instance::with(move|appy|{
+            where F: FnOnce()->T {
+        Appy::with(|appy|{
             let ci_ref = appy.current_component_instance.clone().unwrap();
             let mut ci = ci_ref.borrow_mut();
 
@@ -40,7 +40,7 @@ impl Appy {
                 ctor,
                 appy.dirty.create_trigger()
             )
-        }).unwrap()
+        })
     }
 
     fn render_fragment(&mut self, fragment: Elements, component_path: ComponentPath) {

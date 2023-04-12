@@ -70,11 +70,9 @@ impl ComponentInstance {
         }
     }
 
-    pub fn create_hook_ref<F, T: 'static>(
-            &mut self, index:usize, mut ctor:F, 
-            trigger:Rc<dyn Fn()>
-        )->HookRef<T>
-            where F:FnMut()->T {
+    pub fn create_hook_ref<F, T: 'static>(&mut self,
+            index:usize,  ctor:F, trigger:Rc<dyn Fn()>)->HookRef<T>
+            where F:FnOnce()->T {
         if index>self.hook_data.len() {
             panic!("Hooks are wrong");
         }
