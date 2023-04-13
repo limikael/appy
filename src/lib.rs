@@ -25,7 +25,7 @@
 
 pub use appy_macros::*;
 
-pub mod appy;
+pub mod core;
 pub mod components;
 pub mod sys;
 pub mod utils;
@@ -35,3 +35,5 @@ pub use winit::platform::android::activity::AndroidApp;
 
 #[cfg(test)]
 mod tests;
+
+extern crate self as appy;

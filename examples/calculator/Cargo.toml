@@ -7,9 +7,9 @@ edition="2021"
 appid="dev.wayan.calc"
 appname="Appy Calculator"
 
-[lib]
-path="src/main.rs"
-crate-type=["cdylib"]
+# [lib]
+# path="src/main.rs"
+# crate-type=["cdylib"]
 
 [dependencies]
 appy={path="../..",features=["glutin"]}

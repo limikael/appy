@@ -1,6 +1,7 @@
-use appy_macros::{function_component, apx};
+use appy_macros::{apx, function_component};
 
-use crate::appy::element::Elements;
+use super::blk::{Dim::Pc, *};
+use crate::core::element::Elements;
 
 #[derive(Clone)]
 pub struct Grid {
@@ -16,10 +17,6 @@ impl Default for Grid {
 
 #[function_component]
 pub fn grid(p: Grid, children: Elements) -> Elements {
-    use crate::appy::element::{Element, flatten_elements};
-    use Dim::Pc;
-    use super::blk::*;
-
     let mut items = vec![];
 
     for (i, c) in children.into_iter().enumerate() {

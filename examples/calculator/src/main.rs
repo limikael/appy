@@ -1,7 +1,18 @@
-use appy::{*};
+// TODO: is there a way to put that in the macro itself, or to avoid
+// putting `..Default::default()` at the end when all parameters exist?
+#![allow(clippy::needless_update)]
+
+use appy::core::element::Elements;
+use appy::core::hooks::{use_reducer, use_state};
+use appy::components::{blk::*, interaction::*, bg::*, text::*, grid::*};
+use appy::components::blk::Dim::*;
+use appy::components::interaction::{use_hover_state_ref, HoverState};
+use appy::{function_component, cb_with_clone, apx, cb_p_with_clone, main_window};
+use appy::utils::cb::{CbP, Cb};
+
+use crate::calculator_model::CalculatorModel;
 
 mod calculator_model;
-use calculator_model::{*};
 
 #[derive(Clone, Default)]
 pub struct Button {

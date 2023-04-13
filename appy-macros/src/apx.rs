@@ -1,6 +1,6 @@
 use proc_macro2;
 use proc_macro::{*};
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn_rsx::{parse2, Node};
 use syn::{Ident};
 
@@ -18,7 +18,9 @@ fn process_rsx_node(node: &Node)->proc_macro2::TokenStream {
 		let props=Ident::new(&format!("Props_{}",name.to_string()),Span::call_site().into());
 		let children=process_rsx_fragment(&element.children);
 
-		quote!(vec![Element::create(#name,#props{#attrs ..Default::default()},#children)])
+		quote!(
+			vec![::appy::core::element::Element::create(#name,#props{#attrs ..::core::default::Default::default()},#children)]
+		)
 	}
 
 	else if let Node::Block(block)=&node {
@@ -38,7 +40,7 @@ fn process_rsx_fragment(nodes: &Vec<Node>)->proc_macro2::TokenStream {
 		elements.extend(quote!(,));
 	}
 
-	quote!(flatten_elements(&mut vec![#elements]))
+	quote!(::appy::core::element::flatten_elements(&mut [#elements]))
 }
 
 pub fn apx(input: TokenStream) -> TokenStream {
