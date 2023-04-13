@@ -43,7 +43,7 @@ pub fn text(p: Text, children: Elements)->Elements {
 	let mut instance=instance_ref.borrow_mut();
 	let r=instance.rect.clone();
 
-	let size=p.size.to_px(r.h as f32);
+	let size=p.size.to_px(r.h as f32,instance.pixel_ratio);
 	let w=instance.text_renderer.get_str_width(&p.text,size) as i32;
 
 	let x=match p.align {

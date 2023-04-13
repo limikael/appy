@@ -131,11 +131,12 @@ impl Appy {
         }
     }
 
-    fn update_app_context_size(&mut self, w:i32, h:i32) {
+    fn with_app_context<F>(&mut self, f: F)
+            where F:FnOnce(&mut AppContext) {
         let ac_ref=self.app_context.clone().unwrap();
-        let mut ac=ac_ref.borrow_mut();
+        let ac=&mut *ac_ref.borrow_mut();
 
-        ac.set_size(w,h);
+        f(ac);
     }
 
     pub fn run(mut self, app_window_builder:&mut dyn AppWindowBuilder) {
@@ -152,12 +153,18 @@ impl Appy {
                 AppEvent::Show=>{
                     //install_debug_output();
                     if self.app_context.is_none() {
-                        self.app_context=Some(Rc::new(RefCell::new(AppContext::new())));
-                        self.update_app_context_size(w.width() as i32,w.height() as i32);
+                        let size=w.size();
+                        self.app_context=Some(Rc::new(RefCell::new(AppContext::new(
+                            size.0,size.1,
+                            w.pixel_ratio()
+                        ))));
                     }
                 },
                 AppEvent::Resize{width,height}=>{
-                    self.update_app_context_size(width as i32,height as i32);
+                    self.with_app_context(|ac|{
+                        ac.set_size(width as i32,height as i32);
+                        ac.pixel_ratio=w.pixel_ratio();
+                    });
                 }
                 AppEvent::Render=>{
                     //println!("render");

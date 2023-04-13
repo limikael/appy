@@ -22,7 +22,7 @@ impl TextRenderer {
     //const CACHE_SIZE:u32=512;
     const CACHE_SIZE: u32 = 1024;
 
-    pub fn new() -> Self {
+    pub fn new(window_width:i32, window_height:i32) -> Self {
         let font_data = include_bytes!("./assets/Roboto-Regular.ttf");
         let font = Font::try_from_bytes(font_data as &[u8]).unwrap();
 
@@ -95,8 +95,8 @@ impl TextRenderer {
             buf: ArrayBuffer::new(4),
             program,
             tex_id,
-            window_width: 100,
-            window_height: 100,
+            window_width,
+            window_height,
             font,
             cache,
         }
@@ -253,10 +253,3 @@ impl TextRenderer {
         }
     }
 }
-
-impl Default for TextRenderer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-

@@ -24,8 +24,8 @@ pub enum AppEvent {
 pub trait AppWindow {
     fn run(self: Box<Self>, handler:Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>);
     fn post_redisplay(&mut self);
-    fn width(&self)->i32;
-    fn height(&self)->i32;
+    fn size(&self)->(i32,i32);
+    fn pixel_ratio(&self)->f32;
 }
 
 pub trait AppWindowBuilder {

@@ -45,20 +45,21 @@ pub struct SdlAppWindow {
 	window: sdl2::video::Window,
 	_gl_context: sdl2::video::GLContext,
 	_video_subsystem: sdl2::VideoSubsystem,
-	pub width: u32,
-	pub height: u32,
+	width: u32,
+	height: u32,
 	expose_requested: bool,
-	need_manual_expose: bool
+	need_manual_expose: bool,
+	pixel_ratio: f32
 }
 
 impl AppWindow for SdlAppWindow {
-    fn width(&self)->i32 {
-    	self.width as i32
-    }
+	fn size(&self)->(i32,i32) {
+		(self.width as i32,self.height as i32)
+	}
 
-    fn height(&self)->i32 {
-    	self.height as i32
-    }
+	fn pixel_ratio(&self)->f32 {
+		self.pixel_ratio
+	}
 
 	fn post_redisplay(&mut self) {
 		if !self.expose_requested {
@@ -80,6 +81,15 @@ impl SdlAppWindow {
 	pub fn new(title:String)->Self {
 		let sdl=sdl2::init().unwrap();
 		let video_subsystem=sdl.video().unwrap();
+
+		let mut pixel_ratio=1.0;
+		let dpi=video_subsystem.display_dpi(0).unwrap().0;
+		if dpi>160.0 {
+			pixel_ratio=dpi/160.0;
+		}
+
+    	log_debug!("pixel ratio: {:?}",pixel_ratio);
+
 		let window=video_subsystem
 			.window(&*title, 800, 600)
 			.opengl()
@@ -105,7 +115,8 @@ impl SdlAppWindow {
 			width: size.0,
 			height: size.1,
 			expose_requested: false,
-			need_manual_expose: need_manual_expose
+			need_manual_expose: need_manual_expose,
+			pixel_ratio
 		}
 	}
 

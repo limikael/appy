@@ -69,24 +69,27 @@ pub struct GlutinAppWindow {
     not_current_gl_context: Option<glutin::context::NotCurrentContext>,
     gl_context: Option<glutin::context::PossiblyCurrentContext>,
     gl_surface: Option<glutin::surface::Surface<glutin::surface::WindowSurface>>,
-    pub width: u32,
-    pub height: u32,
-    mouse_position: winit::dpi::PhysicalPosition<f64>
+    width: u32,
+    height: u32,
+    mouse_position: winit::dpi::PhysicalPosition<f64>,
+    pixel_ratio: f32
 }
 
 impl AppWindow for GlutinAppWindow {
-    fn width(&self)->i32 {
-        if self.width==0 {
+    fn size(&self)->(i32,i32) {
+        if self.width==0 || self.height==0 {
             panic!("We have no window at this point");
         }
-        self.width as i32
+
+        (self.width as i32,self.height as i32)
     }
 
-    fn height(&self)->i32 {
-        if self.height==0 {
+    fn pixel_ratio(&self)->f32 {
+        if self.pixel_ratio<=0.0 {
             panic!("We have no window at this point");
         }
-        self.height as i32
+
+        self.pixel_ratio
     }
 
     fn post_redisplay(&mut self) {
@@ -128,6 +131,14 @@ impl GlutinAppWindow {
         if window.is_some() {
             window.as_ref().unwrap().set_title(&*title);
         }
+
+        let pixel_ratio=if window.is_some() {
+            window.as_ref().unwrap().scale_factor() as f32
+        }
+
+        else {
+            -1.0
+        };
 
         println!("Picked a config with {} samples", gl_config.num_samples());
 
@@ -182,7 +193,8 @@ impl GlutinAppWindow {
             gl_surface: None,
             width: 0, //inner_size.width,
             height: 0, //inner_size.height
-            mouse_position: winit::dpi::PhysicalPosition::<f64>{x:0.0, y:0.0}
+            mouse_position: winit::dpi::PhysicalPosition::<f64>{x:0.0, y:0.0},
+            pixel_ratio: pixel_ratio
         }
     }
 
@@ -203,6 +215,7 @@ impl GlutinAppWindow {
                     let inner_size=self.window.as_ref().unwrap().inner_size();
                     self.width=inner_size.width;
                     self.height=inner_size.height;
+                    self.pixel_ratio=self.window.as_ref().unwrap().scale_factor() as f32;
 
                     let attrs = self.window.as_ref().unwrap().build_surface_attributes(<_>::default());
                     self.gl_surface=Some(unsafe {
@@ -280,6 +293,7 @@ impl GlutinAppWindow {
                             gl::Viewport(0, 0, size.width as i32, size.height as i32);
                         }
 
+                        self.pixel_ratio=self.window.as_ref().unwrap().scale_factor() as f32;
                         self.width=size.width;
                         self.height=size.height;
                         handler(&mut self,AppEvent::Resize{

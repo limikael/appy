@@ -3,15 +3,17 @@ use crate::*;
 pub struct AppContext {
     pub rect: Rect,
     pub rect_renderer: RectRenderer,
-    pub text_renderer: TextRenderer
+    pub text_renderer: TextRenderer,
+    pub pixel_ratio: f32
 }
 
 impl AppContext {
-    pub fn new()->Self {
+    pub fn new(w: i32, h:i32, pixel_ratio:f32)->Self {
         Self {
-            rect: Rect::empty(),
-            rect_renderer: RectRenderer::new(),
-            text_renderer: TextRenderer::new()
+            pixel_ratio: pixel_ratio,
+            rect: Rect{x:0,y:0,w,h},
+            rect_renderer: RectRenderer::new(w,h),
+            text_renderer: TextRenderer::new(w,h)
         }
     }
 

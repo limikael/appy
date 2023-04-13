@@ -4,6 +4,10 @@ use appy::{*};
 pub fn app()->Elements {
 	apx!{
 		<bg col=0x102030/>
+		<blk top=Dp(32.0) height=Dp(32.0)>
+			<bg col=0x000000/>
+			<text text="I am 32 dp".to_string() align=Align::Center size=Pc(100.0)/>
+		</blk>
 		<blk top=Pc(40.0) width=Pc(100.0) height=Pc(20.0)>
 			<bg col=0x008080/>
 		</blk>

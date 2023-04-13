@@ -9,7 +9,7 @@ pub struct RectRenderer {
 }
 
 impl RectRenderer {
-    pub fn new() -> Self {
+    pub fn new(window_width: i32, window_height: i32) -> Self {
         let program = ShaderProgram::new(vec![
             ShaderSource::VertexShader(
                 "
@@ -48,8 +48,8 @@ impl RectRenderer {
         RectRenderer {
             program,
             buf,
-            window_width: 100,
-            window_height: 100,
+            window_width,
+            window_height,
         }
     }
 
@@ -94,11 +94,5 @@ impl RectRenderer {
         }
 
         //self.buf.draw();
-    }
-}
-
-impl Default for RectRenderer {
-    fn default() -> Self {
-        Self::new()
     }
 }

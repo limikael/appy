@@ -38,7 +38,7 @@ export!(app_window_sdl, "sys/app_window_sdl.rs");
 #[cfg(all(target_os="android",feature="glutin"))]
 pub use winit::platform::android::activity::AndroidApp;
 
-pub use Dim::{Pc, Px};
+pub use Dim::{Pc, Px, Dp};
 
 #[cfg(test)]
 mod tests;
