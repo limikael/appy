@@ -79,7 +79,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 		out.extend(quote!{
 			#[cfg(not(target_os="android"))]
 			pub fn main() {
-				Appy::new(#name).run(&mut ::appy::sys::app_window_sdl::SdlAppWindowBuilder::new()
+				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_sdl::SdlAppWindowBuilder::new()
 					.title(#appname.to_string())
 				);
 			}
@@ -88,7 +88,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			#[no_mangle]
 			#[allow(non_snake_case)]
 			pub fn SDL_main() {
-				Appy::new(#name).run(&mut ::appy::sys::app_window_sdl::SdlAppWindowBuilder::new()
+				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_sdl::SdlAppWindowBuilder::new()
 					.title(#appname.to_string())
 				);
 			}

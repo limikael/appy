@@ -1,6 +1,6 @@
 use proc_macro2;
 use proc_macro::{*};
-use quote::{quote, ToTokens};
+use quote::quote;
 use syn_rsx::{parse2, Node};
 use syn::{Ident};
 
