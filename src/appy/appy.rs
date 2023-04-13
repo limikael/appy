@@ -9,6 +9,7 @@ use crate::*;
 
 environmental!(appy_instance:Appy);
 
+#[doc(hidden)]
 pub struct Appy {
     instances: HashMap<ComponentPath, ComponentInstance>,
     previous_instances: HashMap<ComponentPath, ComponentInstance>,

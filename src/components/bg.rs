@@ -1,6 +1,6 @@
 use crate::{*};
 
-/// Props for the [bg](bg()) function component.
+/// Props for the [`bg`](bg()) function component.
 #[derive(Default, Clone)]
 pub struct Bg {
 	pub col: u32

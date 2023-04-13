@@ -1,6 +1,7 @@
 #[cfg(target_os="android")]
 pub use android_log_sys::{__android_log_write,/*LogPriority*/};
 
+#[doc(hidden)]
 #[macro_export]
 #[cfg(target_os="android")]
 macro_rules! log_debug {
@@ -16,6 +17,7 @@ macro_rules! log_debug {
 	}
 }
 
+#[doc(hidden)]
 #[macro_export]
 #[cfg(target_os="linux")]
 macro_rules! log_debug {
@@ -25,6 +27,7 @@ macro_rules! log_debug {
 	}
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! log_panic {
 	($($p:expr),+)=>{{

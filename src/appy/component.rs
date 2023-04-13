@@ -52,6 +52,7 @@ impl<T> Deref for HookRef<T> {
     }
 }
 
+#[doc(hidden)]
 #[derive(Default)]
 pub struct ComponentInstance {
     hook_data: Vec<HookData>,
