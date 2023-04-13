@@ -1,4 +1,6 @@
-use crate::*;
+use crate::utils::rect::Rect;
+use crate::utils::rect_renderer::RectRenderer;
+use crate::utils::text_renderer::TextRenderer;
 
 pub struct AppContext {
     pub rect: Rect,

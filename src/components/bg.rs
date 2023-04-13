@@ -1,3 +1,6 @@
+use crate::appy::app_context::AppContext;
+use crate::appy::element::Elements;
+use crate::appy::hooks::use_context;
 use crate::{*};
 
 /// Props for the [bg](bg()) function component.

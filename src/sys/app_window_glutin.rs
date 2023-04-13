@@ -15,10 +15,10 @@ use glutin::prelude::*;
 
 use glutin_winit::{self, DisplayBuilder, GlWindow};
 
-use crate::*;
-
 #[cfg(target_os="android")]
 use winit::platform::android::EventLoopBuilderExtAndroid;
+
+use super::app_window::{AppWindowBuilder, AppWindow, AppEvent, MouseKind, MouseButton};
 
 #[derive(Default)]
 pub struct GlutinAppWindowBuilder {

@@ -1,7 +1,9 @@
-use crate::*;
 use gl::types::{GLint, GLuint};
 use rusttype::gpu_cache::Cache;
 use rusttype::{point, Font, Point, PositionedGlyph, Scale};
+
+use super::array_buffer::ArrayBuffer;
+use super::shader_program::{ShaderProgram, ShaderSource};
 extern crate nalgebra_glm as glm;
 
 pub struct TextRenderer {

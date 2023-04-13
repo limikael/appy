@@ -12,7 +12,7 @@ macro_rules! with_clone {
 macro_rules! rc_with_clone {
 	($args:tt,$body:expr) => {
 		{
-			Rc::new(with_clone!($args,$body))
+			Rc::new($crate::with_clone!($args,$body))
 		}
 	}
 }

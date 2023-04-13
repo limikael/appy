@@ -1,5 +1,8 @@
+use super::array_buffer::ArrayBuffer;
+use super::rect::Rect;
+use super::shader_program::{ShaderProgram, ShaderSource};
+
 extern crate nalgebra_glm as glm;
-use crate::*;
 
 pub struct RectRenderer {
     program: ShaderProgram,
