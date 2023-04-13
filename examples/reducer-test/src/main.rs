@@ -1,4 +1,12 @@
-use appy::{*};
+#![allow(clippy::needless_update)]
+
+use appy::components::blk::Dim::*;
+use appy::components::{bg::*, blk::*, interaction::*, text::*, grid::*};
+use appy::{apx, cb_with_clone, function_component, main_window};
+
+use appy::core::element::Elements;
+use appy::core::hooks::use_reducer;
+use appy::utils::cb::Cb;
 
 #[derive(Clone)]
 enum Action {

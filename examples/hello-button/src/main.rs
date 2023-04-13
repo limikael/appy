@@ -1,4 +1,10 @@
-use appy::{*};
+#![allow(clippy::needless_update)]
+
+use appy::components::{blk::*, interaction::*, text::*, bg::*};
+use appy::components::blk::Dim::*;
+use appy::{main_window, cb_with_clone, apx};
+use appy::core::element::Elements;
+use appy::core::hooks::use_state;
 
 #[main_window]
 pub fn app()->Elements {

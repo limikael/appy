@@ -29,6 +29,7 @@ version = "0.1.0"
 dependencies = [
  "android_log-sys",
  "appy-macros",
+ "environmental",
  "gl",
  "nalgebra-glm",
  "rusttype",
@@ -102,6 +103,12 @@ checksum = "3c063cd8cc95f5c377ed0d4b49a4b21f632396ff690e8470c29b3359b346984b"
 dependencies = [
  "cfg-if",
 ]
+
+[[package]]
+name = "environmental"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e48c92028aaa870e83d51c64e5d4e0b6981b360c522198c23959f219a4e1b15b"
 
 [[package]]
 name = "gl"
