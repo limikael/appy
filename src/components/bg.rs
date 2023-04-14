@@ -9,7 +9,7 @@ pub struct Bg {
 	pub col: u32
 }
 
-/// Draws a single colored rectangle, filling the current [blk](blk()).
+/// Draws a single colored rectangle, filling the current [blk](crate::components::blk::blk()).
 ///
 /// It is intented to be used inside [apx], e.g.:
 ///
