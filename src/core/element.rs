@@ -39,7 +39,7 @@ impl<T: 'static> ElementT for Element<T> {
 
 pub type Elements = Vec<Box<dyn ElementT>>;
 
-pub fn flatten_elements(el: &mut Vec<Elements>) -> Elements {
+pub fn flatten_elements(el: &mut [Elements]) -> Elements {
     let mut res: Elements = vec![];
 
     for sub in el {

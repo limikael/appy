@@ -47,7 +47,7 @@ impl std::ops::Deref for Cb {
 macro_rules! cb_with_clone {
 	($args:tt,$body:expr) => {
 		{
-			Cb::from(with_clone!($args,$body))
+			$crate::utils::cb::Cb::from($crate::with_clone!($args,$body))
 		}
 	}
 }
@@ -97,7 +97,7 @@ impl<P> std::ops::Deref for CbP<P> {
 macro_rules! cb_p_with_clone {
 	($args:tt,$body:expr) => {
 		{
-			CbP::from(with_clone!($args,$body))
+			$crate::utils::cb::CbP::from($crate::with_clone!($args,$body))
 		}
 	}
 }
