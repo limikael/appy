@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use crate::{*};
+//use crate::{*};
 use gl::types::{*};
 
 fn compile_shader(source: String, kind: GLuint)->GLuint {
@@ -37,7 +37,7 @@ fn compile_shader(source: String, kind: GLuint)->GLuint {
 		}
 
 		let s=error.to_string_lossy();
-		log_panic!("Unable to compile shader: {:?}",s);
+		panic!("Unable to compile shader: {:?}",s);
 	}
 
 	shader_id
@@ -92,7 +92,7 @@ impl ShaderProgram {
 		}
 
 		if loc < 0 {
-			log_panic!("Can't find uniform")
+			panic!("Can't find uniform")
 		}
 
 		loc
@@ -109,7 +109,7 @@ impl ShaderProgram {
 		}
 
 		if loc < 0 {
-			log_panic!("Can't find uniform: {}",name)
+			panic!("Can't find uniform: {}",name)
 		}
 
 		loc as u32

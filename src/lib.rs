@@ -41,7 +41,6 @@ export!(grid, "components/grid.rs");
 
 export!(glutil, "utils/glutil.rs");
 export!(trigger, "utils/trigger.rs");
-export!(log, "utils/log.rs");
 export!(cb, "utils/cb.rs");
 export!(with_clone, "utils/with_clone.rs");
 export!(rect, "utils/rect.rs");
@@ -60,6 +59,9 @@ export!(app_window_sdl, "sys/app_window_sdl.rs");
 
 #[cfg(all(target_os="android",feature="glutin"))]
 pub use winit::platform::android::activity::AndroidApp;
+
+#[cfg(all(target_os="android",feature="sdl"))]
+export!(android_log_thread,"sys/android_log_thread.rs");
 
 pub use Dim::{Pc, Px, Dp};
 

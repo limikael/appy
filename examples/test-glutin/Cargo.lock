@@ -69,9 +69,11 @@ version = "0.1.0"
 dependencies = [
  "android_log-sys",
  "appy-macros",
+ "environmental",
  "gl",
  "glutin",
  "glutin-winit",
+ "libc",
  "nalgebra-glm",
  "raw-window-handle",
  "rusttype",
@@ -290,6 +292,12 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
+
+[[package]]
+name = "environmental"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e48c92028aaa870e83d51c64e5d4e0b6981b360c522198c23959f219a4e1b15b"
 
 [[package]]
 name = "flate2"

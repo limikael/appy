@@ -88,7 +88,7 @@ impl SdlAppWindow {
 			pixel_ratio=dpi/160.0;
 		}
 
-    	log_debug!("pixel ratio: {:?}",pixel_ratio);
+    	println!("pixel ratio: {:?}",pixel_ratio);
 
 		let window=video_subsystem
 			.window(&*title, 800, 600)

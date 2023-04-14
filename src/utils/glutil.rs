@@ -1,6 +1,5 @@
 use gl::types::{*};
 use std::ffi::CStr;
-use crate::{*};
 
 extern "system" fn error_callback(
 		_source: GLenum, _gltype: GLenum, _id: GLuint, severity: GLenum, 
@@ -9,7 +8,7 @@ extern "system" fn error_callback(
     let str_slice:&str=c_str.to_str().unwrap();
     let s:String=str_slice.to_owned();
 
-	log_debug!("** GL({}): {}",severity,s);
+	println!("** GL({}): {}",severity,s);
 }
 
 pub fn install_debug_output() {

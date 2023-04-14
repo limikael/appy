@@ -12,6 +12,7 @@ appy-macros = {path="./appy-macros"}
 gl = "0.14.0"
 nalgebra-glm = "0.18.0"
 rusttype = {version="0.9.3", features=["gpu_cache"]}
+environmental = "1.1.4"
 
 # SDL deps
 sdl2 = {version="0.35.2", optional=true}
@@ -23,11 +24,11 @@ glutin-winit = {version="0.3.0", optional=true}
 raw-window-handle = {version="0.5.2", optional=true}
 
 # Glium deps
-glium={version="0.32.1",optional=true}
-environmental = "1.1.4"
+#glium={version="0.32.1",optional=true}
 
 [target.'cfg(target_os="android")'.dependencies]
 android_log-sys = "0.3.0"
+libc = "0.2.141"
 
 [features]
 #default=["sdl"]

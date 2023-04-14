@@ -88,6 +88,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 			#[no_mangle]
 			#[allow(non_snake_case)]
 			pub fn SDL_main() {
+				spawn_android_log_thread();
 				Appy::new(#name).run(&mut SdlAppWindowBuilder::new()
 					.title(#appname.to_string())
 				);
