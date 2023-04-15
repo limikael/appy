@@ -1,3 +1,11 @@
+//! # Appy - Declarative UI Framework for Native Application
+//!
+//! This crate contains macros for [Appy](https://github.com/limikael/appy).
+//!
+//! It is published as a separate crate  due to technical reasons. See
+//! this [stack overflow thread](https://stackoverflow.com/questions/56713877/why-do-proc-macros-have-to-be-defined-in-proc-macro-crate).
+//!
+//! If it is not the case any more that it needs to be separate, please let me know!
 use proc_macro::{*};
 
 /*#[proc_macro_derive(Props)]
