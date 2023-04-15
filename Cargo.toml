@@ -36,6 +36,6 @@ android_log-sys = "0.3.0"
 libc = "0.2.141"
 
 [features]
-#default=["sdl"]
+default=["sdl"]
 sdl=["dep:sdl2", "appy-macros/sdl"]
 glutin=["dep:glutin", "dep:winit", "dep:glutin-winit", "dep:raw-window-handle", "appy-macros/glutin"]

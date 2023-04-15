@@ -49,22 +49,22 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 	let appname=get_cargo_toml_string(vec!["package","metadata","appname"])
 		.unwrap_or("Untitled".to_string());
 
-	if cfg!(all(not(feature="glutin"),not(feature="sdl"))) {
+	if cfg!(all(not(feature = "glutin"), not(feature = "sdl"))) {
 		panic!("Welcome to Appy! Please enable exactly one of the features \"sdl\" or \"glutin\" to select rendering backend. Enjoy!");
 	}
 
 	let mut out=quote!{#ast};
 
-	if cfg!(feature="glutin") {
-		out.extend(quote!{
+	if cfg!(feature = "glutin") {
+		out.extend(quote!(
+			#[cfg(not(target_os = "android"))]
 			pub fn main() {
-				#[cfg(not(target_os="android"))]
 				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_glutin::GlutinAppWindowBuilder::new()
 					.title(#appname.to_string())
 				);
 			}
-
-			#[cfg(target_os="android")]
+	
+			#[cfg(target_os = "android")]
 			#[no_mangle]
 			pub fn android_main(android_app: ::appy::sys::app_window_glutin::AndroidApp) {
 				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_glutin::GlutinAppWindowBuilder::new()
@@ -72,19 +72,17 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 					.with_android_app(android_app)
 				);
 			}
-		});
-	}
-
-	if cfg!(feature="sdl") {
-		out.extend(quote!{
-			#[cfg(not(target_os="android"))]
+		));
+	} else if cfg!(feature = "sdl") {
+		out.extend(quote! {
+			#[cfg(not(target_os = "android"))]
 			pub fn main() {
 				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_sdl::SdlAppWindowBuilder::new()
 					.title(#appname.to_string())
 				);
 			}
 
-			#[cfg(target_os="android")]
+			#[cfg(target_os = "android")]
 			#[no_mangle]
 			#[allow(non_snake_case)]
 			pub fn SDL_main() {
