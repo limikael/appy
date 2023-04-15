@@ -1,6 +1,4 @@
 use sdl2::event::{Event, WindowEvent};
-use crate::*;
-
 use super::app_window::{MouseKind, MouseButton, AppWindowBuilder, AppWindow, AppEvent};
 
 const SDL_TOUCH_MOUSEID: u32 = u32::MAX;

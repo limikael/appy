@@ -29,6 +29,7 @@ impl<T, A> Deref for ReducerRef<T, A> {
     }
 }
 
+/// Similar to the `use_state` hook, but passes the data through a reducer function.
 pub fn use_reducer<F, G, A: 'static, T: 'static>(reducer: G, ctor: F)->ReducerRef<T, A>
 		where F:Fn()->T, G: Fn(&T,A)->T + 'static {
 	Appy::with(|appy|{
@@ -40,6 +41,8 @@ pub fn use_reducer<F, G, A: 'static, T: 'static>(reducer: G, ctor: F)->ReducerRe
 }
 
 pub type StateRef<T>=HookRef<T>;
+
+/// Track state in a function component.
 pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 		where F:Fn()->T {
 	Appy::with(|appy|{
@@ -47,6 +50,10 @@ pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 	})
 }
 
+/// Post render handler.
+///
+/// The function specified will be called after the children of the
+/// current component has been rendered.
 pub fn use_post_render(f: Rc<dyn Fn()>) {
 	Appy::with(|appy|{
 		appy.with_current_component_instance(|ci|{
@@ -55,6 +62,9 @@ pub fn use_post_render(f: Rc<dyn Fn()>) {
 	})
 }
 
+/// Low level event handler.
+///
+/// Function handler for low level application events.
 pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
 	Appy::with(|appy|{
 		appy.app_event_handlers.push(f.clone());
@@ -71,6 +81,7 @@ pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
 	RenderEnv::get_current().borrow_mut().contexts.insert(type_id,t);
 }*/
 
+/// A context is a way to access global state.
 pub fn use_context<T: 'static>()->Rc<RefCell<T>> {
 	let type_id=TypeId::of::<T>();
 

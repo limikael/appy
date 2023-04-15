@@ -6,6 +6,7 @@ use super::array_buffer::ArrayBuffer;
 use super::shader_program::{ShaderProgram, ShaderSource};
 extern crate nalgebra_glm as glm;
 
+/// Render text on screen.
 pub struct TextRenderer {
     program: ShaderProgram,
     buf: ArrayBuffer,
@@ -24,6 +25,7 @@ impl TextRenderer {
     //const CACHE_SIZE:u32=512;
     const CACHE_SIZE: u32 = 1024;
 
+    /// Create a text renderer for a specified window size.
     pub fn new(window_width:i32, window_height:i32) -> Self {
         let font_data = include_bytes!("./assets/Roboto-Regular.ttf");
         let font = Font::try_from_bytes(font_data as &[u8]).unwrap();
@@ -112,6 +114,7 @@ impl TextRenderer {
         (h, v)
     }
 
+    /// Get width in pixels of a string of rendered text.
     pub fn get_str_width(&self, str: &str, size: f32) -> f32 {
         let mut w: f32 = 0.0;
         let s = Scale::uniform(size);
@@ -202,6 +205,7 @@ impl TextRenderer {
         ]
     }
 
+    /// Draw text.
     pub fn draw(&mut self, str: &str, x: f32, y: f32, size: f32, col: u32) {
         let m = glm::ortho(
             0.0,

@@ -5,7 +5,7 @@ use crate::utils::text_renderer::TextRenderer;
 /// Information about the current application window.
 ///
 /// Access the current [`AppContext`] from within a function component
-/// with `use_context::<AppContext>()`. See [`::appy::core::hooks::use_context`].
+/// with `use_context::<AppContext>()`. See [`use_context`](::appy::core::hooks::use_context).
 pub struct AppContext {
     pub rect: Rect,
     pub rect_renderer: RectRenderer,

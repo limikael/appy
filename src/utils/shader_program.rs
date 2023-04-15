@@ -43,6 +43,7 @@ fn compile_shader(source: String, kind: GLuint)->GLuint {
 	shader_id
 }
 
+/// Abstraction for an OpenGL shader program.
 pub struct ShaderProgram {
 	program_id: GLuint,
 }
@@ -53,6 +54,8 @@ pub enum ShaderSource {
 }
 
 impl ShaderProgram {
+	/// Create a shader program containing a number of
+	/// shader sources.
 	pub fn new(sources: Vec<ShaderSource>) -> Self {
 		let program_id=unsafe {gl::CreateProgram()};
 
@@ -77,10 +80,12 @@ impl ShaderProgram {
 		}
 	}
 
+	/// Use this program.
 	pub fn use_program(&self) {
 		unsafe { gl::UseProgram(self.program_id); }
 	}
 
+	/// The the location of a uniform.
 	pub fn get_uniform_location(&self, name: &str)->i32 {
 		//self.ensure_linked();
 
@@ -98,6 +103,7 @@ impl ShaderProgram {
 		loc
 	}
 
+	/// The the location of an attrib.
 	pub fn get_attrib_location(&self, name: &str)->u32 {
 		//self.ensure_linked();
 

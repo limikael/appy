@@ -21,10 +21,17 @@ use self::element::Elements;
 use self::element::RootElement;
 use self::element::root_element;
 
+/// Information about the current application window.
 pub mod app_context;
-pub mod component;
-pub mod element;
+
+/// Hooks.
 pub mod hooks;
+
+#[doc(hidden)]
+pub mod component;
+
+#[doc(hidden)]
+pub mod element;
 
 environmental!(appy_instance:Appy);
 

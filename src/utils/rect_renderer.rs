@@ -4,6 +4,7 @@ use super::shader_program::{ShaderProgram, ShaderSource};
 
 extern crate nalgebra_glm as glm;
 
+/// Render rectangles.
 pub struct RectRenderer {
     program: ShaderProgram,
     buf: ArrayBuffer,
@@ -12,6 +13,7 @@ pub struct RectRenderer {
 }
 
 impl RectRenderer {
+    /// Create a RectRenderer
     pub fn new(window_width: i32, window_height: i32) -> Self {
         let program = ShaderProgram::new(vec![
             ShaderSource::VertexShader(
@@ -56,6 +58,7 @@ impl RectRenderer {
         }
     }
 
+    /// Draw a rect, specified by orientation and size.
     pub fn draw(&self, rect: &Rect, col: u32) {
         let m = glm::ortho(
             0.0,
@@ -95,7 +98,5 @@ impl RectRenderer {
             gl::Disable(gl::BLEND);
             gl::DrawArrays(gl::TRIANGLE_STRIP, 0, self.buf.len() as i32);
         }
-
-        //self.buf.draw();
     }
 }

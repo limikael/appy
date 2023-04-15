@@ -1,3 +1,4 @@
+/// Holds information about a rectangle.
 #[derive(Clone)]
 pub struct Rect {
 	pub x: i32,

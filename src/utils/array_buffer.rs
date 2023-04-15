@@ -1,3 +1,11 @@
+/// Abstraction for an OpenGL array buffer.
+///
+/// This array buffer can hold a number of floating point components.
+/// It is set as a flat array, but should be thought of as a two
+/// dimensional array. The number of components is the number of 
+/// columns in the array. The array buffer can be bound to several
+/// attribute locations, with each attribute location using one or
+/// more components.
 pub struct ArrayBuffer {
     vao: gl::types::GLuint,
     vbo: gl::types::GLuint,
@@ -6,6 +14,8 @@ pub struct ArrayBuffer {
 }
 
 impl ArrayBuffer {
+
+    /// Create an [`ArrayBuffer`] with a specified number of components.
     pub fn new(components: u32) -> Self {
         let mut vao:gl::types::GLuint = 0;
         unsafe {
@@ -26,14 +36,20 @@ impl ArrayBuffer {
         }
     }
 
+    /// Get the number of items in the array.
     pub fn len(&self) -> usize {
         self.len
     }
 
-    pub fn is_empty(&self) -> bool {
+    /*pub fn is_empty(&self) -> bool {
         self.len == 0
-    }
+    }*/
 
+    /// Set data.
+    ///
+    /// The vertices array is a flat array, but should be thought of
+    /// as a two dimensional array. The length of the [`ArrayBuffer`] will
+    /// be the lenght of the array divided by the number of components.
     pub fn set_data(&mut self, vertices: Vec<f32>) {
         self.len = vertices.len() / self.components as usize;
 
@@ -49,6 +65,10 @@ impl ArrayBuffer {
         }
     }
 
+    /// Bind array buffer to an attribute location.
+    ///
+    /// The `offs` parameter specifies the first component to bind, and `num`
+    /// specifies the number of compontns to bind.
     pub fn bind(&self, attrib_location: u32, offs: usize, num: u32) {
         unsafe {
             gl::BindVertexArray(self.vao);
