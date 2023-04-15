@@ -2,6 +2,11 @@
 name="appy-macros"
 version="0.1.0"
 edition="2021"
+description="Macros for appy, a declarative UI framework"
+documentation = "https://docs.rs/appy"
+homepage = "https://github.com/limikael/appy"
+repository = "https://github.com/limikael/appy"
+license = "MIT"
 
 [lib]
 proc-macro=true
