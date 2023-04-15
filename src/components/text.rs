@@ -20,6 +20,7 @@ pub enum VAlign {
 	Bottom
 }
 
+/// Props for the [`text`](text()) function component.
 #[derive(Clone)]
 pub struct Text {
 	pub col: u32,
@@ -41,8 +42,16 @@ impl Default for Text {
 	}
 }
 
-//todo!("percentage height");
-
+/// Render text.
+///
+/// Renders text in the current [blk](crate::components::blk::blk()).
+///
+/// The alignment inside the `blk` can be speficied with the align and valign
+/// props.
+///
+/// The vertical size of the text can be specified using a `Dim`, meaning
+/// that it can be specified in an absolute number or as a percentage relative to
+/// the parent.
 #[function_component]
 pub fn text(p: Text, children: Elements)->Elements {
 	let instance_ref=use_context::<AppContext>();

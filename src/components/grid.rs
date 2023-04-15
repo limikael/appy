@@ -3,6 +3,7 @@ use appy_macros::{apx, function_component};
 use super::blk::{Dim::Pc, *};
 use crate::core::element::Elements;
 
+/// Props for the [`grid`](grid()) function component.
 #[derive(Clone)]
 pub struct Grid {
     pub cols: usize,
@@ -15,6 +16,11 @@ impl Default for Grid {
     }
 }
 
+/// Layout of components in a fixed grid.
+///
+/// The number of children should be the same as rows * columns.
+/// The children is a flat array, they will be layed out two dimensionally
+/// column-wise, then row-wise.
 #[function_component]
 pub fn grid(p: Grid, children: Elements) -> Elements {
     let mut items = vec![];

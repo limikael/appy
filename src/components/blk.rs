@@ -4,12 +4,22 @@ use crate::core::element::Elements;
 use crate::core::hooks::{use_context, use_post_render};
 use std::rc::Rc;
 
+/// Specify dimension.
 #[derive(Default, Clone)]
 pub enum Dim {
+    /// No dimension specified.
     #[default]
     None,
+
+    /// Percentual size relative to parent.
     Pc(f32),
+
+    /// Absolute size specified in hardware pixels.
     Px(f32),
+
+    /// Size specified in device independent pixels.
+    /// This is the same as hardware pixels, scaled with
+    /// a factor defined by the device.
     Dp(f32)
 }
 
@@ -48,6 +58,7 @@ impl Dim {
 
 impl Dim {}
 
+/// Props for the [`blk`](blk()) function component.
 #[derive(Default)]
 pub struct Blk {
     pub left: Dim,
@@ -58,6 +69,19 @@ pub struct Blk {
     pub right: Dim,
 }
 
+/// Positions a block relative to the parent.
+///
+/// For each dimension (horizontal vs. vertical) there are three values. E.g.
+/// in the vertical direction there is top, height and bottom. In the 
+/// horizontal direction there is left, width and right. You need to specify
+/// two values in each direction, but not all three.
+///
+/// For example, if you specify left and right, the block will be fixed relative
+/// to the left and right edges, and hence the size will be dynamic and change
+/// relative to the parent size.
+///
+/// If you specify left and width, the block will be fixed relative to the left
+/// edge with a fixed size (i.e., the distance to the right edge will be dynamic).
 #[function_component]
 pub fn blk(p: Blk, children: Elements) -> Elements {
     let instance_ref = use_context::<AppContext>();

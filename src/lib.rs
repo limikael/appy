@@ -25,9 +25,16 @@
 
 pub use appy_macros::*;
 
+/// Core functions.
 pub mod core;
+
+/// Graphical UI components.
 pub mod components;
+
+/// Abstraction so that Appy can use different libraries for window and context management.
 pub mod sys;
+
+/// Utilities.
 pub mod utils;
 
 /*#[cfg(all(target_os="android",feature="glutin"))]
