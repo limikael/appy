@@ -102,17 +102,6 @@ pub fn use_context<T: 'static>()->Rc<RefCell<T>> {
 	})
 }
 
-/*struct SpringSpec {
-	initial: f32,
-	target: f32
-}*/
-
-fn dampened_hooke_force(displacement:f32, velocity:f32, stiffness:f32, damping:f32)->f32 {
-	let hooke_force = -1.0 * (stiffness * displacement);
-
-	hooke_force - (damping * velocity)
-}
-
 #[derive(Clone)]
 pub struct SpringConf {
 	stiffness: f32,
@@ -135,7 +124,6 @@ impl SpringConf {
 
 #[derive(Clone)]
 struct SpringData {
-//	conf: SpringConf,
 	current: f32,
 	velocity: f32,
 	target: f32,
@@ -143,6 +131,12 @@ struct SpringData {
 
 impl SpringData {
 	fn tick(&self, conf:&SpringConf, delta:f32)->Self {
+		fn dampened_hooke_force(displacement:f32, velocity:f32,
+				stiffness:f32, damping:f32)->f32 {
+			let hooke_force = -1.0 * (stiffness * displacement);
+			hooke_force - (damping * velocity)
+		}
+
 		let mut spring:SpringData=self.clone();
 		let displacement=spring.current-spring.target;
 		let force=dampened_hooke_force(
