@@ -1,0 +1,12 @@
+[package]
+name="anim"
+version="0.1.0"
+edition="2021"
+
+# [lib]
+# path="src/main.rs"
+# crate-type=["cdylib"]
+
+[dependencies]
+#appy={path="../..",features=["sdl"]}
+appy={path="../..",features=["glutin"]}

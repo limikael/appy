@@ -1,3 +1,4 @@
+use std::time::SystemTime;
 use std::mem::take;
 use std::any::Any;
 use std::any::TypeId;
@@ -9,6 +10,9 @@ use environmental::environmental;
 use crate::sys::app_window::AppEvent;
 use crate::sys::app_window::AppWindowBuilder;
 use crate::utils::trigger::Trigger;
+
+//use ::appy::utils::cb::Cb;
+use ::appy::utils::cb::CbP;
 
 use self::app_context::AppContext;
 use self::component::ComponentInstance;
@@ -43,7 +47,9 @@ pub struct Appy {
     app_context: Option<Rc<RefCell<AppContext>>>,
     current_hook_index: usize,
     current_component_path: Option<ComponentPath>,
+    last_render: Option<SystemTime>,
     pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent)>>,
+    pub animation_frame_handlers: Vec<CbP<f32>>,
     pub dirty: Trigger,
     pub contexts: HashMap<TypeId, Rc<dyn Any>>,
 }
@@ -127,6 +133,7 @@ impl Appy {
 
     fn render(&mut self) {
         self.app_event_handlers=vec![];
+        self.animation_frame_handlers=vec![];
         self.contexts = HashMap::new();
         self.dirty.set_state(false);
 
@@ -141,16 +148,41 @@ impl Appy {
 
         self.previous_instances=HashMap::new();
 
+        if self.animation_frame_handlers.len()>0 {
+            let now=SystemTime::now();
+            let delta=if self.last_render.is_some() {
+                let duration=now.duration_since(self.last_render.unwrap()).unwrap();
+                duration.as_millis() as f64/1000.0
+            } else {0.0};
+
+            //println!("delta: {:?}",delta);
+
+            for handler in &self.animation_frame_handlers {
+                handler(delta as f32);
+            }
+
+            self.last_render=if self.dirty.get_state() {
+                Some(now)
+            } else {
+                None
+            }
+        } else {
+            self.last_render=None
+        }
+
         //println!("instances post render: {}",self.instances.len());
+        //println!("dirty after render: {}",self.dirty.get_state());
     }
 
     pub fn new(root: fn() -> Elements)->Self {
         Self {
             root,
+            last_render: None,
             instances: HashMap::new(),
             previous_instances: HashMap::new(),
             app_context: None,
             app_event_handlers: vec![],
+            animation_frame_handlers: vec![],
             contexts: HashMap::new(),
             dirty: Trigger::new(),
             current_component_path: None,
@@ -194,7 +226,6 @@ impl Appy {
                     });
                 }
                 AppEvent::Render=>{
-                    //println!("render");
                     self.render();
                 },
                 _=>{}
