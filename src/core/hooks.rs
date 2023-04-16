@@ -144,27 +144,16 @@ struct SpringData {
 impl SpringData {
 	fn tick(&self, conf:&SpringConf, delta:f32)->Self {
 		let mut spring:SpringData=self.clone();
+		let displacement=spring.current-spring.target;
+		let force=dampened_hooke_force(
+			displacement,
+			spring.velocity,
+			conf.stiffness,
+			conf.damping
+		);
 
-		/*if (!spring.passes)
-			spring.passes=1;
-
-		if (spring.delta>spring.maxDelta)
-			spring.delta=100;
-
-		let deltaS=spring.delta/(spring.passes*1000);*/
-
-	//	for (let i=0; i<spring.passes; i++) {
-			let displacement=spring.current-spring.target;
-			let force=dampened_hooke_force(
-				displacement,
-				spring.velocity,
-				conf.stiffness,
-				conf.damping
-			);
-
-			spring.velocity+=force*delta;
-			spring.current+=spring.velocity*delta;
-	//	}
+		spring.velocity+=force*delta;
+		spring.current+=spring.velocity*delta;
 
 		spring
 	}
