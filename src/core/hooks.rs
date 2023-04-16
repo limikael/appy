@@ -193,7 +193,8 @@ pub fn use_spring<F>(ctor: F, conf: SpringConf)->SpringRef
 		}
 	});
 
-	if ((*h).current-(*h).target).abs()>conf.epsilon {
+	if ((*h).current-(*h).target).abs()>conf.epsilon ||
+			(*h).velocity.abs()>conf.epsilon {
 		use_animation_frame(cb_p_with_clone!([h],move|delta|{
 			h.set((*h).tick(&conf,delta));
 		}));

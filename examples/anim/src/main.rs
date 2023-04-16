@@ -39,7 +39,8 @@ pub fn button(p:Button, _c:Elements)->Elements {
 #[main_window]
 pub fn app()->Elements {
 	let x=use_spring(||0.0,SpringConf::DEFAULT);
-//	let x=use_spring(||0.0,SpringConf::new(170.0,26.0));
+
+	//println!("render");
 
 	apx! {
 		<button top=Pc(0.0) left=Pc(0.0) text="soft".to_string()
