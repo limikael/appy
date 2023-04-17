@@ -36,3 +36,10 @@ try the following:
 * **With Glutin**
   * Install [cargo-apk](https://crates.io/crates/cargo-apk).
   * Run `cargo apk run` from inside the crate.
+
+### Live reload
+
+If you want live reload during development this can be done with [cargo-watch](https://crates.io/crates/cargo-watch). Install it and run:
+```
+cargo watch -x run
+```
