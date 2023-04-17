@@ -2,13 +2,13 @@
 // putting `..Default::default()` at the end when all parameters exist?
 #![allow(clippy::needless_update)]
 
+use std::rc::Rc;
 use appy::core::element::*;
 use appy::core::hooks::{use_reducer, use_state};
 use appy::components::{blk::*, interaction::*, bg::*, text::*, grid::*};
 use appy::components::blk::Dim::*;
 use appy::components::interaction::{use_hover_state_ref, HoverState};
-use appy::{component, cb_with_clone, apx, cb_p_with_clone, main_window};
-use appy::utils::cb::{CbP, Cb};
+use appy::{component, rc_with_clone, apx, main_window};
 
 use crate::calculator_model::CalculatorModel;
 
@@ -16,16 +16,16 @@ mod calculator_model;
 
 #[component]
 pub struct Button {
-	on_click: CbP<char>,
+	on_click: Option<Rc<dyn Fn(char)>>,
 	id: char
 }
 
 impl Element for Button {
 	fn render(self: ElementWrap<Self>)->Elements {
 		let hover_state_ref=use_hover_state_ref();
-		let self_on_click=self.on_click.clone();
+		let self_on_click=self.on_click.as_ref().unwrap().clone();
 		let self_id=self.id.clone();
-		let on_click=cb_with_clone!([],move||{
+		let on_click=rc_with_clone!([],move||{
 			(self_on_click)(self_id)
 		});
 
@@ -47,7 +47,7 @@ impl Element for Button {
 
 #[component]
 pub struct ButtonBg {
-    pub on_click: Cb,
+    pub on_click: Option<Rc<dyn Fn()>>,
 	pub normal: u32,
 	pub active: u32,
 	pub hover: u32
@@ -66,7 +66,7 @@ impl Element for ButtonBg {
 
 		apx!{
 			<bg col=c/>
-			<interaction on_click=self.on_click hover_state_ref=hover_state/>
+			<interaction on_click=self.on_click.unwrap() hover_state_ref=hover_state/>
 		}
 	}
 }
@@ -76,11 +76,11 @@ fn app()->Elements {
 	let model=use_reducer(CalculatorModel::action,CalculatorModel::new);
 	let show_info=use_state(||false);
 
-	let on_click=cb_p_with_clone!([model],move|c:char|{
+	let on_click=rc_with_clone!([model],move|c:char|{
 		model.dispatch(c);
 	});
 
-	let on_info_click=cb_with_clone!([show_info],move||{
+	let on_info_click=rc_with_clone!([show_info],move||{
 		show_info.set(!*show_info);
 	});
 

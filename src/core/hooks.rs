@@ -4,11 +4,10 @@ use std::cell::RefCell;
 use std::any::TypeId;
 
 use crate::sys::app_window::AppEvent;
+use appy::rc_with_clone;
 
 use super::Appy;
 use super::component::HookRef;
-use ::appy::utils::cb::CbP;
-use ::appy::cb_p_with_clone;
 
 #[derive(Clone)]
 pub struct ReducerRef<T, A> {
@@ -76,7 +75,7 @@ pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
 /// Animation frame.
 ///
 /// The registered function will be called after the next render.
-pub fn use_animation_frame(f: CbP<f32>) {
+pub fn use_animation_frame(f: Rc<dyn Fn(f32)>) {
 	Appy::with(|appy|{
 		appy.animation_frame_handlers.push(f.clone());
 	})
@@ -230,7 +229,7 @@ pub fn use_spring<F>(ctor: F, conf: SpringConf)->SpringRef
 
 	if ((*h).current-(*h).target).abs()>conf.epsilon ||
 			(*h).velocity.abs()>conf.epsilon {
-		use_animation_frame(cb_p_with_clone!([h],move|delta|{
+		use_animation_frame(rc_with_clone!([h],move|delta|{
 			//println!("delta: {:?}",delta);
 			h.set((*h).tick(&conf,delta));
 		}));

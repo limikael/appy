@@ -1,8 +1,9 @@
 #![allow(clippy::needless_update)]
 
+use std::rc::Rc;
 use appy::components::{blk::*, interaction::*, text::*, bg::*};
 use appy::components::blk::Dim::*;
-use appy::{main_window, cb_with_clone, apx};
+use appy::{main_window, rc_with_clone, apx};
 use appy::core::element::Elements;
 use appy::core::hooks::use_state;
 
@@ -11,7 +12,7 @@ pub fn app()->Elements {
 	let v=use_state(||1);
 	let hover_state=use_hover_state_ref();
 
-	let on_button_click=cb_with_clone!([v],move||{
+	let on_button_click=rc_with_clone!([v],move||{
 		//println!("set: {}",*v);
 
 		v.set(*v+1);

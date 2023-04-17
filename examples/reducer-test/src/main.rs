@@ -1,12 +1,12 @@
 #![allow(clippy::needless_update)]
 
+use std::rc::Rc;
 use appy::components::blk::Dim::*;
 use appy::components::{bg::*, blk::*, interaction::*, text::*, grid::*};
-use appy::{apx, cb_with_clone, component, main_window};
+use appy::{apx, rc_with_clone, component, main_window};
 
 use appy::core::element::*;
 use appy::core::hooks::use_reducer;
-use appy::utils::cb::Cb;
 
 #[derive(Clone)]
 enum Action {
@@ -31,7 +31,7 @@ impl AppState {
 #[component]
 pub struct TextButton {
 	text: String,
-	on_click: Cb
+	on_click: Option<Rc<dyn Fn()>>
 }
 
 impl Element for TextButton {
@@ -46,7 +46,7 @@ impl Element for TextButton {
 		apx! {
 			<bg col=c/>
 			<text text=self.text align=Align::Center size=Pc(60.0) col=0xffffff/>
-			<interaction hover_state_ref=hover_state on_click=self.on_click/>
+			<interaction hover_state_ref=hover_state on_click=self.on_click.unwrap()/>
 		}
 	}
 }
@@ -64,14 +64,14 @@ pub fn app()->Elements {
 		<grid cols=2>
 			<blk top=Pc(50.0) height=Pc(20.0) width=Pc(50.0)>
 				<text_button text="-1".to_string() 
-					on_click=cb_with_clone!([state],move||{
+					on_click=rc_with_clone!([state],move||{
 						state.dispatch(Action::Sub);
 					})
 				/>
 			</blk>
 			<blk top=Pc(50.0) height=Pc(20.0) width=Pc(50.0)>
 				<text_button text="+1".to_string() 
-					on_click=cb_with_clone!([state],move||{
+					on_click=rc_with_clone!([state],move||{
 						state.dispatch(Action::Add);
 					})
 				/>

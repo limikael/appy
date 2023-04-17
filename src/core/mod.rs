@@ -11,9 +11,6 @@ use crate::sys::app_window::AppEvent;
 use crate::sys::app_window::AppWindowBuilder;
 use crate::utils::trigger::Trigger;
 
-//use ::appy::utils::cb::Cb;
-use ::appy::utils::cb::CbP;
-
 use self::app_context::AppContext;
 use self::component::ComponentInstance;
 use self::component::ComponentPath;
@@ -48,7 +45,7 @@ pub struct Appy {
     current_component_path: Option<ComponentPath>,
     last_render: Option<SystemTime>,
     pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent)>>,
-    pub animation_frame_handlers: Vec<CbP<f32>>,
+    pub animation_frame_handlers: Vec<Rc<dyn Fn(f32)>>,
     pub dirty: Trigger,
     pub contexts: HashMap<TypeId, Rc<dyn Any>>,
 }

@@ -6,7 +6,6 @@ use crate::core::element::Elements;
 use crate::core::hooks::{StateRef, use_state, use_context, use_app_event};
 use crate::rc_with_clone;
 use crate::sys::app_window::{AppEvent, MouseKind};
-use crate::utils::cb::Cb;
 use std::rc::Rc;
 
 /// Used to continously check the hover state of an interaction component.
@@ -52,7 +51,7 @@ pub enum HoverState {
 /// the hover_state_ref prop.
 #[component]
 pub struct Interaction {
-    on_click: Cb,
+    on_click: Option<Rc<dyn Fn()>>,
     hover_state_ref: Option<StateRef<HoverState>>
 }
 
@@ -88,7 +87,9 @@ impl Element for Interaction {
                 AppEvent::MouseUp { x, y, kind, .. } => {
                     if rect.contains(*x, *y) {
                         if *h_state == HoverState::Active {
-                            on_click();
+                            if on_click.is_some() {
+                                (on_click.as_ref().unwrap())();
+                            }
                         }
 
                         match kind {

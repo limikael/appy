@@ -1,6 +1,3 @@
-/// Reference to a callback.
-pub mod cb;
-
 /// OpenGL utilities.
 pub mod glutil;
 
