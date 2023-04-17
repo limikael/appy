@@ -12,6 +12,7 @@ license = "MIT"
 proc-macro=true
 
 [dependencies]
+convert_case = "0.6.0"
 proc-macro2 = "1.0.52"
 quote = "1.0.26"
 syn = { version = "1", features = ["full"] }

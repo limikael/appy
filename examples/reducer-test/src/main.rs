@@ -2,9 +2,9 @@
 
 use appy::components::blk::Dim::*;
 use appy::components::{bg::*, blk::*, interaction::*, text::*, grid::*};
-use appy::{apx, cb_with_clone, function_component, main_window};
+use appy::{apx, cb_with_clone, component, main_window};
 
-use appy::core::element::Elements;
+use appy::core::element::*;
 use appy::core::hooks::use_reducer;
 use appy::utils::cb::Cb;
 
@@ -28,25 +28,26 @@ impl AppState {
 	}
 }
 
-#[derive(Default,Clone)]
+#[component]
 pub struct TextButton {
 	text: String,
 	on_click: Cb
 }
 
-#[function_component]
-pub fn text_button(p:TextButton, _c:Elements)->Elements {
-	let hover_state=use_hover_state_ref();
-	let c=match *hover_state {
-		HoverState::Normal=>0x808080,
-		HoverState::Active=>0x404040,
-		HoverState::Hover=>0xc0c0c0,
-	};
+impl Element for TextButton {
+	fn render(self:ElementWrap<Self>)->Elements {
+		let hover_state=use_hover_state_ref();
+		let c=match *hover_state {
+			HoverState::Normal=>0x808080,
+			HoverState::Active=>0x404040,
+			HoverState::Hover=>0xc0c0c0,
+		};
 
-	apx! {
-		<bg col=c/>
-		<text text=p.text align=Align::Center size=Pc(60.0)/>
-		<interaction hover_state_ref=Some(hover_state) on_click=p.on_click/>
+		apx! {
+			<bg col=c/>
+			<text text=self.text align=Align::Center size=Pc(60.0) col=0xffffff/>
+			<interaction hover_state_ref=hover_state on_click=self.on_click/>
+		}
 	}
 }
 
@@ -58,7 +59,7 @@ pub fn app()->Elements {
 
 	apx!{
 		<blk top=Pc(25.0) height=Pc(25.0)>
-			<text text=s.to_string() align=Align::Center size=Pc(60.0)/>
+			<text text=s.to_string() align=Align::Center size=Pc(60.0) col=0xffffff/>
 		</blk>
 		<grid cols=2>
 			<blk top=Pc(50.0) height=Pc(20.0) width=Pc(50.0)>

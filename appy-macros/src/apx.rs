@@ -2,7 +2,6 @@ use proc_macro2;
 use proc_macro::{*};
 use quote::quote;
 use syn_rsx::{parse2, Node};
-use syn::{Ident};
 
 fn process_rsx_node(node: &Node)->proc_macro2::TokenStream {
 	if let Node::Element(element)=&node {
@@ -11,16 +10,23 @@ fn process_rsx_node(node: &Node)->proc_macro2::TokenStream {
 			let Node::Attribute(attr)=attr_element else { panic!("parse error") };
 			let key=&attr.key;
 			let value=attr.value.as_ref().unwrap().as_ref();
-			attrs.extend(quote!(#key: #value,));
+			attrs.extend(quote!(.#key(#value)));
 		}
 
 		let name=&element.name;
-		let props=Ident::new(&format!("Props_{}",name.to_string()),Span::call_site().into());
 		let children=process_rsx_fragment(&element.children);
 
-		quote!(
-			vec![::appy::core::element::Element::create(#name,#props{#attrs ..::core::default::Default::default()},#children)]
-		)
+		if name.to_string().chars().nth(0).unwrap().is_uppercase() {
+			quote!(
+				vec![#name::new()#attrs.children(#children)]
+			)
+		}
+
+		else {
+			quote!(
+				vec![#name()#attrs.children(#children)]
+			)
+		}
 	}
 
 	else if let Node::Block(block)=&node {

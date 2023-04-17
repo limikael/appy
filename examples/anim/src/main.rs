@@ -1,34 +1,35 @@
 use appy::core::hooks::use_spring;
 use appy::core::hooks::SpringConf;
-use appy::core::element::Elements;
+use appy::core::element::*;
 use appy::components::blk::*;
 use appy::components::bg::*;
 use appy::components::text::*;
 use appy::components::interaction::*;
-use appy::{main_window,apx,function_component};
+use appy::{main_window,apx,component};
 use appy::components::blk::Dim::*;
 use appy::utils::cb::Cb;
 use appy::cb_with_clone;
 
-#[derive(Default)]
+#[component]
 pub struct Button {
 	text: String,
 	on_click: Cb
 }
 
-#[function_component]
-pub fn button(p:Button, _c:Elements)->Elements {
-	let hover_state=use_hover_state_ref();
-	let c=match *hover_state {
-		HoverState::Normal=>0x808080,
-		HoverState::Hover=>0xc0c0c0,
-		HoverState::Active=>0x404040
-	};
+impl Element for Button {
+	fn render(self:ElementWrap<Self>)->Elements {
+		let hover_state=use_hover_state_ref();
+		let c=match *hover_state {
+			HoverState::Normal=>0x808080,
+			HoverState::Hover=>0xc0c0c0,
+			HoverState::Active=>0x404040
+		};
 
-	apx! {
-		<bg col=c/>
-		<text text=p.text size=Pc(50.0) align=Align::Center/>
-		<interaction on_click=p.on_click hover_state_ref=Some(hover_state)/>
+		apx! {
+			<bg col=c/>
+			<text text=self.text size=Pc(50.0) align=Align::Center/>
+			<interaction on_click=self.on_click hover_state_ref=hover_state/>
+		}
 	}
 }
 

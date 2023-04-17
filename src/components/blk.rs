@@ -1,8 +1,10 @@
-use crate::*;
+use crate::core::element::ElementWrap;
+use crate::core::element::Element;
 use crate::core::app_context::AppContext;
 use crate::core::element::Elements;
 use crate::core::hooks::{use_context, use_post_render};
 use std::rc::Rc;
+use crate::{component,with_clone};
 
 /// Specify dimension.
 #[derive(Default, Clone)]
@@ -58,17 +60,6 @@ impl Dim {
 
 impl Dim {}
 
-/// Props for the [`blk`](blk()) function component.
-#[derive(Default)]
-pub struct Blk {
-    pub left: Dim,
-    pub top: Dim,
-    pub width: Dim,
-    pub height: Dim,
-    pub bottom: Dim,
-    pub right: Dim,
-}
-
 /// Positions a block relative to the parent.
 ///
 /// For each dimension (horizontal vs. vertical) there are three values. E.g.
@@ -82,23 +73,34 @@ pub struct Blk {
 ///
 /// If you specify left and width, the block will be fixed relative to the left
 /// edge with a fixed size (i.e., the distance to the right edge will be dynamic).
-#[function_component]
-pub fn blk(p: Blk, children: Elements) -> Elements {
-    let instance_ref = use_context::<AppContext>();
-    let mut instance = instance_ref.borrow_mut();
+#[component]
+pub struct Blk {
+    left: Dim,
+    top: Dim,
+    width: Dim,
+    height: Dim,
+    bottom: Dim,
+    right: Dim,
+}
 
-    let old_rect = instance.rect.clone();
-    let h = Dim::compute_span(old_rect.w as f32, instance.pixel_ratio, p.left, p.width, p.right);
-    let v = Dim::compute_span(old_rect.h as f32, instance.pixel_ratio,  p.top, p.height, p.bottom);
-
-    instance.rect = instance
-        .rect
-        .abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
-
-    use_post_render(Rc::new(with_clone!([instance_ref], move || {
+impl Element for Blk {
+    fn render(self: ElementWrap<Blk>)->Elements {
+        let instance_ref = use_context::<AppContext>();
         let mut instance = instance_ref.borrow_mut();
-        instance.rect = old_rect.clone();
-    })));
 
-    children
+        let old_rect = instance.rect.clone();
+        let h = Dim::compute_span(old_rect.w as f32, instance.pixel_ratio, self.left, self.width, self.right);
+        let v = Dim::compute_span(old_rect.h as f32, instance.pixel_ratio, self.top, self.height, self.bottom);
+
+        instance.rect = instance
+            .rect
+            .abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
+
+        use_post_render(Rc::new(with_clone!([instance_ref], move || {
+            let mut instance = instance_ref.borrow_mut();
+            instance.rect = old_rect.clone();
+        })));
+
+        self.children
+    }
 }

@@ -43,37 +43,39 @@ pub fn main_window(attr: TokenStream, input: TokenStream) -> TokenStream {
 	main_window::main_window(attr,input)
 }
 
-mod function_component;
-/// Create a function component.
+mod component;
+/// Create a component.
 ///
-/// A function component takes input in the form of props and children,
+/// A component takes input in the form of props and children,
 /// and return elements describing what should appear on the screen.
 ///
 /// # Example
 /// ```rust
-/// pub struct FuncProps {
+/// #[component]
+/// pub struct MyComp {
 ///   param1: i32,
 ///   param2: i32
 /// }
 ///
-/// #[function_component]
-/// pub fn a_func(p:FuncProps, c:Elements)->Elements {
-///   apx! {
-///     <bg col=0x000000/>
+/// impl Element for MyComp {
+///   pub fn render(self: ElementWrap<Self>)->Elements {
+///     apx! {
+///       <bg col=0x000000/>
+///     }
 ///   }
 /// }
 /// ```
 ///
-/// The function component declared above can be used together with the
+/// The component declared above can be used together with the
 /// apx macro:
 /// ```rust
 /// apx!{
-///   <a_func param1=123 param2=456/>
+///   <MyComp param1=123 param2=456/>
 ///	}
 /// ```
 #[proc_macro_attribute]
-pub fn function_component(attr: TokenStream, input: TokenStream) -> TokenStream {
-	function_component::function_component(attr,input)
+pub fn component(attr: TokenStream, input: TokenStream) -> TokenStream {
+	component::component(attr,input)
 }
 
 mod apx;

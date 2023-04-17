@@ -20,9 +20,8 @@ use self::component::ComponentPath;
 use self::component::ComponentPathComponent;
 use self::component::HookRef;
 use self::element::Element;
-use self::element::ElementT;
 use self::element::Elements;
-use self::element::RootElement;
+//use self::element::RootElement;
 use self::element::root_element;
 
 /// Information about the current application window.
@@ -99,7 +98,7 @@ impl Appy {
         }
     }
 
-    fn render_component(&mut self, component: Box<dyn ElementT>, component_path: ComponentPath) {
+    fn render_component(&mut self, component: Box<dyn Element>, component_path: ComponentPath) {
         let mut this_path = component_path;
         this_path.push(ComponentPathComponent::TypeId(component.type_id()));
 
@@ -141,10 +140,7 @@ impl Appy {
         self.instances=HashMap::new();
 
         self.provide_context(self.app_context.clone().unwrap());
-        self.render_component(
-            Element::create(root_element, RootElement { root: self.root }, vec![]),
-            vec![],
-        );
+        self.render_component(root_element().root(self.root),vec![]);
 
         self.previous_instances=HashMap::new();
 

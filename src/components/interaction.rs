@@ -1,4 +1,5 @@
-use appy_macros::function_component;
+use crate::core::element::*;
+use appy_macros::component;
 
 use crate::core::app_context::AppContext;
 use crate::core::element::Elements;
@@ -41,17 +42,6 @@ pub enum HoverState {
     Active,
 }
 
-/// Props for the [`interaction`](interaction()) function component.
-#[derive(Clone, Default)]
-pub struct Interaction {
-    /*pub on_mouse_down: Cb,
-    pub on_mouse_up: Cb,
-    pub on_mouse_over: Cb,
-    pub on_mouse_out: Cb,*/
-    pub on_click: Cb,
-    pub hover_state_ref: Option<StateRef<HoverState>>
-}
-
 /// Checks interaction for the current [`blk`](crate::components::blk::blk()).
 ///
 /// When the area is clicked, the closure specified with `on_click` will be called.
@@ -60,60 +50,69 @@ pub struct Interaction {
 /// with different states for hover and activation), use the
 /// [`use_hover_state_ref`](use_hover_state_ref()) hook, in conjuction with setting
 /// the hover_state_ref prop.
-#[function_component]
-pub fn interaction(p: Interaction, children: Elements) -> Elements {
-    let h_state = use_state(|| HoverState::Normal);
-    let instance_ref = use_context::<AppContext>();
-    let rect = {
-        let instance = instance_ref.borrow();
-        instance.rect.clone()
-    };
+#[component]
+pub struct Interaction {
+    on_click: Cb,
+    hover_state_ref: Option<StateRef<HoverState>>
+}
 
-    if p.hover_state_ref.is_some() && *h_state!=**p.hover_state_ref.as_ref().unwrap() {
-        panic!("they are different!!!");
+impl Element for Interaction {
+    fn render(self:ElementWrap<Self>)->Elements {
+        let h_state = use_state(|| HoverState::Normal);
+        let instance_ref = use_context::<AppContext>();
+        let rect = {
+            let instance = instance_ref.borrow();
+            instance.rect.clone()
+        };
+
+        if self.hover_state_ref.is_some() && *h_state!=**self.hover_state_ref.as_ref().unwrap() {
+            panic!("they are different!!!");
+        }
+
+        let hover_state_ref=self.hover_state_ref.clone();
+        let update_h_state = rc_with_clone!([h_state,hover_state_ref], move |new_state| {
+            h_state.set(new_state);
+            if hover_state_ref.is_some() {
+                hover_state_ref.as_ref().unwrap().set(new_state);
+            }
+        });
+
+        let on_click=self.on_click.clone();
+        use_app_event(rc_with_clone!([], move |e| {
+            match e {
+                AppEvent::MouseDown { x, y, .. } => {
+                    if rect.contains(*x, *y) {
+                        update_h_state(HoverState::Active);
+                    }
+                }
+                AppEvent::MouseUp { x, y, kind, .. } => {
+                    if rect.contains(*x, *y) {
+                        if *h_state == HoverState::Active {
+                            on_click();
+                        }
+
+                        match kind {
+                            MouseKind::Touch=>update_h_state(HoverState::Normal),
+                            MouseKind::Mouse=>update_h_state(HoverState::Hover)
+                        }
+                    }
+                }
+                AppEvent::MouseMove { x, y, kind, .. } => {
+                    if rect.contains(*x, *y)
+                        && *h_state == HoverState::Normal
+                    {
+                        match kind {
+                            MouseKind::Touch=>{},
+                            MouseKind::Mouse=>update_h_state(HoverState::Hover)
+                        }
+                    } else if !rect.contains(*x, *y) && *h_state != HoverState::Normal {
+                        update_h_state(HoverState::Normal);
+                    }
+                }
+                _ => {}
+            }
+        }));
+
+        self.children
     }
-
-    let update_h_state = rc_with_clone!([h_state], move |new_state| {
-        h_state.set(new_state);
-        if p.hover_state_ref.is_some() {
-            p.hover_state_ref.as_ref().unwrap().set(new_state);
-        }
-    });
-
-    use_app_event(rc_with_clone!([], move |e| {
-        match e {
-            AppEvent::MouseDown { x, y, .. } => {
-                if rect.contains(*x, *y) {
-                    update_h_state(HoverState::Active);
-                }
-            }
-            AppEvent::MouseUp { x, y, kind, .. } => {
-                if rect.contains(*x, *y) {
-                    if *h_state == HoverState::Active {
-                        (p.on_click)();
-                    }
-
-                    match kind {
-                        MouseKind::Touch=>update_h_state(HoverState::Normal),
-                        MouseKind::Mouse=>update_h_state(HoverState::Hover)
-                    }
-                }
-            }
-            AppEvent::MouseMove { x, y, kind, .. } => {
-                if rect.contains(*x, *y)
-                    && *h_state == HoverState::Normal
-                {
-                    match kind {
-                        MouseKind::Touch=>{},
-                        MouseKind::Mouse=>update_h_state(HoverState::Hover)
-                    }
-                } else if !rect.contains(*x, *y) && *h_state != HoverState::Normal {
-                    update_h_state(HoverState::Normal);
-                }
-            }
-            _ => {}
-        }
-    }));
-
-    children
 }

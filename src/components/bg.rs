@@ -1,13 +1,7 @@
 use crate::core::app_context::AppContext;
-use crate::core::element::Elements;
+use crate::core::element::{Element, Elements, ElementWrap};
 use crate::core::hooks::use_context;
-use crate::{*};
-
-/// Props for the [`bg`](bg()) function component.
-#[derive(Default, Clone)]
-pub struct Bg {
-	pub col: u32
-}
+use appy::component;
 
 /// Draws a single colored rectangle, filling the current [blk](crate::components::blk::blk()).
 ///
@@ -18,12 +12,17 @@ pub struct Bg {
 ///   <bg col=0x112233 />
 ///	}
 ///
-#[function_component]
-pub fn bg(p: Bg, children: Elements)->Elements {
-	let instance_ref=use_context::<AppContext>();
-	let instance=instance_ref.borrow();
+#[component]
+pub struct Bg {
+	col: u32
+}
 
-	instance.rect_renderer.draw(&instance.rect,p.col);
+impl Element for Bg {
+    fn render(self: ElementWrap<Self>) -> Elements {
+		let instance_ref=use_context::<AppContext>();
+		let instance=instance_ref.borrow();
 
-	children
+		instance.rect_renderer.draw(&instance.rect,self.col);
+    	vec![]
+    }
 }
