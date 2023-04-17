@@ -48,8 +48,8 @@ pub struct SdlAppWindow {
 	width: u32,
 	height: u32,
 	expose_requested: bool,
-	need_manual_expose: bool,
-	pixel_ratio: f32
+	quit_requested: bool,
+	pixel_ratio: f32,
 }
 
 impl AppWindow for SdlAppWindow {
@@ -62,14 +62,7 @@ impl AppWindow for SdlAppWindow {
 	}
 
 	fn post_redisplay(&mut self) {
-		if !self.expose_requested {
-			self.expose_requested=true;
-			self.sdl.event().unwrap().push_event(Event::Window{
-				timestamp: 0,
-				window_id: 0,
-				win_event:WindowEvent::Exposed
-			}).expect("Can't post expose event");
-		}
+		self.expose_requested=true;
 	}
 
     fn run(self: Box<Self>, handler:Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>) {
@@ -99,13 +92,7 @@ impl SdlAppWindow {
 
 		let gl_context=window.gl_create_context().unwrap();
 		let _gl_loaded=gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as *const std::os::raw::c_void);
-
         let size = window.size();
-
-        let mut need_manual_expose=false;
-        if cfg!(target_os="android") {
-        	need_manual_expose=true;
-        }
 
 		Self {
 			sdl,
@@ -115,74 +102,87 @@ impl SdlAppWindow {
 			width: size.0,
 			height: size.1,
 			expose_requested: false,
-			need_manual_expose: need_manual_expose,
-			pixel_ratio
+			pixel_ratio,
+			quit_requested: false
 		}
+	}
+
+	fn handle_event(&mut self, handler:&mut Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>, e:&Event) {
+		//println!("{:?}",e);
+
+		match *e {
+			Event::Quit{..}=>{
+				self.quit_requested=true;
+			},
+			/*Event::Window {win_event: WindowEvent::Shown, ..}=>{
+				handler(&mut self,AppEvent::Show);
+			},*/
+			Event::Window {win_event: WindowEvent::Exposed, ..}=>{
+				self.post_redisplay();
+			}
+			Event::Window {win_event: WindowEvent::Resized(w,h), ..}=>{
+                unsafe { gl::Viewport(0, 0, w, h) };
+                self.width=w as u32;
+                self.height=h as u32;
+                handler(self,AppEvent::Resize{
+                	width:w as u32,
+                	height:h as u32
+                });
+
+                // For some reason android need this extra render pass.
+                self.do_render(handler);
+                self.post_redisplay();
+
+			}
+			Event::Window {win_event: WindowEvent::Restored, ..}=>{
+				self.post_redisplay();
+			}
+			Event::MouseButtonDown {x, y, mouse_btn, which, ..} => {
+				let (kind,button)=decode_mouse(which,mouse_btn);
+				handler(self,AppEvent::MouseDown{x,y,kind,button});
+			}
+			Event::MouseButtonUp {x, y, mouse_btn, which, ..} => {
+				let (kind,button)=decode_mouse(which,mouse_btn);
+				handler(self,AppEvent::MouseUp{x,y,kind,button});
+			}
+			Event::MouseMotion {x, y, which, ..} => {
+				let (kind,_)=decode_mouse(which,sdl2::mouse::MouseButton::Unknown);
+				handler(self,AppEvent::MouseMove{x,y,kind});
+			}
+			_ => {}
+		}
+	}
+
+	fn do_render(&mut self, handler:&mut Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>) {
+		unsafe {
+			gl::ClearColor(0.0,0.0,0.0,0.0);
+			gl::Clear(gl::COLOR_BUFFER_BIT);
+		}
+		handler(self,AppEvent::Render);
+		self.window.gl_swap_window();
 	}
 
     fn run_impl(mut self, mut handler:Box<dyn FnMut(&mut dyn AppWindow,AppEvent)>) {
 		let mut event_pump=self.sdl.event_pump().unwrap();
 
 		handler(&mut self,AppEvent::Show);
+		self.expose_requested=true;
 
-		if self.need_manual_expose {
-	        self.post_redisplay();
-		}
+		while !self.quit_requested {
+			let mut e=if self.expose_requested {
+				event_pump.poll_event()
+			} else {
+				Some(event_pump.wait_event())
+			};
 
-		loop {
-			let e=event_pump.wait_event();
-			//log_debug!("device: {:?}",e);
+			while e.is_some() {
+				self.handle_event(&mut handler,&e.unwrap());
+				e=event_pump.poll_event()
+			}
 
-			match e {
-				Event::Quit{..}=>{
-					break;
-				},
-				/*Event::Window {win_event: WindowEvent::Shown, ..}=>{
-					handler(&mut self,AppEvent::Show);
-				},*/
-				Event::Window {win_event: WindowEvent::Exposed, ..}=>{
-					self.expose_requested=false;
-					unsafe {
-						gl::ClearColor(0.0,0.0,0.0,0.0);
-						gl::Clear(gl::COLOR_BUFFER_BIT);
-					}
-					handler(&mut self,AppEvent::Render);
-					self.window.gl_swap_window();
-				}
-				Event::Window {win_event: WindowEvent::Resized(w,h), ..}=>{
-	                unsafe { gl::Viewport(0, 0, w, h) };
-	                self.width=w as u32;
-	                self.height=h as u32;
-	                handler(&mut self,AppEvent::Resize{
-	                	width:w as u32,
-	                	height:h as u32
-	                });
-
-					if self.need_manual_expose {
-	        	        self.post_redisplay();
-	            	    self.expose_requested=false;
-	                	self.post_redisplay();
-	                }
-				}
-				Event::Window {win_event: WindowEvent::Restored, ..}=>{
-					if self.need_manual_expose {
-						self.post_redisplay();
-					}
-				}
-				Event::MouseButtonDown {x, y, mouse_btn, which, ..} => {
-					let (kind,button)=decode_mouse(which,mouse_btn);
-					handler(&mut self,AppEvent::MouseDown{x,y,kind,button});
-				}
-				Event::MouseButtonUp {x, y, mouse_btn, which, ..} => {
-					let (kind,button)=decode_mouse(which,mouse_btn);
-					handler(&mut self,AppEvent::MouseUp{x,y,kind,button});
-				}
-				Event::MouseMotion {x, y, which, ..} => {
-					//println!("mouse motion...");
-					let (kind,_)=decode_mouse(which,sdl2::mouse::MouseButton::Unknown);
-					handler(&mut self,AppEvent::MouseMove{x,y,kind});
-				}
-				_ => {}
+			if self.expose_requested {
+				self.expose_requested=false;
+				self.do_render(&mut handler);
 			}
 		}
     }

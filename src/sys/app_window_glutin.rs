@@ -256,12 +256,15 @@ impl GlutinAppWindow {
                     }
                 },*/
                 Event::RedrawRequested(_window_id)=>{
-                    unsafe {
-                        gl::ClearColor(0.0,0.0,0.0,0.0);
-                        gl::Clear(gl::COLOR_BUFFER_BIT);
+                    if self.gl_context.is_some() &&
+                            self.gl_surface.is_some() {
+                        unsafe {
+                            gl::ClearColor(0.0,0.0,0.0,0.0);
+                            gl::Clear(gl::COLOR_BUFFER_BIT);
+                        }
+                        handler(&mut self,AppEvent::Render);
+                        self.gl_surface.as_ref().unwrap().swap_buffers(&self.gl_context.as_ref().unwrap()).unwrap();
                     }
-                    handler(&mut self,AppEvent::Render);
-                    self.gl_surface.as_ref().unwrap().swap_buffers(&self.gl_context.as_ref().unwrap()).unwrap();
                 },
                 Event::WindowEvent { event, .. } => match event {
                     WindowEvent::Resized(size) => {

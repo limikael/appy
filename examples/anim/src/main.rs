@@ -12,8 +12,6 @@ use appy::cb_with_clone;
 
 #[derive(Default)]
 pub struct Button {
-	left: Dim,
-	top: Dim,
 	text: String,
 	on_click: Cb
 }
@@ -28,11 +26,9 @@ pub fn button(p:Button, _c:Elements)->Elements {
 	};
 
 	apx! {
-		<blk left=p.left top=p.top width=Dp(100.0) height=Dp(32.0)>
-			<bg col=c/>
-			<text text=p.text size=Pc(100.0) align=Align::Center/>
-			<interaction on_click=p.on_click hover_state_ref=Some(hover_state)/>
-		</blk>
+		<bg col=c/>
+		<text text=p.text size=Pc(50.0) align=Align::Center/>
+		<interaction on_click=p.on_click hover_state_ref=Some(hover_state)/>
 	}
 }
 
@@ -43,14 +39,25 @@ pub fn app()->Elements {
 	//println!("render");
 
 	apx! {
-		<button top=Pc(0.0) left=Pc(0.0) text="soft".to_string()
-				on_click=cb_with_clone!([x],move||x.target(0.0))/>
-		<button top=Pc(0.0) left=Pc(75.0) text="soft".to_string()
-				on_click=cb_with_clone!([x],move||x.target(75.0))/>
-		<button top=Pc(10.0) left=Pc(75.0) text="hard".to_string()
-				on_click=cb_with_clone!([x],move||x.set(75.0))/>
-		<blk left=Pc(*x) width=Dp(32.0) height=Dp(32.0)>
-			<bg col=0xff0000/>
+		<blk left=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
+			<button text="smooth".to_string()
+					on_click=cb_with_clone!([x],move||x.target(0.0))/>
+		</blk>
+
+		<blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
+			<button text="smooth".to_string()
+					on_click=cb_with_clone!([x],move||x.target(100.0))/>
+		</blk>
+
+		<blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
+			<button text="chop".to_string()
+					on_click=cb_with_clone!([x],move||x.set(100.0))/>
+		</blk>
+
+		<blk right=Dp(50.0)>
+			<blk left=Pc(*x) width=Dp(50.0) height=Dp(50.0) top=Dp(50.0)>
+				<bg col=0xff0000/>
+			</blk>
 		</blk>
 	}
 }

@@ -182,6 +182,41 @@ impl SpringRef {
 	}
 }
 
+/// Animate value with spring physics.
+///
+/// You can think of `use_spring` as being similar to `use_state<f32>`. I.e.,
+/// a numeric state that is being tracked for a function component. The
+/// reference returned by this function also has a set method, similar
+/// to `set_state`.
+///
+/// However, the reference also has a `target` method,
+/// which will not set the state immediately, but rather set an internal
+/// target, and then the value will smoothly change frame by frame towards
+/// that target. For example:
+/// ```
+/// #[main_window]
+/// pub fn app()->Elements {
+///	   let x=use_spring(||0.0,SpringConf::DEFAULT);
+///
+///	    apx! {
+///         // This will have the effect of animating smoothly.
+///	        <blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
+///		        <interaction on_click=cb_with_clone!([x],move||x.target(100.0))/>
+///	        </blk>
+///
+///         // This will "hard" set the value, similar to set_state.
+///	        <blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
+///		        <interaction on_click=cb_with_clone!([x],move||x.set(100.0))/>
+///	        </blk>
+///
+///	        <blk right=Dp(50.0)>
+///		        <blk left=Pc(*x) width=Dp(50.0) height=Dp(50.0) top=Dp(50.0)>
+///			        <bg col=0xff0000/>
+///		        </blk>
+///	        </blk>
+///     }
+/// }
+/// ```
 pub fn use_spring<F>(ctor: F, conf: SpringConf)->SpringRef
 		where F:Fn()->f32 {
 	let h=use_state(||{
@@ -196,6 +231,7 @@ pub fn use_spring<F>(ctor: F, conf: SpringConf)->SpringRef
 	if ((*h).current-(*h).target).abs()>conf.epsilon ||
 			(*h).velocity.abs()>conf.epsilon {
 		use_animation_frame(cb_p_with_clone!([h],move|delta|{
+			//println!("delta: {:?}",delta);
 			h.set((*h).tick(&conf,delta));
 		}));
 	}
