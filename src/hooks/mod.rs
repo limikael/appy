@@ -52,6 +52,9 @@ pub fn use_animation_frame(f: Rc<dyn Fn(f32)>) {
 }
 
 /// A context is a way to access global state.
+///
+/// A context can be provided with [`ContextProvider`](appy::components::ContextProvider),
+/// and then accessed further down in the tree with this function.
 pub fn use_context<T: 'static>()->Rc<T> {
 	let type_id=TypeId::of::<T>();
 

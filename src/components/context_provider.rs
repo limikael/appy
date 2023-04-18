@@ -5,6 +5,9 @@ use appy::types::*;
 use appy::hooks::use_post_render;
 use crate::core::Appy;
 
+/// Provide context.
+///
+/// Provide a context to be used together with [`use_context`](appy::hooks::use_context()).
 #[derive_component(Default)]
 pub struct ContextProvider<T> { 
 	value : Option<Rc<T>>,
@@ -57,6 +60,7 @@ impl<T: 'static> Element for ContextProvider<T> {
 	}
 }
 
+/// Alias for ::new() on the corresponding struct.
 pub fn context_provider<T>()->ElementWrap<ContextProvider<T>> {
 	ContextProvider::<T>::new()
 }
