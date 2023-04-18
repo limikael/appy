@@ -37,7 +37,7 @@ impl Default for Text {
 impl Element for Text {
 	fn render(self:ElementWrap<Self>)->Elements {
 		let app_context=use_context::<AppContext>();
-		let r=app_context.rect.clone();
+		let r=&app_context.rect;
 
 		let size=self.size.to_px(r.h as f32,app_context.pixel_ratio);
 		let w=app_context.text_renderer.borrow().get_str_width(&self.text,size) as i32;
