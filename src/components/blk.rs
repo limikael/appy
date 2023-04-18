@@ -4,7 +4,7 @@ use crate::core::app_context::AppContext;
 use crate::core::element::Elements;
 use crate::core::hooks::{use_context, use_post_render};
 use std::rc::Rc;
-use crate::{component,with_clone};
+use appy::{derive_component,SnakeFactory,ComponentBuilder,with_clone};
 
 /// Specify dimension.
 #[derive(Default, Clone)]
@@ -73,7 +73,7 @@ impl Dim {}
 ///
 /// If you specify left and width, the block will be fixed relative to the left
 /// edge with a fixed size (i.e., the distance to the right edge will be dynamic).
-#[component]
+#[derive_component(ComponentBuilder,Default,SnakeFactory)]
 pub struct Blk {
     left: Dim,
     top: Dim,

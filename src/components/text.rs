@@ -1,6 +1,6 @@
 use crate::core::element::*;
-use appy::component;
-
+use appy::{derive_component,SnakeFactory,ComponentBuilder};
+use appy::components::blk::Dim::Dp;
 use crate::core::app_context::AppContext;
 use crate::core::element::Elements;
 use crate::core::hooks::use_context;
@@ -35,13 +35,26 @@ pub enum VAlign {
 /// The vertical size of the text can be specified using a `Dim`, meaning
 /// that it can be specified in an absolute number or as a percentage relative to
 /// the parent.
-#[component]
+#[derive_component(ComponentBuilder,SnakeFactory)]
 pub struct Text {
 	col: u32,
 	size: Dim,
 	text: String,
 	align: Align,
 	valign: VAlign
+}
+
+impl Default for Text {
+	fn default()->Self {
+		Self {
+			col: 0xffffff,
+			size: Dp(16.0),
+			text: "<text>".to_string(),
+			align: Align::Center,
+			valign: VAlign::Middle,
+			children: vec![]
+		}
+	}
 }
 
 impl Element for Text {

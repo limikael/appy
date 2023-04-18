@@ -1,4 +1,4 @@
-use appy_macros::{apx, component};
+use appy::{apx,derive_component,SnakeFactory,ComponentBuilder};
 
 use super::blk::{Dim::Pc, *};
 use crate::core::element::*;
@@ -8,7 +8,7 @@ use crate::core::element::*;
 /// The number of children should be the same as rows * columns.
 /// The children is a flat array, they will be layed out two dimensionally
 /// column-wise, then row-wise.
-#[component]
+#[derive_component(ComponentBuilder,Default,SnakeFactory)]
 pub struct Grid {
     cols: usize,
     rows: usize,

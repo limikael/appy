@@ -43,7 +43,7 @@ pub fn main_window(attr: TokenStream, input: TokenStream) -> TokenStream {
 	main_window::main_window(attr,input)
 }
 
-mod component;
+mod derive_component;
 /// Create a component.
 ///
 /// A component takes input in the form of props and children,
@@ -51,7 +51,7 @@ mod component;
 ///
 /// # Example
 /// ```rust
-/// #[component]
+/// #[derive_component(Default,ComponentBuilder)]
 /// pub struct MyComp {
 ///   param1: i32,
 ///   param2: i32
@@ -74,8 +74,20 @@ mod component;
 ///	}
 /// ```
 #[proc_macro_attribute]
-pub fn component(attr: TokenStream, input: TokenStream) -> TokenStream {
-	component::component(attr,input)
+pub fn derive_component(attr: TokenStream, input: TokenStream) -> TokenStream {
+	derive_component::derive_component(attr,input)
+}
+
+mod component_builder;
+#[proc_macro_derive(ComponentBuilder)]
+pub fn component_builder(input: TokenStream) -> TokenStream {
+	component_builder::component_builder(input)
+}
+
+mod snake_factory;
+#[proc_macro_derive(SnakeFactory)]
+pub fn snake_factory(input: TokenStream) -> TokenStream {
+	snake_factory::snake_factory(input)
 }
 
 mod apx;

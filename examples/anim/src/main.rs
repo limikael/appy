@@ -6,14 +6,14 @@ use appy::components::blk::*;
 use appy::components::bg::*;
 use appy::components::text::*;
 use appy::components::interaction::*;
-use appy::{main_window,apx,component};
+use appy::{main_window,apx,derive_component,ComponentBuilder,SnakeFactory};
 use appy::components::blk::Dim::*;
 use appy::rc_with_clone;
 
-#[component]
+#[derive_component(Default,ComponentBuilder,SnakeFactory)]
 pub struct Button {
 	text: String,
-	on_click: Option<Rc<dyn Fn()>>
+	on_click: Option<Rc<dyn Fn()>>,
 }
 
 impl Element for Button {
@@ -46,12 +46,12 @@ pub fn app()->Elements {
 		</blk>
 
 		<blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
-			<button text="smooth".to_string()
+			<Button text="smooth".to_string()
 					on_click=rc_with_clone!([x],move||x.target(100.0))/>
 		</blk>
 
 		<blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
-			<button text="chop".to_string()
+			<Button text="chop".to_string()
 					on_click=rc_with_clone!([x],move||x.set(100.0))/>
 		</blk>
 

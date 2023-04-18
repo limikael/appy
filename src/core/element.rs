@@ -1,4 +1,4 @@
-use appy::component;
+use appy::{derive_component,ComponentBuilder,SnakeFactory};
 
 pub type ElementWrap<T>=Box<T>;
 
@@ -18,7 +18,7 @@ pub fn flatten_elements(el: &mut [Elements]) -> Elements {
     res
 }
 
-#[component]
+#[derive_component(ComponentBuilder,Default,SnakeFactory)]
 pub struct RootElement {
     root: Option<fn()->Elements>
 }

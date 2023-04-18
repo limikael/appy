@@ -1,7 +1,7 @@
 use crate::core::app_context::AppContext;
 use crate::core::element::{Element, Elements, ElementWrap};
 use crate::core::hooks::use_context;
-use appy::component;
+use appy::{derive_component,SnakeFactory,ComponentBuilder};
 
 /// Draws a single colored rectangle, filling the current [blk](crate::components::blk::blk()).
 ///
@@ -12,7 +12,7 @@ use appy::component;
 ///   <bg col=0x112233 />
 ///	}
 ///
-#[component]
+#[derive_component(ComponentBuilder,Default,SnakeFactory)]
 pub struct Bg {
 	col: u32
 }

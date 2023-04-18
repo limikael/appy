@@ -1,5 +1,4 @@
 use crate::core::element::*;
-use appy_macros::component;
 
 use crate::core::app_context::AppContext;
 use crate::core::element::Elements;
@@ -7,6 +6,7 @@ use crate::core::hooks::{StateRef, use_state, use_context, use_app_event};
 use crate::rc_with_clone;
 use crate::sys::app_window::{AppEvent, MouseKind};
 use std::rc::Rc;
+use appy::{derive_component,SnakeFactory,ComponentBuilder};
 
 /// Used to continously check the hover state of an interaction component.
 ///
@@ -49,7 +49,7 @@ pub enum HoverState {
 /// with different states for hover and activation), use the
 /// [`use_hover_state_ref`](use_hover_state_ref()) hook, in conjuction with setting
 /// the hover_state_ref prop.
-#[component]
+#[derive_component(ComponentBuilder,Default,SnakeFactory)]
 pub struct Interaction {
     on_click: Option<Rc<dyn Fn()>>,
     hover_state_ref: Option<StateRef<HoverState>>
