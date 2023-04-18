@@ -48,6 +48,7 @@ pub struct ShaderProgram {
 	program_id: GLuint,
 }
 
+/// The source of a vertex or fragment shader.
 pub enum ShaderSource {
 	VertexShader(String),
 	FragmentShader(String)

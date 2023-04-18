@@ -1,6 +1,6 @@
 [package]
 name="appy"
-version="0.1.1"
+version="0.1.2"
 edition="2021"
 description="Declarative UI framework with native rendering"
 documentation = "https://docs.rs/appy"

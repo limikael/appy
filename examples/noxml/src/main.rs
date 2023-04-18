@@ -1,21 +1,17 @@
-use appy::{main_window, apx};
-use appy::core::element::Elements;
-use appy::components::bg::*;
-use appy::components::blk::*;
-use crate::Dim::Pc;
+use appy::{*, components::*, types::*};
 
 #[main_window]
 pub fn app()->Elements {
-/*	vec![
-		blk().left(Pc(0.0)).width(Pc(50.0)).child(
+	vec![
+		blk().left(Pc(0.0)).width(Pc(50.0)).children(vec![
 			bg().col(0xffff00)
-		),
+		]),
 		blk().right(Pc(0.0)).width(Pc(50.0)).children(vec![
 			bg().col(0xff0000)
 		])
-	]*/
+	]
 
-	apx! {
+/*	apx! {
 		<Blk left=Pc(0.0) width=Pc(50.0)>
 			<Bg col=0xffff00/>
 		</Blk>
@@ -26,5 +22,5 @@ pub fn app()->Elements {
 				</Blk>
 			}
 		}
-	}
+	}*/
 }

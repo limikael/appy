@@ -1,33 +1,10 @@
-use crate::core::element::*;
 use appy::{derive_component,SnakeFactory,ComponentBuilder};
-use appy::components::blk::Dim::Dp;
-use crate::core::app_context::AppContext;
-use crate::core::element::Elements;
-use crate::core::hooks::use_context;
-
-use super::blk::Dim;
-
-#[derive(Default,Clone)]
-pub enum Align {
-	Left,
-
-	#[default]
-	Center,
-	Right
-}
-
-#[derive(Default,Clone)]
-pub enum VAlign {
-	Top,
-
-	#[default]
-	Middle,
-	Bottom
-}
+use crate::hooks::use_context;
+use crate::types::{*, Dim::*};
 
 /// Render text.
 ///
-/// Renders text in the current [blk](crate::components::blk::blk()).
+/// Renders text in the current [Blk](crate::components::Blk).
 ///
 /// The alignment inside the `blk` can be speficied with the align and valign
 /// props.

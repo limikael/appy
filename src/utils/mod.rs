@@ -1,26 +1,23 @@
-/// OpenGL utilities.
-pub mod glutil;
+mod glutil;
+pub use glutil::*;
 
-/// OpenGL utilities.
-pub mod rect;
+mod rect_renderer;
+pub use rect_renderer::*;
 
-/// Render rectangles.
-pub mod rect_renderer;
+mod text_renderer;
+pub use text_renderer::*;
 
-/// Render text.
-pub mod text_renderer;
+mod shader_program;
+pub use shader_program::*;
 
-/// Abstraction for an OpenGL shader program. 
-pub mod shader_program;
+mod array_buffer;
+pub use array_buffer::*;
 
-/// Abstraction for an OpenGL array buffer.
-pub mod array_buffer;
+mod trigger;
+pub use trigger::*;
 
-/// Trigger that can be notified remotely.
-pub mod trigger;
-
-/// Clone variables for closure.
-pub mod with_clone;
+mod with_clone;
+pub use with_clone::*;
 
 #[cfg(all(target_os="android",feature="sdl"))]
 pub mod android_log_thread;

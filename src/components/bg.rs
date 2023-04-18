@@ -1,9 +1,8 @@
-use crate::core::app_context::AppContext;
-use crate::core::element::{Element, Elements, ElementWrap};
-use crate::core::hooks::use_context;
-use appy::{derive_component,SnakeFactory,ComponentBuilder};
+use crate::types::{AppContext, Element, Elements, ElementWrap};
+use crate::hooks::use_context;
+use appy::{derive_component, SnakeFactory, ComponentBuilder};
 
-/// Draws a single colored rectangle, filling the current [Blk](crate::components::blk::Blk).
+/// Draws a single colored rectangle, filling the current [Blk](crate::components::Blk).
 ///
 /// It is intented to be used inside [crate::apx], e.g.:
 ///

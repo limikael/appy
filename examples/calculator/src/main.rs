@@ -3,18 +3,12 @@
 #![allow(clippy::needless_update)]
 
 use std::rc::Rc;
-use appy::core::element::*;
-use appy::core::hooks::{use_reducer, use_state};
-use appy::components::{blk::*, interaction::*, bg::*, text::*, grid::*};
-use appy::components::blk::Dim::*;
-use appy::components::interaction::{use_hover_state_ref, HoverState};
-use appy::{component, rc_with_clone, apx, main_window};
-
-use crate::calculator_model::CalculatorModel;
+use appy::{*, hooks::*, components::*, types::*};
 
 mod calculator_model;
+use calculator_model::CalculatorModel;
 
-#[component]
+#[derive_component(Default,ComponentBuilder,SnakeFactory)]
 pub struct Button {
 	on_click: Option<Rc<dyn Fn(char)>>,
 	id: char
@@ -45,7 +39,7 @@ impl Element for Button {
 	}
 }
 
-#[component]
+#[derive_component(Default,ComponentBuilder,SnakeFactory)]
 pub struct ButtonBg {
     pub on_click: Option<Rc<dyn Fn()>>,
 	pub normal: u32,

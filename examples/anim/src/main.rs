@@ -1,14 +1,5 @@
 use std::rc::Rc;
-use appy::core::hooks::use_spring;
-use appy::core::hooks::SpringConf;
-use appy::core::element::*;
-use appy::components::blk::*;
-use appy::components::bg::*;
-use appy::components::text::*;
-use appy::components::interaction::*;
-use appy::{main_window,apx,derive_component,ComponentBuilder,SnakeFactory};
-use appy::components::blk::Dim::*;
-use appy::rc_with_clone;
+use appy::{*, hooks::*, components::*, types::*};
 
 #[derive_component(Default,ComponentBuilder,SnakeFactory)]
 pub struct Button {

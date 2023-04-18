@@ -1,10 +1,6 @@
 #![allow(clippy::needless_update)]
 
-use appy::components::blk::Dim::*;
-use appy::components::{bg::*, blk::*, text::*};
-use appy::{apx, main_window};
-
-use appy::core::element::Elements;
+use appy::{*, components::*, types::*};
 
 #[main_window]
 pub fn app()->Elements {

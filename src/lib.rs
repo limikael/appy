@@ -25,17 +25,23 @@
 
 pub use appy_macros::*;
 
-/// Core functions.
+#[doc(hidden)]
 pub mod core;
 
 /// Graphical UI components.
 pub mod components;
 
-/// Abstraction so that Appy can use different libraries for window and context management.
+#[doc(hidden)]
 pub mod sys;
 
 /// Utilities.
 pub mod utils;
+
+/// Types used by hooks and components.
+pub mod types;
+
+/// Hooks that let you hook into the system for storing state and more.
+pub mod hooks;
 
 #[cfg(test)]
 mod tests;

@@ -25,7 +25,7 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 						//println!("{:?}",a.args[0]);
 						let ty=&a.args[0];
 						builder_body.extend(quote!{
-							pub fn #ident(mut self:ElementWrap<Self>, val: #ty)->ElementWrap<Self> {
+							pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: #ty)->appy::types::ElementWrap<Self> {
 								self.#ident=Some(val);
 								self
 							}
@@ -35,7 +35,7 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 					else {panic!("expected generic argiments for option")}
 				} else {
 					builder_body.extend(quote!{
-						pub fn #ident(mut self:ElementWrap<Self>, val: #ty)->ElementWrap<Self> {
+						pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: #ty)->appy::types::ElementWrap<Self> {
 							self.#ident=val;
 							self
 						}
@@ -50,8 +50,8 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 	let struct_ident=ast.ident.clone();
 	builder_body=quote!{
 		impl #struct_ident {
-			pub fn new()->ElementWrap<Self> {
-				ElementWrap::new(Self::default())
+			pub fn new()->appy::types::ElementWrap<Self> {
+				appy::types::ElementWrap::new(Self::default())
 			}
 
             #builder_body

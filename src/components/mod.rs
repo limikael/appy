@@ -1,14 +1,17 @@
-/// Draws a single colored rectangle.
-pub mod bg;
+mod bg;
+pub use bg::*;
 
-/// Absolute positioned block.
-pub mod blk;
+mod blk;
+pub use blk::*;
 
 /// Layout of components in a fixed grid.
-pub mod grid;
+mod grid;
+pub use grid::*;
 
 /// Handles interaction.
-pub mod interaction;
+mod interaction;
+pub use interaction::*;
 
 /// Renders text
-pub mod text;
+mod text;
+pub use text::*;

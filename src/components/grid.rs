@@ -1,7 +1,6 @@
-use appy::{apx,derive_component,SnakeFactory,ComponentBuilder};
-
-use super::blk::{Dim::Pc, *};
-use crate::core::element::*;
+use crate::{apx,derive_component,SnakeFactory,ComponentBuilder};
+use crate::types::{Element, Elements, ElementWrap, Dim::*};
+use crate::components::blk;
 
 /// Layout of components in a fixed grid.
 ///

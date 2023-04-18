@@ -13,7 +13,7 @@ extern "system" fn error_callback(
 
 /// Install OpenGL debug output. OpenGL error messages will be sent to
 /// standard out.
-pub fn install_debug_output() {
+pub fn install_gl_debug_output() {
 	unsafe {
 		gl::Enable(gl::DEBUG_OUTPUT);
 		gl::DebugMessageCallback(Some(error_callback), std::ptr::null());

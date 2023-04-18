@@ -1,11 +1,10 @@
-use crate::utils::rect::Rect;
-use crate::utils::rect_renderer::RectRenderer;
-use crate::utils::text_renderer::TextRenderer;
+use crate::types::Rect;
+use crate::utils::{RectRenderer, TextRenderer};
 
 /// Information about the current application window.
 ///
 /// Access the current [`AppContext`] from within a function component
-/// with `use_context::<AppContext>()`. See [`use_context`](::appy::core::hooks::use_context).
+/// with `use_context::<AppContext>()`. See [`use_context`](crate::hooks::use_context).
 pub struct AppContext {
     pub rect: Rect,
     pub rect_renderer: RectRenderer,

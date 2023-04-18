@@ -1,12 +1,5 @@
 use appy::{derive_component,ComponentBuilder,SnakeFactory};
-
-pub type ElementWrap<T>=Box<T>;
-
-pub trait Element {
-    fn render(self: ElementWrap<Self>) -> Elements;
-}
-
-pub type Elements = Vec<ElementWrap<dyn Element>>;
+use crate::types::{Element, Elements, ElementWrap};
 
 pub fn flatten_elements(el: &mut [Elements]) -> Elements {
     let mut res: Elements = vec![];

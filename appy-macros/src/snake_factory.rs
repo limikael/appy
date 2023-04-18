@@ -12,6 +12,7 @@ pub fn snake_factory(input: TokenStream) -> TokenStream {
 	let func_ident=Ident::new(&struct_ident.to_string().to_case(Case::Snake),struct_ident.span());
 
 	let out=quote!{
+    	/// Alias for ::new() on the corresponding struct.
         pub fn #func_ident()->ElementWrap<#struct_ident> {
 			#struct_ident::new()
         }

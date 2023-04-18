@@ -25,7 +25,7 @@ dependencies = [
 
 [[package]]
 name = "appy"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "android_log-sys",
  "appy-macros",
@@ -39,7 +39,7 @@ dependencies = [
 
 [[package]]
 name = "appy-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "convert_case",
  "proc-macro2",

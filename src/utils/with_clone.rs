@@ -35,7 +35,7 @@ macro_rules! with_clone {
 macro_rules! rc_with_clone {
 	($args:tt,$body:expr) => {
 		{
-			Rc::new($crate::with_clone!($args,$body))
+			std::rc::Rc::new($crate::with_clone!($args,$body))
 		}
 	}
 }

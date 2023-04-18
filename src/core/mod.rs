@@ -9,23 +9,15 @@ use environmental::environmental;
 
 use crate::sys::app_window::AppEvent;
 use crate::sys::app_window::AppWindowBuilder;
-use crate::utils::trigger::Trigger;
+use crate::utils::Trigger;
 
-use self::app_context::AppContext;
+use crate::types::AppContext;
 use self::component::ComponentInstance;
 use self::component::ComponentPath;
 use self::component::ComponentPathComponent;
 use self::component::HookRef;
-use self::element::Element;
-use self::element::Elements;
-//use self::element::RootElement;
-use self::element::root_element;
-
-/// Information about the current application window.
-pub mod app_context;
-
-/// Hooks.
-pub mod hooks;
+use crate::types::{Element, Elements};
+use crate::core::element::root_element;
 
 #[doc(hidden)]
 pub mod component;

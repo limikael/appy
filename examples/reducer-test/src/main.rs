@@ -1,12 +1,7 @@
 #![allow(clippy::needless_update)]
 
 use std::rc::Rc;
-use appy::components::blk::Dim::*;
-use appy::components::{bg::*, blk::*, interaction::*, text::*, grid::*};
-use appy::{apx, rc_with_clone, component, main_window};
-
-use appy::core::element::*;
-use appy::core::hooks::use_reducer;
+use appy::{*, components::*, hooks::*, types::*};
 
 #[derive(Clone)]
 enum Action {
@@ -28,7 +23,7 @@ impl AppState {
 	}
 }
 
-#[component]
+#[derive_component(Default,ComponentBuilder,SnakeFactory)]
 pub struct TextButton {
 	text: String,
 	on_click: Option<Rc<dyn Fn()>>
