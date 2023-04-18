@@ -23,11 +23,8 @@ pub struct Interaction {
 impl Element for Interaction {
     fn render(self:ElementWrap<Self>)->Elements {
         let h_state = use_state(|| HoverState::Normal);
-        let instance_ref = use_context::<AppContext>();
-        let rect = {
-            let instance = instance_ref.borrow();
-            instance.rect.clone()
-        };
+        let app_context = use_context::<AppContext>();
+        let rect = app_context.rect.clone();
 
         if self.hover_state_ref.is_some() && *h_state!=**self.hover_state_ref.as_ref().unwrap() {
             panic!("they are different!!!");

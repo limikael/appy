@@ -1,5 +1,4 @@
 use std::rc::Rc;
-use std::cell::RefCell;
 use std::any::TypeId;
 use crate::sys::app_window::AppEvent;
 use crate::core::Appy;
@@ -52,23 +51,14 @@ pub fn use_animation_frame(f: Rc<dyn Fn(f32)>) {
 	})
 }
 
-/*pub fn use_context_provider<T: 'static>(t: Rc<RefCell<T>>) {
-	let type_id=TypeId::of::<T>();
-
-	if RenderEnv::get_current().borrow().contexts.contains_key(&type_id) {
-		panic!("context already provided");
-	}
-
-	RenderEnv::get_current().borrow_mut().contexts.insert(type_id,t);
-}*/
-
 /// A context is a way to access global state.
-pub fn use_context<T: 'static>()->Rc<RefCell<T>> {
+pub fn use_context<T: 'static>()->Rc<T> {
 	let type_id=TypeId::of::<T>();
 
 	Appy::with(|appy|{
-		let any=appy.contexts.get(&type_id).unwrap().clone();
-		any.downcast::<RefCell<T>>().unwrap()
+		let v=appy.contexts.get(&type_id).unwrap();
+		let any=v[v.len()-1].clone();
+		any.downcast::<T>().unwrap()
 	})
 }
 

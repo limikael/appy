@@ -36,12 +36,11 @@ impl Default for Text {
 
 impl Element for Text {
 	fn render(self:ElementWrap<Self>)->Elements {
-		let instance_ref=use_context::<AppContext>();
-		let mut instance=instance_ref.borrow_mut();
-		let r=instance.rect.clone();
+		let app_context=use_context::<AppContext>();
+		let r=app_context.rect.clone();
 
-		let size=self.size.to_px(r.h as f32,instance.pixel_ratio);
-		let w=instance.text_renderer.get_str_width(&self.text,size) as i32;
+		let size=self.size.to_px(r.h as f32,app_context.pixel_ratio);
+		let w=app_context.text_renderer.borrow().get_str_width(&self.text,size) as i32;
 
 		let x=match self.align {
 			Align::Left => r.x,
@@ -55,7 +54,7 @@ impl Element for Text {
 			VAlign::Bottom => r.y+r.h-size as i32,
 		};
 
-		instance.text_renderer.draw(&self.text, x as f32, y as f32, size, self.col);
+		app_context.text_renderer.borrow_mut().draw(&self.text, x as f32, y as f32, size, self.col);
 
 		self.children
 	}

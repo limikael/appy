@@ -18,10 +18,9 @@ pub struct Bg {
 
 impl Element for Bg {
     fn render(self: ElementWrap<Self>) -> Elements {
-		let instance_ref=use_context::<AppContext>();
-		let instance=instance_ref.borrow();
+		let app_context=use_context::<AppContext>();
 
-		instance.rect_renderer.draw(&instance.rect,self.col);
+		app_context.rect_renderer.borrow().draw(&app_context.rect,self.col);
     	vec![]
     }
 }

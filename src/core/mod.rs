@@ -2,7 +2,6 @@ use std::time::SystemTime;
 use std::mem::take;
 use std::any::Any;
 use std::any::TypeId;
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use environmental::environmental;
@@ -18,6 +17,7 @@ use self::component::ComponentPathComponent;
 use self::component::HookRef;
 use crate::types::{Element, Elements};
 use crate::core::element::root_element;
+use crate::components::context_provider;
 
 #[doc(hidden)]
 pub mod component;
@@ -32,14 +32,14 @@ pub struct Appy {
     instances: HashMap<ComponentPath, ComponentInstance>,
     previous_instances: HashMap<ComponentPath, ComponentInstance>,
     root: fn() -> Elements,
-    app_context: Option<Rc<RefCell<AppContext>>>,
+    app_context: Option<Rc<AppContext>>,
     current_hook_index: usize,
     current_component_path: Option<ComponentPath>,
     last_render: Option<SystemTime>,
     pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent)>>,
     pub animation_frame_handlers: Vec<Rc<dyn Fn(f32)>>,
     pub dirty: Trigger,
-    pub contexts: HashMap<TypeId, Rc<dyn Any>>,
+    pub contexts: HashMap<TypeId, Vec<Rc<dyn Any>>>,
 }
 
 impl Appy {
@@ -105,18 +105,14 @@ impl Appy {
         self.render_fragment(child_fragment,this_path.clone());
 
         if self.instances.contains_key(&this_path) {
-            self.instances.get_mut(&this_path).unwrap().post_render();
+            let post_render=&self.instances.get(&this_path).unwrap().post_render;
+            if post_render.is_some() {
+                let cb=post_render.clone().unwrap();
+                appy_instance::using(self,||{
+                    cb();
+                });
+            }
         }
-    }
-
-    fn provide_context<T: 'static>(&mut self, t: Rc<RefCell<T>>) {
-        let type_id=TypeId::of::<T>();
-
-        if self.contexts.contains_key(&type_id) {
-            panic!("context already provided");
-        }
-
-        self.contexts.insert(type_id,t);
     }
 
     fn render(&mut self) {
@@ -128,8 +124,14 @@ impl Appy {
         self.previous_instances=take(&mut self.instances);
         self.instances=HashMap::new();
 
-        self.provide_context(self.app_context.clone().unwrap());
-        self.render_component(root_element().root(self.root),vec![]);
+        self.render_component(
+            context_provider()
+                .value(self.app_context.clone().unwrap())
+                .children(vec![
+                    root_element().root(self.root)
+                ]),
+            vec![]
+        );
 
         self.previous_instances=HashMap::new();
 
@@ -175,14 +177,6 @@ impl Appy {
         }
     }
 
-    fn with_app_context<F>(&mut self, f: F)
-            where F:FnOnce(&mut AppContext) {
-        let ac_ref=self.app_context.clone().unwrap();
-        let ac=&mut *ac_ref.borrow_mut();
-
-        f(ac);
-    }
-
     pub fn run(mut self, app_window_builder:&mut dyn AppWindowBuilder) {
         let app_window=app_window_builder.build();
 
@@ -198,17 +192,20 @@ impl Appy {
                     //install_debug_output();
                     if self.app_context.is_none() {
                         let size=w.size();
-                        self.app_context=Some(Rc::new(RefCell::new(AppContext::new(
+                        self.app_context=Some(Rc::new(AppContext::new(
                             size.0,size.1,
                             w.pixel_ratio()
-                        ))));
+                        )));
                     }
                 },
                 AppEvent::Resize{width,height}=>{
-                    self.with_app_context(|ac|{
-                        ac.set_size(width as i32,height as i32);
-                        ac.pixel_ratio=w.pixel_ratio();
-                    });
+                    let new_context=self.app_context.as_ref().unwrap().resize(
+                        width as i32,
+                        height as i32,
+                        w.pixel_ratio()
+                    );
+
+                    self.app_context=Some(Rc::new(new_context));
                 }
                 AppEvent::Render=>{
                     self.render();

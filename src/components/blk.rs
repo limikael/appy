@@ -1,8 +1,9 @@
 use crate::types::{Element, Elements, ElementWrap};
 use crate::types::{AppContext, Dim};
-use crate::hooks::{use_context, use_post_render};
+use crate::hooks::{use_context};
 use std::rc::Rc;
-use appy::{derive_component,SnakeFactory,ComponentBuilder,with_clone};
+use appy::{derive_component,SnakeFactory,ComponentBuilder};
+use appy::components::context_provider;
 
 /// Positions a block relative to the parent.
 ///
@@ -29,22 +30,18 @@ pub struct Blk {
 
 impl Element for Blk {
     fn render(self: ElementWrap<Blk>)->Elements {
-        let instance_ref = use_context::<AppContext>();
-        let mut instance = instance_ref.borrow_mut();
+        let app_context = use_context::<AppContext>();
 
-        let old_rect = instance.rect.clone();
-        let h = Dim::compute_span(old_rect.w as f32, instance.pixel_ratio, self.left, self.width, self.right);
-        let v = Dim::compute_span(old_rect.h as f32, instance.pixel_ratio, self.top, self.height, self.bottom);
+        let rect = &app_context.rect;
+        let h = Dim::compute_span(rect.w as f32, app_context.pixel_ratio, self.left, self.width, self.right);
+        let v = Dim::compute_span(rect.h as f32, app_context.pixel_ratio, self.top, self.height, self.bottom);
 
-        instance.rect = instance
-            .rect
-            .abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
+        let new_context=app_context.abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
 
-        use_post_render(Rc::new(with_clone!([instance_ref], move || {
-            let mut instance = instance_ref.borrow_mut();
-            instance.rect = old_rect.clone();
-        })));
-
-        self.children
+        vec![
+            context_provider()
+                .value(Rc::new(new_context))
+                .children(self.children)
+        ]
     }
 }

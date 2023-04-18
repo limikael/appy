@@ -68,12 +68,12 @@ impl ComponentInstance {
         self.post_render=None;
     }
 
-    pub fn post_render(&self) {
+    /*pub fn post_render(&self) {
         if self.post_render.is_some() {
             let f = self.post_render.as_ref().unwrap();
             (*f)();
         }
-    }
+    }*/
 
     pub fn create_hook_ref<F, T: 'static>(&mut self,
             index:usize,  ctor:F, trigger:Rc<dyn Fn()>)->HookRef<T>
