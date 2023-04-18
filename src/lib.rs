@@ -37,9 +37,6 @@ pub mod sys;
 /// Utilities.
 pub mod utils;
 
-/*#[cfg(all(target_os="android",feature="glutin"))]
-pub use winit::platform::android::activity::AndroidApp;*/
-
 #[cfg(test)]
 mod tests;
 

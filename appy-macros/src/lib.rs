@@ -8,23 +8,13 @@
 //! If it is not the case any more that it needs to be separate, please let me know!
 use proc_macro::{*};
 
-/*#[proc_macro_derive(Props)]
-pub fn derive_props(input: TokenStream) -> TokenStream {
-	let ast=parse_macro_input!(input as DeriveInput);
-	let name=ast.ident;
-
-	TokenStream::from(quote!{
-		impl Props for #name {}
-	})
-}*/
-
 mod main_window;
 #[proc_macro_attribute]
 /// Application entry point.
 ///
 /// The main window macro defines the main application entry point.
 /// It should be placed on a function that returns Elements. In this
-/// sense, it is similar to a [macro@function_component], but it
+/// sense, it is similar to the render function of an Element, but it
 /// does not take any properties or children.
 ///
 /// # Example
@@ -79,12 +69,50 @@ pub fn derive_component(attr: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 mod component_builder;
+/// Create builder.
+///
+/// Create a builder implementation. For example, when placed on the following struct:
+/// ```rust
+/// struct MyStruct {
+///     an_int:i32,
+///     an_optional_string:Option<String>
+/// }
+/// ```
+/// This macro will create the following implementation:
+/// ```rust
+/// impl MyStruct {
+///     pub fn new()->ElementWrap<Self> {
+///         // ...
+///     }
+///
+///     pub fn an_int(ElementWrap<Self>,v:i32)->ElementWrap<Self> {
+///         // ...
+///     }
+///
+///     pub fn an_optional_string(ElementWrap<Self>,v:String)->ElementWrap<Self> {
+///         // ...
+///     }
+///	}
+/// ```
+/// Notes:
+/// - For optional properties, e.g. fields wrapped in `Option<...>`, the setter in
+///   the builder will take the wrapped type as parameter and call `Some()` with the
+///   value.
 #[proc_macro_derive(ComponentBuilder)]
 pub fn component_builder(input: TokenStream) -> TokenStream {
 	component_builder::component_builder(input)
 }
 
 mod snake_factory;
+/// Produce snake cased factory function.
+///
+/// When placed on a `struct`, e.g. `MyStruct`, this derive macro
+/// will create a function `my_struct` defined as:
+/// ```rust
+/// fn my_struct() -> MyStruct {
+///     MyStruct::new()
+/// }
+/// ```
 #[proc_macro_derive(SnakeFactory)]
 pub fn snake_factory(input: TokenStream) -> TokenStream {
 	snake_factory::snake_factory(input)
@@ -94,28 +122,31 @@ mod apx;
 /// Process element fragment.
 ///
 /// This macro takes XML, and produces an element fragment represented as
-/// Elements. The node names in the XML refers to a [macro@function_component].
-/// The attributes refers to the members to the function's props struct.
-/// For example, the following APX snippet:
-///
+/// `Elements`. For example, the following APX snippet:
 /// ```rust
 /// apx!{
-///   <a_func param1=123 param2=456/>
+///     <my_component param1=123 param2=456/>
 ///	}
 /// ```
-///
-/// Is intended to be used with a function component declared as:
-///
+/// Is syntactical sugar for the following:
 /// ```rust
-/// pub struct FuncProps {
-///   param1: i32,
-///   param2: i32
+/// vec![
+///     my_component().param1(123).param3(456)
+/// ]
+/// ```
+/// And it would be used together with a component defined like this:
+/// ```rust
+/// #[derive_component(ComponentBuilder,Default,SnakeFactory)]
+/// pub struct MyComponent {
+///     param1: i32,
+///     param2: i32
 /// }
 ///
-/// #[function_component]
-/// pub fn a_func(p:FuncProps, c:Elements)->Elements {
-///   // ...
-///}
+/// impl Element for MyComponent {
+///     fn render(self:ElementWrap<Self>)->Elements {
+///         // ...
+///     }
+/// }
 #[proc_macro]
 pub fn apx(input: TokenStream) -> TokenStream {
 	apx::apx(input)
