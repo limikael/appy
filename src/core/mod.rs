@@ -124,6 +124,8 @@ impl Appy {
         self.previous_instances=take(&mut self.instances);
         self.instances=HashMap::new();
 
+        self.app_context.as_ref().unwrap().reset_flow(); //flow_anchor.borrow_mut()=(0,0);
+
         self.render_component(
             context_provider()
                 .value(self.app_context.clone().unwrap())

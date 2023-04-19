@@ -39,7 +39,7 @@ impl Element for Text {
 		let app_context=use_context::<AppContext>();
 		let r=&app_context.rect;
 
-		let size=self.size.to_px(r.h as f32,app_context.pixel_ratio);
+		let size=app_context.compute_v_px(self.size);//.to_px(r.h as f32,app_context.pixel_ratio);
 		let w=app_context.text_renderer.borrow().get_str_width(&self.text,size) as i32;
 
 		let x=match self.align {

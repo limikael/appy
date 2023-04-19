@@ -32,9 +32,12 @@ impl Element for Blk {
     fn render(self: ElementWrap<Blk>)->Elements {
         let app_context = use_context::<AppContext>();
 
-        let rect = &app_context.rect;
-        let h = Dim::compute_span(rect.w as f32, app_context.pixel_ratio, self.left, self.width, self.right);
-        let v = Dim::compute_span(rect.h as f32, app_context.pixel_ratio, self.top, self.height, self.bottom);
+//        let rect = &app_context.rect;
+        let h=app_context.compute_h_span(self.left,self.width,self.right);
+        let v=app_context.compute_v_span(self.top,self.height,self.bottom);
+
+//        let h = Dim::compute_span(rect.w as f32, app_context.pixel_ratio, self.left, self.width, self.right);
+//        let v = Dim::compute_span(rect.h as f32, app_context.pixel_ratio, self.top, self.height, self.bottom);
 
         let new_context=app_context.abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
 

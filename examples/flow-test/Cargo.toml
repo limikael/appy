@@ -1,0 +1,10 @@
+[package]
+name = "flow-test"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata]
+appname="Testing Flow"
+
+[dependencies]
+appy = {path="../..",features=["sdl"]}

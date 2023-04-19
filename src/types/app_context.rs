@@ -1,7 +1,39 @@
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::types::Rect;
+use std::cmp::max;
+use crate::types::{Rect, Dim};
 use crate::utils::{RectRenderer, TextRenderer};
+
+struct FlowAnchor {
+    x: i32,
+    y: i32,
+    line_height: i32
+}
+
+impl FlowAnchor {
+    pub fn new()->Self {
+        Self {
+            x: 0,
+            y: 0,
+            line_height: 0
+        }
+    }
+
+    pub fn advance(&mut self, w:i32, h:i32, max_w:i32)->(i32,i32) {
+        if self.x+w>max_w {
+            self.x=0;
+            self.y+=self.line_height;
+            self.line_height=0;
+        }
+
+        let res=(self.x,self.y);
+
+        self.x+=w;
+        self.line_height=max(self.line_height,h);
+
+        res
+    }
+}
 
 /// Information about the current application window.
 ///
@@ -9,10 +41,11 @@ use crate::utils::{RectRenderer, TextRenderer};
 /// with `use_context::<AppContext>()`. See [`use_context`](crate::hooks::use_context).
 #[derive(Clone)]
 pub struct AppContext {
+    flow_anchor: Rc<RefCell<FlowAnchor>>,
+    pixel_ratio: f32,
     pub rect: Rect,
     pub rect_renderer: Rc<RefCell<RectRenderer>>,
     pub text_renderer: Rc<RefCell<TextRenderer>>,
-    pub pixel_ratio: f32
 }
 
 impl AppContext {
@@ -22,7 +55,8 @@ impl AppContext {
             pixel_ratio: pixel_ratio,
             rect: Rect{x:0,y:0,w,h},
             rect_renderer: Rc::new(RefCell::new(RectRenderer::new(w,h))),
-            text_renderer: Rc::new(RefCell::new(TextRenderer::new(w,h)))
+            text_renderer: Rc::new(RefCell::new(TextRenderer::new(w,h))),
+            flow_anchor: Rc::new(RefCell::new(FlowAnchor::new()))
         }
     }
 
@@ -42,7 +76,32 @@ impl AppContext {
 
     pub fn abs(&self, x:i32, y:i32, w:i32, h:i32)->Self {
         let mut resized=self.clone();
+        resized.flow_anchor=Rc::new(RefCell::new(FlowAnchor::new()));
         resized.rect=resized.rect.abs(x,y,w,h);
         resized
+    }
+
+    pub fn reset_flow(&self) {
+        *self.flow_anchor.borrow_mut()=FlowAnchor::new();
+    }
+
+    pub fn advance_flow(&self, w:i32, h:i32)->(i32,i32) {
+        self.flow_anchor.borrow_mut().advance(w,h,self.rect.w)
+    }
+
+    pub fn compute_h_span(&self, start: Dim, size: Dim, end: Dim)->(f32, f32) {
+        Dim::compute_span(self.rect.w as f32, self.pixel_ratio, start, size, end)
+    }
+
+    pub fn compute_v_span(&self, start: Dim, size: Dim, end: Dim)->(f32, f32) {
+        Dim::compute_span(self.rect.h as f32, self.pixel_ratio, start, size, end)
+    }
+
+    pub fn compute_h_px(&self, val: Dim)->f32 {
+        val.to_px(self.rect.w as f32,self.pixel_ratio)
+    }
+
+    pub fn compute_v_px(&self, val: Dim)->f32 {
+        val.to_px(self.rect.h as f32,self.pixel_ratio)
     }
 }
