@@ -79,11 +79,19 @@ impl Appy {
     }
 
     fn render_fragment(&mut self, fragment: Elements, component_path: ComponentPath) {
-        for (i, component) in fragment.into_iter().enumerate() {
+        for (i, element) in fragment.into_iter().enumerate() {
             let mut this_path = component_path.clone();
-            this_path.push(ComponentPathComponent::Index(i as i32));
 
-            self.render_component(component, this_path);
+            let key=element.get_key();
+            this_path.push(
+                if key.is_some() {
+                    ComponentPathComponent::Key(key.unwrap())
+                } else {
+                    ComponentPathComponent::Index(i as i32)
+                }
+            );
+
+            self.render_component(element, this_path);
         }
     }
 

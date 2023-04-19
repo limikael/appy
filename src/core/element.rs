@@ -1,5 +1,5 @@
-use appy::{derive_component,ComponentBuilder,SnakeFactory};
-use crate::types::{Element, Elements, ElementWrap};
+use appy::{function_component,derive_component,ComponentBuilder,SnakeFactory};
+use crate::types::Elements;
 
 pub fn flatten_elements(el: &mut [Elements]) -> Elements {
     let mut res: Elements = vec![];
@@ -16,8 +16,7 @@ pub struct RootElement {
     root: Option<fn()->Elements>
 }
 
-impl Element for RootElement {
-    fn render(self:ElementWrap<Self>)->Elements {
-        (self.root.unwrap())()
-    }
+#[function_component]
+fn _root_element(props:RootElement)->Elements {
+    (props.root.unwrap())()
 }

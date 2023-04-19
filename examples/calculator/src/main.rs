@@ -14,29 +14,28 @@ pub struct Button {
 	id: char
 }
 
-impl Element for Button {
-	fn render(self: ElementWrap<Self>)->Elements {
-		let hover_state_ref=use_hover_state_ref();
-		let self_on_click=self.on_click.as_ref().unwrap().clone();
-		let self_id=self.id.clone();
-		let on_click=rc_with_clone!([],move||{
-			(self_on_click)(self_id)
-		});
+#[function_component]
+fn _button(props:Button)->Elements {
+	let hover_state_ref=use_hover_state_ref();
+	let self_on_click=props.on_click.as_ref().unwrap().clone();
+	let self_id=props.id.clone();
+	let on_click=rc_with_clone!([],move||{
+		(self_on_click)(self_id)
+	});
 
-		let col=match *hover_state_ref {
-			HoverState::Normal=>0xD58936,
-			HoverState::Hover=>0xDEA260,
-			HoverState::Active=>0xB36F25
-		};
+	let col=match *hover_state_ref {
+		HoverState::Normal=>0xD58936,
+		HoverState::Hover=>0xDEA260,
+		HoverState::Active=>0xB36F25
+	};
 
-		apx!(
-			<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
-				<interaction on_click=on_click hover_state_ref=hover_state_ref/>
-				<bg col=col/>
-				<text text=self.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
-			</blk>
-		)
-	}
+	apx!(
+		<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
+			<interaction on_click=on_click hover_state_ref=hover_state_ref/>
+			<bg col=col/>
+			<text text=props.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
+		</blk>
+	)
 }
 
 #[derive_component(Default,ComponentBuilder,SnakeFactory)]
@@ -47,21 +46,20 @@ pub struct ButtonBg {
 	pub hover: u32
 }
 
-impl Element for ButtonBg {
-	fn render(self: ElementWrap<Self>)->Elements {
-		let hover_state=use_hover_state_ref();
-		//println!("state: {:?}",*hover_state);
+#[function_component]
+fn _button_bg(props:ButtonBg)->Elements {
+	let hover_state=use_hover_state_ref();
+	//println!("state: {:?}",*hover_state);
 
-		let c=match *hover_state {
-			HoverState::Normal=>self.normal,
-			HoverState::Hover=>self.hover,
-			HoverState::Active=>self.active
-		};
+	let c=match *hover_state {
+		HoverState::Normal=>props.normal,
+		HoverState::Hover=>props.hover,
+		HoverState::Active=>props.active
+	};
 
-		apx!{
-			<bg col=c/>
-			<interaction on_click=self.on_click.unwrap() hover_state_ref=hover_state/>
-		}
+	apx!{
+		<bg col=c/>
+		<interaction on_click=props.on_click.unwrap() hover_state_ref=hover_state/>
 	}
 }
 

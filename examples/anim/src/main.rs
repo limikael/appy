@@ -7,20 +7,19 @@ pub struct Button {
 	on_click: Option<Rc<dyn Fn()>>,
 }
 
-impl Element for Button {
-	fn render(self:ElementWrap<Self>)->Elements {
-		let hover_state=use_hover_state_ref();
-		let c=match *hover_state {
-			HoverState::Normal=>0x808080,
-			HoverState::Hover=>0xc0c0c0,
-			HoverState::Active=>0x404040
-		};
+#[function_component]
+fn _button(props:Button)->Elements {
+	let hover_state=use_hover_state_ref();
+	let c=match *hover_state {
+		HoverState::Normal=>0x808080,
+		HoverState::Hover=>0xc0c0c0,
+		HoverState::Active=>0x404040
+	};
 
-		apx! {
-			<bg col=c/>
-			<text text=self.text size=Pc(50.0) align=Align::Center/>
-			<interaction on_click=self.on_click.unwrap() hover_state_ref=hover_state/>
-		}
+	apx! {
+		<bg col=c/>
+		<text text=props.text size=Pc(50.0) align=Align::Center/>
+		<interaction on_click=props.on_click.unwrap() hover_state_ref=hover_state/>
 	}
 }
 

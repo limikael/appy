@@ -1,6 +1,4 @@
-use crate::types::{AppContext, Element, Elements, ElementWrap};
-use crate::hooks::use_context;
-use appy::{derive_component, SnakeFactory, ComponentBuilder};
+use appy::{*, types::*, hooks::*};
 
 /// Draws a single colored rectangle, filling the current [Blk](crate::components::Blk).
 ///
@@ -16,11 +14,9 @@ pub struct Bg {
 	col: u32
 }
 
-impl Element for Bg {
-    fn render(self: ElementWrap<Self>) -> Elements {
-		let app_context=use_context::<AppContext>();
-
-		app_context.rect_renderer.borrow().draw(&app_context.rect,self.col);
-    	vec![]
-    }
+#[function_component]
+fn _bg(props:Bg)->Elements {
+	let app_context=use_context::<AppContext>();
+	app_context.rect_renderer.borrow().draw(&app_context.rect,props.col);
+	vec![]
 }

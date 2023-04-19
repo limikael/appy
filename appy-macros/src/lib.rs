@@ -8,6 +8,12 @@
 //! If it is not the case any more that it needs to be separate, please let me know!
 use proc_macro::{*};
 
+mod function_component;
+#[proc_macro_attribute]
+pub fn function_component(attr: TokenStream, input: TokenStream) -> TokenStream {
+	function_component::function_component(attr,input)
+}
+
 mod main_window;
 #[proc_macro_attribute]
 /// Application entry point.

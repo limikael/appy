@@ -1,5 +1,5 @@
-use crate::{apx,derive_component,SnakeFactory,ComponentBuilder};
-use crate::types::{Element, Elements, ElementWrap, Dim::*};
+use crate::{function_component,apx,derive_component,SnakeFactory,ComponentBuilder};
+use crate::types::{Elements, Dim::*};
 use crate::components::blk;
 
 /// Layout of components in a fixed grid.
@@ -13,28 +13,27 @@ pub struct Grid {
     rows: usize,
 }
 
-impl Element for Grid {
-    fn render(self:ElementWrap<Self>)->Elements {
-        let rows=if self.rows>=1 {self.rows} else {1};
-        let cols=if self.cols>=1 {self.cols} else {1};
+#[function_component]
+fn _grid(props:Grid)->Elements {
+    let rows=if props.rows>=1 {props.rows} else {1};
+    let cols=if props.cols>=1 {props.cols} else {1};
 
-        let mut items = vec![];
+    let mut items = vec![];
 
-        for (i, c) in self.children.into_iter().enumerate() {
-            let row = i / cols;
-            let col = i % cols;
+    for (i, c) in props.children.into_iter().enumerate() {
+        let row = i / cols;
+        let col = i % cols;
 
-            items.append(&mut apx! {
-                <blk
-                        left=Pc(col as f32*100.0/cols as f32)
-                        top=Pc(row as f32*100.0/rows as f32)
-                        width=Pc(100.0/cols as f32)
-                        height=Pc(100.0/rows as f32)>
-                    {vec![c]}
-                </blk>
-            });
-        }
-
-        items
+        items.append(&mut apx! {
+            <blk
+                    left=Pc(col as f32*100.0/cols as f32)
+                    top=Pc(row as f32*100.0/rows as f32)
+                    width=Pc(100.0/cols as f32)
+                    height=Pc(100.0/rows as f32)>
+                {vec![c]}
+            </blk>
+        });
     }
+
+    items
 }

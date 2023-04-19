@@ -29,6 +29,13 @@ pub fn derive_component(attr_stream: TokenStream, input: TokenStream) -> TokenSt
 		});
 
 		fields.named.push(p.unwrap());
+
+		let p=syn::Field::parse_named.parse2(quote!{
+			key: Option<String>
+		});
+
+		fields.named.push(p.unwrap());
+
 		fields
 	} else {panic!("parse error")});
 

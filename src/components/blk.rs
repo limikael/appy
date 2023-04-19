@@ -1,8 +1,8 @@
-use crate::types::{Element, Elements, ElementWrap};
+use crate::types::{Elements};
 use crate::types::{AppContext, Dim};
 use crate::hooks::{use_context};
 use std::rc::Rc;
-use appy::{derive_component,SnakeFactory,ComponentBuilder};
+use appy::{function_component,derive_component,SnakeFactory,ComponentBuilder};
 use appy::components::context_provider;
 
 /// Positions a block relative to the parent.
@@ -28,23 +28,17 @@ pub struct Blk {
     right: Dim,
 }
 
-impl Element for Blk {
-    fn render(self: ElementWrap<Blk>)->Elements {
-        let app_context = use_context::<AppContext>();
+#[function_component]
+fn _blk(props:Blk)->Elements {
+    let app_context = use_context::<AppContext>();
 
-//        let rect = &app_context.rect;
-        let h=app_context.compute_h_span(self.left,self.width,self.right);
-        let v=app_context.compute_v_span(self.top,self.height,self.bottom);
+    let h=app_context.compute_h_span(props.left,props.width,props.right);
+    let v=app_context.compute_v_span(props.top,props.height,props.bottom);
+    let new_context=app_context.abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
 
-//        let h = Dim::compute_span(rect.w as f32, app_context.pixel_ratio, self.left, self.width, self.right);
-//        let v = Dim::compute_span(rect.h as f32, app_context.pixel_ratio, self.top, self.height, self.bottom);
-
-        let new_context=app_context.abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
-
-        vec![
-            context_provider()
-                .value(Rc::new(new_context))
-                .children(self.children)
-        ]
-    }
+    vec![
+        context_provider()
+            .value(Rc::new(new_context))
+            .children(props.children)
+    ]
 }

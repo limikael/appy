@@ -17,7 +17,8 @@ impl<T> ContextProvider<T> {
 	pub fn new()->ElementWrap<ContextProvider<T>> {
 		ElementWrap::new(Self {
 			value: None,
-			children: vec![]
+			children: vec![],
+			key: None
 		})
 	}
 
@@ -57,6 +58,10 @@ impl<T: 'static> Element for ContextProvider<T> {
 		}));
 
 		self.children
+	}
+
+	fn get_key(&self)->Option<String> {
+		self.key.clone()
 	}
 }
 

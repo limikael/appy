@@ -13,7 +13,7 @@ pub fn snake_factory(input: TokenStream) -> TokenStream {
 
 	let out=quote!{
     	/// Alias for ::new() on the corresponding struct.
-        pub fn #func_ident()->ElementWrap<#struct_ident> {
+        pub fn #func_ident()->appy::types::ElementWrap<#struct_ident> {
 			#struct_ident::new()
         }
 	};

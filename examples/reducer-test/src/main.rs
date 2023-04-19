@@ -29,20 +29,19 @@ pub struct TextButton {
 	on_click: Option<Rc<dyn Fn()>>
 }
 
-impl Element for TextButton {
-	fn render(self:ElementWrap<Self>)->Elements {
-		let hover_state=use_hover_state_ref();
-		let c=match *hover_state {
-			HoverState::Normal=>0x808080,
-			HoverState::Active=>0x404040,
-			HoverState::Hover=>0xc0c0c0,
-		};
+#[function_component]
+fn _text_button(props:TextButton)->Elements {
+	let hover_state=use_hover_state_ref();
+	let c=match *hover_state {
+		HoverState::Normal=>0x808080,
+		HoverState::Active=>0x404040,
+		HoverState::Hover=>0xc0c0c0,
+	};
 
-		apx! {
-			<bg col=c/>
-			<text text=self.text align=Align::Center size=Pc(60.0) col=0xffffff/>
-			<interaction hover_state_ref=hover_state on_click=self.on_click.unwrap()/>
-		}
+	apx! {
+		<bg col=c/>
+		<text text=props.text align=Align::Center size=Pc(60.0) col=0xffffff/>
+		<interaction hover_state_ref=hover_state on_click=props.on_click.unwrap()/>
 	}
 }
 

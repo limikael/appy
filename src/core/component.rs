@@ -97,6 +97,7 @@ impl ComponentInstance {
 pub enum ComponentPathComponent {
     Index(i32),
     TypeId(TypeId),
+    Key(String)
 }
 
 pub type ComponentPath = Vec<ComponentPathComponent>;

@@ -1,5 +1,5 @@
 use proc_macro::*;
-use quote::quote;
+use quote::{quote,format_ident};
 use syn::{
 	parse_macro_input, ItemStruct, Fields::Named
 };
@@ -25,11 +25,25 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 						//println!("{:?}",a.args[0]);
 						let ty=&a.args[0];
 						builder_body.extend(quote!{
-							pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: #ty)->appy::types::ElementWrap<Self> {
+							pub fn #ident(
+									mut self:appy::types::ElementWrap<Self>,
+									val: #ty)
+										->appy::types::ElementWrap<Self> {
 								self.#ident=Some(val);
 								self
 							}
-						})
+						});
+
+						let ident_option=format_ident!("{}{}",ident,"_option");
+						builder_body.extend(quote!{
+							pub fn #ident_option(
+									mut self:appy::types::ElementWrap<Self>, 
+									val: Option<#ty>)
+										->appy::types::ElementWrap<Self> {
+								self.#ident=val;
+								self
+							}
+						});
 					}
 
 					else {panic!("expected generic argiments for option")}
@@ -39,7 +53,7 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 							self.#ident=val;
 							self
 						}
-					})
+					});
 				}
 			} else {panic!("expected type path")};
 		}
