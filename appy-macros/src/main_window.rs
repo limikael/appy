@@ -1,5 +1,5 @@
 use proc_macro::{*};
-use quote::quote;
+use quote::{quote,format_ident};
 use syn::{parse_macro_input, ItemFn};
 use toml::Table;
 use toml::value::Value;
@@ -44,7 +44,9 @@ fn get_cargo_toml_string(path:Vec<&str>)->Option<String> {
 }
 
 pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
-	let ast=parse_macro_input!(input as ItemFn);
+	let mut ast=parse_macro_input!(input as ItemFn);
+	ast.sig.ident=format_ident!("_{}",ast.sig.ident.clone().to_string());
+
 	let name=ast.sig.ident.clone();
 	let appname=get_cargo_toml_string(vec!["package","metadata","appname"])
 		.unwrap_or("Untitled".to_string());

@@ -1,4 +1,4 @@
-use crate::types::{Elements};
+use crate::types::{Elements,ElementWrap};
 use crate::types::{AppContext, Dim};
 use crate::hooks::{use_context};
 use std::rc::Rc;
@@ -26,6 +26,16 @@ pub struct Blk {
     height: Dim,
     bottom: Dim,
     right: Dim,
+}
+
+impl Blk {
+    pub fn margin(self:ElementWrap<Blk>, val:Dim)->ElementWrap<Blk> {
+        self
+            .left(val.clone())
+            .top(val.clone())
+            .right(val.clone())
+            .bottom(val.clone())
+    }
 }
 
 #[function_component]

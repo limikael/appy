@@ -26,9 +26,12 @@ pub fn app()->Elements {
 			<text text=s.to_string() align=Align::Center size=Pc(60.0) col=0xffffff/>
 		</blk>
 		<blk top=Pc(50.0) height=Pc(20.0) width=Pc(25.0)>
-			<bg col=c/>
-			<text text="+1".to_string() align=Align::Center size=Pc(60.0) col=0xffffff/>
-			<interaction hover_state_ref=hover_state on_click=on_button_click/>
+			<bg col=0xffffff/>
+			<blk margin=Dp(2.0)>
+				<bg col=c/>
+				<text text="+1".to_string() align=Align::Center size=Pc(60.0) col=0xffffff/>
+				<interaction hover_state_ref=hover_state on_click=on_button_click/>
+			</blk>
 		</blk>
 	}
 }

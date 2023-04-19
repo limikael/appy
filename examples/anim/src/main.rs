@@ -24,7 +24,7 @@ fn _button(props:Button)->Elements {
 }
 
 #[main_window]
-pub fn app()->Elements {
+pub fn main()->Elements {
 	let x=use_spring(||0.0,SpringConf::DEFAULT);
 
 	//println!("render");
