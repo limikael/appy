@@ -30,25 +30,25 @@ pub fn main()->Elements {
 	//println!("render");
 
 	apx! {
-		<blk left=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
-			<button text="smooth".to_string()
+		<Blk left=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
+			<Button text="smooth".to_string()
 					on_click=rc_with_clone!([x],move||x.target(0.0))/>
-		</blk>
+		</Blk>
 
-		<blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
+		<Blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
 			<Button text="smooth".to_string()
 					on_click=rc_with_clone!([x],move||x.target(100.0))/>
-		</blk>
+		</Blk>
 
-		<blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
+		<Blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
 			<Button text="chop".to_string()
 					on_click=rc_with_clone!([x],move||x.set(100.0))/>
-		</blk>
+		</Blk>
 
-		<blk right=Dp(50.0)>
-			<blk left=Pc(*x) width=Dp(50.0) height=Dp(50.0) top=Dp(50.0)>
-				<bg col=0xff0000/>
-			</blk>
-		</blk>
+		<Blk right=Dp(50.0)>
+			<Blk left=Pc(*x) width=Dp(50.0) height=Dp(50.0) top=Dp(50.0)>
+				<Bg col=0xff0000/>
+			</Blk>
+		</Blk>
 	}
 }
