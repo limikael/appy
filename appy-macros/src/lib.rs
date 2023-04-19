@@ -9,6 +9,38 @@
 use proc_macro::{*};
 
 mod function_component;
+/// Implement component renderer.
+///
+/// A component takes input in the form of props and children,
+/// and return elements describing what should appear on the screen.
+///
+/// # Example
+/// ```rust
+/// #[derive_component(Default,ComponentBuilder)]
+/// pub struct MyComp {
+///     param1: i32,
+///     param2: i32
+/// }
+///
+/// #[function_component]
+/// fn _my_comp_render(props:MyComp)->Elements {
+///     apx! {
+///         <bg col=0x000000/>
+///     }
+/// }
+/// ```
+///
+/// As should be evident by the _ prefix for the function, the actual function
+/// name is not important. Rather, the render function is tied to a specific
+/// type of element by type inference based on the parameter it takes.
+///
+/// The component declared above can be used together with the
+/// apx macro:
+/// ```rust
+/// apx!{
+///     <MyComp param1=123 param2=456/>
+///	}
+/// ```
 #[proc_macro_attribute]
 pub fn function_component(attr: TokenStream, input: TokenStream) -> TokenStream {
 	function_component::function_component(attr,input)
@@ -40,35 +72,9 @@ pub fn main_window(attr: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 mod derive_component;
-/// Create a component.
+/// Create component properties.
 ///
-/// A component takes input in the form of props and children,
-/// and return elements describing what should appear on the screen.
-///
-/// # Example
-/// ```rust
-/// #[derive_component(Default,ComponentBuilder)]
-/// pub struct MyComp {
-///   param1: i32,
-///   param2: i32
-/// }
-///
-/// impl Element for MyComp {
-///   pub fn render(self: ElementWrap<Self>)->Elements {
-///     apx! {
-///       <bg col=0x000000/>
-///     }
-///   }
-/// }
-/// ```
-///
-/// The component declared above can be used together with the
-/// apx macro:
-/// ```rust
-/// apx!{
-///   <MyComp param1=123 param2=456/>
-///	}
-/// ```
+/// Used together with the `function_component` macro.
 #[proc_macro_attribute]
 pub fn derive_component(attr: TokenStream, input: TokenStream) -> TokenStream {
 	derive_component::derive_component(attr,input)
