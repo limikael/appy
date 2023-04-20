@@ -18,3 +18,6 @@ pub use text::*;
 
 mod context_provider;
 pub use context_provider::*;
+
+mod img;
+pub use img::*;

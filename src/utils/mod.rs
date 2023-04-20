@@ -19,5 +19,8 @@ pub use trigger::*;
 mod with_clone;
 pub use with_clone::*;
 
+mod image_renderer;
+pub use image_renderer::*;
+
 #[cfg(all(target_os="android",feature="sdl"))]
 pub mod android_log_thread;

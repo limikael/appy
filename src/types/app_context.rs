@@ -2,7 +2,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::cmp::max;
 use crate::types::{Rect, Dim};
-use crate::utils::{RectRenderer, TextRenderer};
+use crate::utils::{RectRenderer, TextRenderer, ImageRenderer};
 
 struct FlowAnchor {
     x: i32,
@@ -42,10 +42,11 @@ impl FlowAnchor {
 #[derive(Clone)]
 pub struct AppContext {
     flow_anchor: Rc<RefCell<FlowAnchor>>,
-    pixel_ratio: f32,
+    pub pixel_ratio: f32,
     pub rect: Rect,
     pub rect_renderer: Rc<RefCell<RectRenderer>>,
     pub text_renderer: Rc<RefCell<TextRenderer>>,
+    pub image_renderer: Rc<RefCell<ImageRenderer>>,
 }
 
 impl AppContext {
@@ -56,6 +57,7 @@ impl AppContext {
             rect: Rect{x:0,y:0,w,h},
             rect_renderer: Rc::new(RefCell::new(RectRenderer::new(w,h))),
             text_renderer: Rc::new(RefCell::new(TextRenderer::new(w,h))),
+            image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w,h))),
             flow_anchor: Rc::new(RefCell::new(FlowAnchor::new()))
         }
     }
@@ -70,6 +72,7 @@ impl AppContext {
         resized.rect_renderer.borrow_mut().window_height=h;
         resized.text_renderer.borrow_mut().window_width=w;
         resized.text_renderer.borrow_mut().window_height=h;
+        resized.image_renderer.borrow_mut().set_size(w,h);
 
         resized
     }

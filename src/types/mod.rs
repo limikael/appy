@@ -11,6 +11,18 @@ pub use element::*;
 mod rect;
 pub use rect::*;
 
+mod image_source;
+pub use image_source::*;
+
+/// Define how an image should scale in relation to its container.
+#[derive(Default,Clone)]
+pub enum ScaleMode {
+	#[default]
+	Fit,
+	Fill,
+	None
+}
+
 /// Specify a horizontal alignment.
 #[derive(Default,Clone)]
 pub enum Align {

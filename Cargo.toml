@@ -27,6 +27,7 @@ glutin = {version="0.30.7", optional=true}
 winit = {version="0.28.3", features=["android-native-activity"], optional=true}
 glutin-winit = {version="0.3.0", optional=true}
 raw-window-handle = {version="0.5.2", optional=true}
+image = "0.24.6"
 
 # Glium deps
 #glium={version="0.32.1",optional=true}

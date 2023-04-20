@@ -42,6 +42,10 @@ impl<T: 'static> HookRef<T> {
         *self.hook_data.value.borrow_mut()=Rc::new(v);
         (self.trigger)();
     }
+
+    pub fn as_rc(&self)->Rc<T> {
+        self.value.clone()
+    }
 }
 
 impl<T> Deref for HookRef<T> {

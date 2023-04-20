@@ -147,6 +147,10 @@ impl TextRenderer {
     }
 
     fn render_cache(&mut self) {
+        unsafe {
+            gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
+        }
+
         self.cache
             .cache_queued(|rect, data| {
                 //log_debug!("copy data: {:?}",data.as_ptr());
@@ -247,10 +251,11 @@ impl TextRenderer {
         self.buf.bind(self.loc_tex_coord, 2, 2);
 
         unsafe {
+            gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
             gl::ActiveTexture(gl::TEXTURE0);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
-            gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
+
             gl::Uniform4fv(self.loc_col, 1, c.as_ptr());
             gl::UniformMatrix4fv(self.loc_mvp, 1, gl::FALSE, m.as_ptr());
             gl::Enable(gl::BLEND);

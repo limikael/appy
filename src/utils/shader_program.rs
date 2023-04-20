@@ -98,7 +98,7 @@ impl ShaderProgram {
 		}
 
 		if loc < 0 {
-			panic!("Can't find uniform")
+			panic!("Can't find uniform: {}",name)
 		}
 
 		loc
@@ -116,7 +116,7 @@ impl ShaderProgram {
 		}
 
 		if loc < 0 {
-			panic!("Can't find uniform: {}",name)
+			panic!("Can't find attrib: {}",name)
 		}
 
 		loc as u32
