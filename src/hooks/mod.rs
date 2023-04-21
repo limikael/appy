@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use std::any::TypeId;
-use crate::sys::app_window::AppEvent;
+use glapp::{AppEvent};
 use crate::core::Appy;
 use crate::core::component::HookRef;
 use crate::types::HoverState;

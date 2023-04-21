@@ -1,5 +1,3 @@
-#![allow(clippy::needless_update)]
-
 use appy::{*, components::*, types::*};
 
 #[main_window]

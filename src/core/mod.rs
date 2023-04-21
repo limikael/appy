@@ -6,8 +6,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use environmental::environmental;
 
-use crate::sys::app_window::AppEvent;
-use crate::sys::app_window::AppWindowBuilder;
+use glapp::{App,AppEvent};
 use crate::utils::Trigger;
 
 use crate::types::AppContext;
@@ -187,10 +186,8 @@ impl Appy {
         }
     }
 
-    pub fn run(mut self, app_window_builder:&mut dyn AppWindowBuilder) {
-        let app_window=app_window_builder.build();
-
-        app_window.run(Box::new(move|w,e|{
+    pub fn run(mut self, app: App) {
+        app.run(move|w,e|{
             //log_debug!("app: {:?}",e);
 
             for handler in &self.app_event_handlers {
@@ -226,6 +223,6 @@ impl Appy {
             if self.dirty.get_state() {
                 w.post_redisplay();
             }
-        }));
+        });
     }
 }

@@ -1,7 +1,7 @@
 use crate::types::{Elements, AppContext};
 use crate::hooks::{StateRef, use_state, use_context, use_app_event};
 use crate::rc_with_clone;
-use crate::sys::app_window::{AppEvent, MouseKind};
+use glapp::{AppEvent, MouseKind};
 use std::rc::Rc;
 use appy::{function_component,derive_component,SnakeFactory,ComponentBuilder};
 use crate::types::*;

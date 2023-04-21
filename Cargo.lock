@@ -71,15 +71,11 @@ dependencies = [
  "appy-macros",
  "environmental",
  "gl",
- "glutin",
- "glutin-winit",
+ "glapp",
  "image",
  "libc",
  "nalgebra-glm",
- "raw-window-handle",
  "rusttype",
- "sdl2",
- "winit",
 ]
 
 [[package]]
@@ -458,6 +454,28 @@ dependencies = [
  "khronos_api",
  "log",
  "xml-rs",
+]
+
+[[package]]
+name = "glapp"
+version = "0.1.0"
+dependencies = [
+ "gl",
+ "glapp-macros",
+ "glutin",
+ "glutin-winit",
+ "raw-window-handle",
+ "sdl2",
+ "winit",
+]
+
+[[package]]
+name = "glapp-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]

@@ -24,15 +24,13 @@
 //!
 
 pub use appy_macros::*;
+pub use glapp;
 
 #[doc(hidden)]
 pub mod core;
 
 /// Graphical UI components.
 pub mod components;
-
-#[doc(hidden)]
-pub mod sys;
 
 /// Utilities.
 pub mod utils;

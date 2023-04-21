@@ -45,58 +45,22 @@ fn get_cargo_toml_string(path:Vec<&str>)->Option<String> {
 
 pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 	let mut ast=parse_macro_input!(input as ItemFn);
-	ast.sig.ident=format_ident!("_{}",ast.sig.ident.clone().to_string());
+	ast.sig.ident=format_ident!("_appy_main_{}",ast.sig.ident.clone().to_string());
 
 	let name=ast.sig.ident.clone();
 	let appname=get_cargo_toml_string(vec!["package","metadata","appname"])
 		.unwrap_or("Untitled".to_string());
 
-	if cfg!(all(not(feature="glutin"),not(feature="sdl"))) {
-		panic!("Welcome to Appy! Please enable exactly one of the features \"sdl\" or \"glutin\" to select rendering backend. Enjoy!");
-	}
-
 	let mut out=quote!{#ast};
 
-	if cfg!(feature="glutin") {
-		out.extend(quote!{
-			pub fn main() {
-				#[cfg(not(target_os="android"))]
-				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_glutin::GlutinAppWindowBuilder::new()
-					.title(#appname.to_string())
-				);
-			}
+	out.extend(quote!{
+		#[appy::glapp::glapp_main(appy)]
+		fn main(mut app: appy::glapp::App) {
+			app.title(#appname);
+			appy::core::Appy::new(#name).run(app);
+		}
 
-			#[cfg(target_os="android")]
-			#[no_mangle]
-			pub fn android_main(android_app: ::appy::sys::app_window_glutin::AndroidApp) {
-				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_glutin::GlutinAppWindowBuilder::new()
-					.title(#appname.to_string())
-					.with_android_app(android_app)
-				);
-			}
-		});
-	}
-
-	if cfg!(feature="sdl") {
-		out.extend(quote!{
-			#[cfg(not(target_os="android"))]
-			pub fn main() {
-				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_sdl::SdlAppWindowBuilder::new()
-					.title(#appname.to_string())
-				);
-			}
-
-			#[cfg(target_os="android")]
-			#[no_mangle]
-			#[allow(non_snake_case)]
-			pub fn SDL_main() {
-				::appy::utils::android_log_thread::spawn_android_log_thread();
-				::appy::core::Appy::new(#name).run(&mut ::appy::sys::app_window_sdl::SdlAppWindowBuilder::new()
-					.title(#appname.to_string())
-				);
-			}
-		});
-	}
+	});
 
 	TokenStream::from(out)
 }
