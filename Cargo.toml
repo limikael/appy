@@ -1,6 +1,6 @@
 [package]
 name="appy"
-version="0.1.3"
+version="0.1.4"
 edition="2021"
 description="Declarative UI framework with native rendering"
 documentation = "https://docs.rs/appy"
@@ -13,7 +13,7 @@ name="appy"
 path="src/lib.rs"
 
 [dependencies]
-appy-macros = {version="0.1.3", path="./appy-macros"}
+appy-macros = {version="0.1.4", path="./appy-macros"}
 glapp={version="0.1.0",path="../glapp",optional=true}
 
 gl = "0.14.0"
