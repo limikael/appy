@@ -14,7 +14,7 @@ path="src/lib.rs"
 
 [dependencies]
 appy-macros = {version="0.1.4", path="./appy-macros"}
-glapp={version="0.1.0",optional=true}
+glapp={version="0.1.0"}
 
 gl = "0.14.0"
 nalgebra-glm = "0.18.0"
