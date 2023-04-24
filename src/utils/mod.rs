@@ -1,6 +1,3 @@
-mod glutil;
-pub use glutil::*;
-
 mod rect_renderer;
 pub use rect_renderer::*;
 
@@ -22,5 +19,8 @@ pub use with_clone::*;
 mod image_renderer;
 pub use image_renderer::*;
 
+/*mod glutil;
+pub use glutil::*;
+
 #[cfg(all(target_os="android",feature="sdl"))]
-pub mod android_log_thread;
+pub mod android_log_thread;*/

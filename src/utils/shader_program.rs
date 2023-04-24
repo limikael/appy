@@ -1,6 +1,6 @@
 use std::ffi::CString;
-//use crate::{*};
-use gl::types::{*};
+use crate::gl::types::{*};
+use crate::gl;
 
 fn compile_shader(source: String, kind: GLuint)->GLuint {
 	let str_source=CString::new(&*source).unwrap();

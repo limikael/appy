@@ -1,3 +1,5 @@
+use crate::gl;
+
 /// Abstraction for an OpenGL array buffer.
 ///
 /// This array buffer can hold a number of floating point components.

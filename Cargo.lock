@@ -65,22 +65,19 @@ dependencies = [
 
 [[package]]
 name = "appy"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
- "android_log-sys",
  "appy-macros",
  "environmental",
- "gl",
  "glapp",
  "image",
- "libc",
  "nalgebra-glm",
  "rusttype",
 ]
 
 [[package]]
 name = "appy-macros"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -458,12 +455,14 @@ dependencies = [
 
 [[package]]
 name = "glapp"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
+ "android_log-sys",
  "gl",
  "glapp-macros",
  "glutin",
  "glutin-winit",
+ "libc",
  "raw-window-handle",
  "sdl2",
  "winit",
@@ -471,7 +470,7 @@ dependencies = [
 
 [[package]]
 name = "glapp-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "proc-macro2",
  "quote",

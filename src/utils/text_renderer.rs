@@ -1,4 +1,5 @@
-use gl::types::{GLint, GLuint};
+use crate::gl::types::{GLint, GLuint};
+use crate::gl;
 use rusttype::gpu_cache::Cache;
 use rusttype::{point, Font, Point, PositionedGlyph, Scale};
 

@@ -1,4 +1,5 @@
-use gl::types::*;
+use crate::gl;
+use crate::gl::types::*;
 //use std::path::Path;
 use image::{EncodableLayout};
 

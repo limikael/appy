@@ -1,5 +1,6 @@
 use crate::utils::{ArrayBuffer, ShaderProgram, ShaderSource};
 use crate::types::Rect;
+use crate::gl;
 
 extern crate nalgebra_glm as glm;
 

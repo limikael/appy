@@ -25,6 +25,7 @@
 
 pub use appy_macros::*;
 pub use glapp;
+pub use glapp::gl;
 
 #[doc(hidden)]
 pub mod core;

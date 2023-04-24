@@ -1,7 +1,8 @@
 extern crate nalgebra_glm as glm;
 
 use crate::{utils::*, types::*};
-use gl::types::*;
+use crate::gl::types::*;
+use crate::gl;
 
 pub struct ImageRenderer {
     program: ShaderProgram,
