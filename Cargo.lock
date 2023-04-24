@@ -65,7 +65,7 @@ dependencies = [
 
 [[package]]
 name = "appy"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "appy-macros",
  "environmental",
@@ -77,7 +77,7 @@ dependencies = [
 
 [[package]]
 name = "appy-macros"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "convert_case",
  "proc-macro2",
