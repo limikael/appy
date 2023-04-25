@@ -43,10 +43,11 @@ impl FlowAnchor {
 pub struct AppContext {
     flow_anchor: Rc<RefCell<FlowAnchor>>,
     pub pixel_ratio: f32,
-    pub rect: Rect,
-    pub rect_renderer: Rc<RefCell<RectRenderer>>,
+    pub rect: Rect<i32>,
+    pub rect_renderer: Rc<RectRenderer>,
     pub text_renderer: Rc<RefCell<TextRenderer>>,
     pub image_renderer: Rc<RefCell<ImageRenderer>>,
+    pub viewport_size: (u32,u32)
 }
 
 impl AppContext {
@@ -54,8 +55,9 @@ impl AppContext {
     pub fn new(w: i32, h:i32, pixel_ratio:f32)->Self {
         Self {
             pixel_ratio: pixel_ratio,
+            viewport_size: (w as u32,h as u32),
             rect: Rect{x:0,y:0,w,h},
-            rect_renderer: Rc::new(RefCell::new(RectRenderer::new(w,h))),
+            rect_renderer: Rc::new(RectRenderer::new()),
             text_renderer: Rc::new(RefCell::new(TextRenderer::new(w,h))),
             image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w,h))),
             flow_anchor: Rc::new(RefCell::new(FlowAnchor::new()))
@@ -65,11 +67,10 @@ impl AppContext {
     #[doc(hidden)]
     pub fn resize(&self, w:i32, h:i32, pixel_ratio:f32)->Self {
         let mut resized=self.clone();
+        resized.viewport_size=(w as u32,h as u32);
         resized.rect.w=w;
         resized.rect.h=h;
         resized.pixel_ratio=pixel_ratio;
-        resized.rect_renderer.borrow_mut().window_width=w;
-        resized.rect_renderer.borrow_mut().window_height=h;
         resized.text_renderer.borrow_mut().window_width=w;
         resized.text_renderer.borrow_mut().window_height=h;
         resized.image_renderer.borrow_mut().set_size(w,h);

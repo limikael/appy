@@ -9,8 +9,8 @@ pub struct ImageRenderer {
     buf: ArrayBuffer,
     window_width: i32,
     window_height: i32,
-    loc_vertex: u32,
-    loc_tex_coord: u32,
+    loc_vertex: i32,
+    loc_tex_coord: i32,
     loc_mvp: i32,
     loc_pos: i32,
     loc_size: i32,
@@ -76,7 +76,7 @@ impl ImageRenderer {
 		self.window_height=window_height;
 	}
 
-	pub fn draw(&self, rect: &Rect, image: &ImageSource) {
+	pub fn draw(&self, rect: &Rect<i32>, image: &ImageSource) {
         let m = glm::ortho(
             0.0,
             self.window_width as f32,
