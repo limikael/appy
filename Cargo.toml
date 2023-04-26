@@ -15,8 +15,8 @@ path="src/lib.rs"
 [dependencies]
 appy-macros = {version="0.1.5", path="./appy-macros"}
 glapp={version="0.1.1", path="../glapp"}
-nalgebra-glm = "0.18.0"
-rusttype = {version="0.9.3", features=["gpu_cache"]}
+nalgebra-glm = {version="0.18.0"}
+rusttype = {version="0.9.3"}
 environmental = "1.1.4"
 image = {version="0.24.6",default-features=false,features=["png","jpeg"]}
 

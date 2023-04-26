@@ -10,9 +10,21 @@ use crate::types::{*};
 /// The alignment inside the `blk` can be speficied with the align and valign
 /// props.
 ///
-/// The vertical size of the text can be specified using a `Dim`, meaning
-/// that it can be specified in an absolute number or as a percentage relative to
-/// the parent.
+/// In order to draw text, use:
+///
+/// - [`use_font_face`](crate::hooks::use_font_face) - To get the data for the font.
+/// - [`use_font`](crate::hooks::use_font) - To render the font to a texture for a specific size.
+/// - [`Text`](crate::components::Text) - To render text on screen.
+///
+/// Example:
+/// ```
+///	let font_face=use_font_face(||include_bytes!("./Roboto-Regular.ttf"));
+///	let font=use_font(font_face,100.0);
+///
+///	apx!{
+///		<Text text="Hello World" font=font/>
+///	}
+/// ```
 #[derive_component(ComponentBuilder,SnakeFactory)]
 pub struct Text {
 	col: u32,

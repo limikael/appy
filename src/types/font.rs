@@ -1,13 +1,36 @@
 use std::collections::HashMap;
 use crate::{gl, gl::types::*};
-use crate::{utils::*, types::*};
+use crate::{utils::*, hooks::*};
 use rusttype::{Scale, VMetrics};
 
-#[derive(Debug)]
+/// Represents a font face without specified size.
+///
+/// Creating a `FontFace` is the first step when drawing text.
+/// The second step is to create a font with a given size,
+/// using [`Font`](Font).
+///
+/// To obtain a `FontFace`, use the [`use_font_face`](use_font_face) hook.
+pub struct FontFace<'a> {
+    pub rusttype_font: rusttype::Font<'a>
+}
+
+impl<'a> FontFace<'a> {
+    pub fn from_data(ttf_data:&'a [u8])->Self {
+        let f=rusttype::Font::try_from_bytes(ttf_data).unwrap();
+
+        Self {
+            rusttype_font: f,
+        }
+    }
+}
+
+/// Represents a font with a specified size, rendered to a texture.
+///
+/// To obtain a `Font`, use the [`use_font`](use_font) hook.
 pub struct Font {
 	id: GLuint,
-    width: i32,
-    height: i32,
+    /*width: i32,
+    height: i32,*/
     pub character_infos: HashMap<char,CharacterInfos>,
     pub size:f32,
     pub v_metrics: VMetrics
@@ -44,8 +67,8 @@ impl Font {
 
         Self {
             id,
-            width: w as i32,
-            height: h as i32,
+            /*width: w as i32,
+            height: h as i32,*/
             character_infos: infos,
             size,
             v_metrics

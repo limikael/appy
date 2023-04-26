@@ -1,10 +1,6 @@
-use crate::gl::types::{GLint, GLuint};
-use crate::gl;
-//use rusttype::gpu_cache::Cache;
-//use rusttype::{point, Font, Point, PositionedGlyph, Scale};
-
+use crate::{gl, gl::types::*};
 use crate::{utils::*,types::*};
-extern crate nalgebra_glm as glm;
+//extern crate nalgebra_glm as glm;
 
 /// Render text on screen.
 pub struct TextRenderer {
@@ -63,7 +59,7 @@ impl TextRenderer {
     /// Draw text.
 //    pub fn draw(&mut self, str: &str, x: f32, y: f32, fx: &FontTexture, col: u32) {
     pub fn draw(&mut self, str: &str, mut x: f32, y: f32, fx: &Font, col: u32) {
-        let m = glm::ortho(
+        let m = nalgebra_glm::ortho(
             0.0,
             self.window_width as f32,
             self.window_height as f32,
@@ -71,7 +67,7 @@ impl TextRenderer {
             -1.0,
             1.0,
         );
-        let c = glm::vec4(
+        let c = nalgebra_glm::vec4(
             ((col & 0xff0000) >> 16) as f32 / 255.0,
             ((col & 0x00ff00) >> 8) as f32 / 255.0,
             (col & 0x0000ff) as f32 / 255.0,
