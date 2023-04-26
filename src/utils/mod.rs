@@ -19,8 +19,5 @@ pub use with_clone::*;
 mod image_renderer;
 pub use image_renderer::*;
 
-/*mod glutil;
-pub use glutil::*;
-
-#[cfg(all(target_os="android",feature="sdl"))]
-pub mod android_log_thread;*/
+mod font_util;
+pub use font_util::*;

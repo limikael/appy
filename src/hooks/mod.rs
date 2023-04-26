@@ -3,7 +3,7 @@ use std::any::TypeId;
 use glapp::{AppEvent};
 use crate::core::Appy;
 use crate::core::component::HookRef;
-use crate::types::HoverState;
+use crate::{types::*};
 
 mod use_reducer;
 pub use use_reducer::*;
@@ -88,4 +88,22 @@ pub fn use_context<T: 'static>()->Rc<T> {
 /// ```
 pub fn use_hover_state_ref()->StateRef<HoverState> {
     use_state(||HoverState::Normal)
+}
+
+pub fn use_font_face<F>(closure: F)->Rc<FontFace<'static>> 
+		where F: Fn()->&'static [u8] {
+	let state_ref=use_state(||{
+		FontFace::from_data(closure())
+	});
+
+	state_ref.as_rc()
+}
+
+pub fn use_font(font_face: Rc<FontFace>, size:f32)->Rc<Font> {
+	let app_context=use_context::<AppContext>();
+	let state_ref=use_state(||{
+		Font::new(&font_face,app_context.pixel_ratio*size)
+	});
+
+	state_ref.as_rc()
 }

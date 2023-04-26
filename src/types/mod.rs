@@ -14,6 +14,12 @@ pub use rect::*;
 mod image_source;
 pub use image_source::*;
 
+mod font_face;
+pub use font_face::*;
+
+mod font;
+pub use font::*;
+
 /// Define how an image should scale in relation to its container.
 #[derive(Default,Clone)]
 pub enum ScaleMode {
