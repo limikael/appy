@@ -57,7 +57,6 @@ impl TextRenderer {
     }
 
     /// Draw text.
-//    pub fn draw(&mut self, str: &str, x: f32, y: f32, fx: &FontTexture, col: u32) {
     pub fn draw(&mut self, str: &str, mut x: f32, y: f32, fx: &Font, col: u32) {
         let m = nalgebra_glm::ortho(
             0.0,
