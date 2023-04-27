@@ -54,6 +54,33 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 							self
 						}
 					});
+				} else if i.to_string()=="Dim" {
+					builder_body.extend(quote!{
+						pub fn #ident<T>(mut self:appy::types::ElementWrap<Self>, val: T)->appy::types::ElementWrap<Self>
+								where appy::types::Dim:From<T> {
+							self.#ident=appy::types::Dim::from(val);
+							self
+						}
+					});
+
+					/*builder_body.extend(quote!{
+						pub fn #ident<T>(mut self:appy::types::ElementWrap<Self>, val: T)->appy::types::ElementWrap<Self>
+								where f64: From<T> {
+
+							self.#ident=appy::types::Dim::Dp(f64::from(val) as f32);
+							self
+						}
+					});
+
+					let ident_pc=format_ident!("{}{}",ident,"_pc");
+					builder_body.extend(quote!{
+						pub fn #ident_pc<T>(mut self:appy::types::ElementWrap<Self>, val: T)->appy::types::ElementWrap<Self>
+								where f64: From<T> {
+
+							self.#ident=appy::types::Dim::Pc(f64::from(val) as f32);
+							self
+						}
+					});*/
 				} else {
 					builder_body.extend(quote!{
 						pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: #ty)->appy::types::ElementWrap<Self> {

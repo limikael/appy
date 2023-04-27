@@ -18,7 +18,7 @@ fn _button(props:Button)->Elements {
 
 	apx! {
 		<bg color=c/>
-		<text text=&*props.text size=Pc(50.0) align=Align::Center/>
+		<text text=&*props.text size=pct(50) align=Align::Center/>
 		<interaction on_click=props.on_click.unwrap() hover_state_ref=hover_state/>
 	}
 }
@@ -30,23 +30,23 @@ pub fn main()->Elements {
 	//println!("render");
 
 	apx! {
-		<Blk left=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
+		<Blk left=10 bottom=10 height=90 width=150>
 			<Button text="smooth"
 					on_click=rc_with_clone!([x],move||x.target(0.0))/>
 		</Blk>
 
-		<Blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
+		<Blk right=10 bottom=10 height=90 width=150>
 			<Button text="smooth"
 					on_click=rc_with_clone!([x],move||x.target(100.0))/>
 		</Blk>
 
-		<Blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
+		<Blk right=10 bottom=110 height=90 width=150>
 			<Button text="chop"
 					on_click=rc_with_clone!([x],move||x.set(100.0))/>
 		</Blk>
 
-		<Blk right=Dp(50.0)>
-			<Blk left=Pc(*x) width=Dp(50.0) height=Dp(50.0) top=Dp(50.0)>
+		<Blk right=50>
+			<Blk left=pct(*x) width=50 height=50 top=50>
 				<Bg color=0xff0000/>
 			</Blk>
 		</Blk>

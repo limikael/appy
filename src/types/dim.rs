@@ -6,15 +6,15 @@ pub enum Dim {
     None,
 
     /// Percentual size relative to parent.
-    Pc(f32),
+    Percent(f32),
 
     /// Absolute size specified in hardware pixels.
-    Px(f32),
+    HardwarePixels(f32),
 
     /// Size specified in device independent pixels.
     /// This is the same as hardware pixels, scaled with
     /// a factor defined by the device.
-    Dp(f32)
+    DeviceIndependentPixels(f32)
 }
 
 impl Dim {
@@ -24,9 +24,9 @@ impl Dim {
 
     pub fn to_px(&self, max: f32, pixel_ratio: f32) -> f32 {
         match *self {
-            Dim::Px(v) => v,
-            Dim::Pc(v) => max * v / 100.0,
-            Dim::Dp(v) => v * pixel_ratio,
+            Dim::HardwarePixels(v) => v,
+            Dim::Percent(v) => max * v / 100.0,
+            Dim::DeviceIndependentPixels(v) => v * pixel_ratio,
             Dim::None => 0.0,
         }
     }
@@ -50,4 +50,15 @@ impl Dim {
     }
 }
 
-impl Dim {}
+impl<T> From<T> for Dim
+        where f64: From<T> {
+    fn from(val: T)->Self {
+        Dim::DeviceIndependentPixels(f64::from(val) as f32)
+    }
+}
+
+/// Convenience function to create a percentual dimension.
+pub fn pct<T>(val: T)->Dim
+        where f64: From<T> {
+    Dim::Percent(f64::from(val) as f32)
+}

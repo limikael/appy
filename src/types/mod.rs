@@ -3,7 +3,7 @@ pub use app_context::*;
 
 mod dim;
 pub use dim::*;
-pub use dim::Dim::{Pc,Px,Dp};
+//pub use dim::Dim::{Pc,Px,Dp};
 
 mod element;
 pub use element::*;

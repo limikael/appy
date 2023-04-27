@@ -29,7 +29,8 @@ pub struct Blk {
 }
 
 impl Blk {
-    pub fn margin(self:ElementWrap<Blk>, val:Dim)->ElementWrap<Blk> {
+    pub fn margin<T>(self:ElementWrap<Blk>, val:T)->ElementWrap<Blk>
+            where Dim: From<T>, T: Clone {
         self
             .left(val.clone())
             .top(val.clone())

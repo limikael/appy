@@ -13,8 +13,8 @@ pub struct Flow {
 impl Default for Flow {
     fn default()->Self {
         Self {
-            width: Dim::Pc(100.0),
-            height: Dim::Pc(100.0),
+            width: pct(100.0),
+            height: pct(100.0),
             children: vec![],
             key: None
         }

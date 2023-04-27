@@ -3,21 +3,21 @@ use appy::{*, components::*, types::*};
 #[main_window]
 pub fn app()->Elements {
 	vec![
-		blk().left(Pc(0.0)).width(Pc(50.0)).children(vec![
+		blk().left(0).width(pct(50)).children(vec![
 			bg().color(0xffff00)
 		]),
-		blk().right(Pc(0.0)).width(Pc(50.0)).children(vec![
+		blk().right(0).width(pct(50)).children(vec![
 			bg().color(0xff0000)
 		])
 	]
 
 /*	apx! {
-		<Blk left=Pc(0.0) width=Pc(50.0)>
+		<Blk left=0 width=pct(50)>
 			<Bg col=0xffff00/>
 		</Blk>
 		{
 			apx!{
-				<Blk right=Pc(0.0) width=Pc(50.0)>
+				<Blk right=0 width=pct(50)>
 					<Bg col=0xff0000/>
 				</Blk>
 			}

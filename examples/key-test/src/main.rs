@@ -12,10 +12,10 @@ pub struct FlowButton {
 fn _flow_button(p:FlowButton)->Elements {
 	let hover_state=use_hover_state_ref();
 	let app_context=use_context::<AppContext>();
-	let z=app_context.compute_v_px(Dp(24.0));
+	let z=app_context.compute_v_px(Dim::DeviceIndependentPixels(24.0));
 
 	let w=app_context.default_font.get_str_width(&*p.text,z);
-	let w2=app_context.compute_h_px(Dp(8.0));
+	let w2=app_context.compute_h_px(Dim::DeviceIndependentPixels(8.0));
 
 	let c=match *hover_state {
 		HoverState::Normal=>0x808080,
@@ -24,14 +24,14 @@ fn _flow_button(p:FlowButton)->Elements {
 	};
 
 	apx!{
-		<flow width=Px(w+w2*2.0) height=Dp(48.0)>
-			<blk top=Dp(8.0) bottom=Dp(8.0)>
+		<flow width=Dim::HardwarePixels(w+w2*2.0) height=48>
+			<blk top=8 bottom=8>
 				<bg color=c/>
-				<text size=Dp(24.0) text=&*p.text/>
+				<text size=24 text=&*p.text/>
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
 		</flow>
-		<flow width=Dp(8.0)/>
+		<flow width=8/>
 	}
 }
 
@@ -46,7 +46,7 @@ fn _list_item(p:ListItem)->Elements {
 
 	apx!{
 		<bg color=match *selected {true=>0x0000ff, false=>0xffffff}/>
-		<text size=Pc(100.0) text=&*p.text 
+		<text size=pct(100) text=&*p.text 
 			color=match *selected {true=>0xffffff, false=>0x000000}/>
 		<interaction on_click=rc_with_clone!([selected],move||selected.set(!*selected))/>
 	}
@@ -118,9 +118,9 @@ fn app()->Elements {
 	let app=use_reducer(AppState::action,AppState::new);
 
 	apx!{
-		<blk top=Pc(0.0) height=Dp(48.0)>
+		<blk top=0 height=48>
 			<bg color=0x000000/>
-			<flow width=Dp(8.0)/>
+			<flow width=8/>
 			<flow_button text="+ Start"
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::AddStart))/>
 			<flow_button text="- Start"
@@ -130,12 +130,12 @@ fn app()->Elements {
 			<flow_button text="- End"
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::RemoveEnd))/>
 		</blk>
-		<blk top=Dp(48.0)>
+		<blk top=48>
 			<bg color=0x000080/>
 			{app.items.iter().flat_map(|item|{
 				apx!{
-					<flow height=Dp(50.0) key=item.clone()>
-						<blk top=Dp(5.0) right=Dp(5.0) bottom=Dp(5.0) left=Dp(5.0)>
+					<flow height=50 key=item.clone()>
+						<blk margin=5>
 							<list_item text=&*item/>
 						</blk>
 					</flow>

@@ -1,6 +1,4 @@
-use crate::{function_component,apx,derive_component,SnakeFactory,ComponentBuilder};
-use crate::types::{Elements, Dim::*};
-use crate::components::blk;
+use crate::{*, types::*, components::*};
 
 /// Layout of components in a fixed grid.
 ///
@@ -13,6 +11,7 @@ pub struct Grid {
     rows: usize,
 }
 
+#[allow(unused_parens)]
 #[function_component]
 fn _grid(props:Grid)->Elements {
     let rows=if props.rows>=1 {props.rows} else {1};
@@ -26,10 +25,10 @@ fn _grid(props:Grid)->Elements {
 
         items.append(&mut apx! {
             <blk
-                    left=Pc(col as f32*100.0/cols as f32)
-                    top=Pc(row as f32*100.0/rows as f32)
-                    width=Pc(100.0/cols as f32)
-                    height=Pc(100.0/rows as f32)>
+                    left=pct(col as f32*100.0/cols as f32)
+                    top=pct(row as f32*100.0/rows as f32)
+                    width=pct(100.0/cols as f32)
+                    height=pct(100.0/rows as f32)>
                 {vec![c]}
             </blk>
         });

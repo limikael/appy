@@ -44,18 +44,18 @@ fn _slider(props:Slider)->Elements {
 		}
 	}));
 
-	let p=(*val/max)*(app_context.rect.w as f32-app_context.compute_h_px(Dp(20.0)));
+	let p=(*val/max)*(app_context.rect.w as f32-app_context.compute_h_px(Dim::DeviceIndependentPixels(20.0)));
 
 	apx!{
-		<blk top=Dp(0.0) height=Dp(20.0)>
-			<text text=&*props.label size=Pc(100.0) />
+		<blk top=0 height=20>
+			<text text=&*props.label size=pct(100) />
 		</blk>
-		<blk top=Dp(25.0) height=Dp(20.0)>
-			<blk width=Pc(100.0) height=Dp(10.0)>
-				<bg color=0x808080 corner_radius=Dp(5.0) border_width=Dp(1.0) border_color=0xffffff/>
+		<blk top=25 height=20>
+			<blk width=pct(100) height=10>
+				<bg color=0x808080 corner_radius=5 border_width=1 border_color=0xffffff/>
 			</blk>
-			<blk width=Dp(20.0) height=Dp(20.0) left=Px(p)>
-				<bg color=0xc0c0c0 border_width=Dp(1.0) border_color=0xffffff corner_radius=Dp(10.0)/>
+			<blk width=20 height=20 left=Dim::HardwarePixels(p)>
+				<bg color=0xc0c0c0 border_width=1 border_color=0xffffff corner_radius=10/>
 			</blk>
 		</blk>
 	}	
@@ -74,11 +74,11 @@ fn _check_box(props:CheckBox)->Elements {
 	}
 
 	apx!{
-		<bg border_width=Dp(2.0) border_color=0xc0c0c0 color=0x000080 corner_radius=Dp(5.0)/>
+		<bg border_width=2 border_color=0xc0c0c0 color=0x000080 corner_radius=5/>
 		{if *val {
 			apx!{
-				<blk margin=Dp(5.0)>
-					<bg corner_radius=Dp(5.0) color=0xc0c0c0/>
+				<blk margin=5>
+					<bg corner_radius=5 color=0xc0c0c0/>
 				</blk>
 			}
 		} else {apx!{}}}
@@ -100,27 +100,27 @@ fn main()->Elements {
 	];
 
 	apx!{
-		<blk left=Dp(0.0) width=Dp(200.0)>
+		<blk left=0 width=200>
 			<bg color=0x000080/>
 
-			<blk margin=Dp(20.0)>
-				<flow width=Pc(100.0) height=Dp(60.0)>
+			<blk margin=20>
+				<flow width=pct(100) height=60>
 					<slider value=rad.clone() max=50.0
 							label=&*format!("Rad: {}",*rad) />
 				</flow>
-				<flow width=Pc(100.0) height=Dp(60.0)>
+				<flow width=pct(100) height=60>
 					<slider value=border.clone() max=50.0
 							label=&*format!("Border: {}",*border)/>
 				</flow>
-				<flow width=Pc(100.0) height=Dp(60.0)>
-					<blk top=Dp(0.0) height=Dp(20.0)>
-						<text text="Borders" size=Pc(100.0) />
+				<flow width=pct(100) height=60>
+					<blk top=0 height=20>
+						<text text="Borders" size=pct(100) />
 					</blk>
-					<blk bottom=Dp(0.0) height=Dp(40.0)>
+					<blk bottom=0 height=40>
 						<grid cols=4>
 							{borders.iter().flat_map(move|b|{
 								apx!{
-									<blk margin=Dp(5.0)>
+									<blk margin=5>
 										<check_box value=b.clone()/>
 									</blk>
 								}
@@ -130,11 +130,11 @@ fn main()->Elements {
 				</flow>
 			</blk>
 		</blk>
-		<blk left=Dp(250.0) top=Dp(100.0) width=Dp(400.0) height=Dp(200.0)>
+		<blk left=250 top=100 width=400 height=200>
 			<bg color=0x000080
-				corner_radius=Dp(*rad)
+				corner_radius=*rad
 				border_color=0x8080ff
-				border_width=Dp(*border)
+				border_width=*border
 				borders=borders.map(|b|(*b).clone())/>
 		</blk>
 	}

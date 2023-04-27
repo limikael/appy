@@ -22,16 +22,13 @@ pub fn app()->Elements {
 	};
 
 	apx!{
-		<blk top=Pc(25.0) height=Pc(25.0)>
-			<text text=&*s align=Align::Center size=Pc(60.0) color=0xffffff/>
+		<blk top=pct(25) height=pct(25)>
+			<text text=&*s align=Align::Center size=pct(60) color=0xffffff/>
 		</blk>
-		<blk top=Pc(50.0) height=Pc(20.0) width=Pc(25.0)>
-			<bg color=0xffffff/>
-			<blk margin=Dp(2.0)>
-				<bg color=c/>
-				<text text="+1" align=Align::Center size=Pc(60.0) color=0xffffff/>
-				<interaction hover_state_ref=hover_state on_click=on_button_click/>
-			</blk>
+		<blk top=pct(50) height=pct(20) width=pct(25)>
+			<bg color=c border_width=1 border_color=0xffffff corner_radius=10/>
+			<text text="+1" align=Align::Center size=pct(60) color=0xffffff/>
+			<interaction hover_state_ref=hover_state on_click=on_button_click/>
 		</blk>
 	}
 }

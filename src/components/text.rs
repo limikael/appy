@@ -45,7 +45,7 @@ impl Default for Text {
 			children: vec![],
 			key: None,
 			font: Option::<Rc::<Font>>::None,
-			size: Dim::Dp(20.0)
+			size: Dim::DeviceIndependentPixels(20.0)
 		}
 	}
 }

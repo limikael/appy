@@ -11,10 +11,10 @@ pub struct FlowButton {
 fn _flow_button(p:FlowButton)->Elements {
 	let hover_state=use_hover_state_ref();
 	let app_context=use_context::<AppContext>();
-	let z=app_context.compute_v_px(Dp(24.0));
+	let z=app_context.compute_v_px(Dim::DeviceIndependentPixels(24.0));
 
 	let w=app_context.default_font.get_str_width(&*p.text,z);
-	let w2=app_context.compute_h_px(Dp(8.0));
+	let w2=app_context.compute_h_px(Dim::DeviceIndependentPixels(8.0));
 
 	let c=match *hover_state {
 		HoverState::Normal=>0x808080,
@@ -23,14 +23,14 @@ fn _flow_button(p:FlowButton)->Elements {
 	};
 
 	apx!{
-		<flow width=Px(w+w2*2.0) height=Dp(48.0)>
-			<blk top=Dp(8.0) bottom=Dp(8.0)>
+		<flow width=Dim::HardwarePixels(w+w2*2.0) height=48>
+			<blk top=8 bottom=8>
 				<bg color=c/>
-				<text size=Dp(24.0) text=&*p.text/>
+				<text size=24 text=&*p.text/>
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
 		</flow>
-		<flow width=Dp(8.0)/>
+		<flow width=8/>
 	}
 }
 
@@ -45,9 +45,9 @@ fn main()->Elements {
 	let valign=use_state(||VAlign::Middle);
 
 	apx!{
-		<blk top=Pc(0.0) height=Dp(48.0)>
+		<blk top=0 height=48>
 			<bg color=0x404080/>
-			<flow width=Dp(8.0)/>
+			<flow width=8/>
 
 			<flow_button text="Fit"
 				on_click=rc_with_clone!([scale_mode],move||scale_mode.set(ScaleMode::Fit))/>
@@ -71,15 +71,15 @@ fn main()->Elements {
 				on_click=rc_with_clone!([valign],move||valign.set(VAlign::Bottom))/>
 		</blk>
 
-		<blk width=Pc(50.0) height=Pc(50.0)>
+		<blk width=pct(50) height=pct(50)>
 			<bg color=0x000080/>
 			<img src=img_src.as_rc()
 				align=(*align).clone()
 				valign=(*valign).clone()
 				scale_mode=(*scale_mode).clone()/>
 		</blk>
-		<blk bottom=Pc(0.0) height=Dp(16.0)>
-			<text text="Hello, testing image component. Putting this text to make sure the font texture doesn't get messed up." size=Pc(100.0)/>
+		<blk bottom=0 height=16>
+			<text text="Hello, testing image component. Putting this text to make sure the font texture doesn't get messed up." size=pct(100)/>
 		</blk>
 	}
 }
