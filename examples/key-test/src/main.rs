@@ -26,7 +26,7 @@ fn _flow_button(p:FlowButton)->Elements {
 	apx!{
 		<flow width=Px(w+w2*2.0) height=Dp(48.0)>
 			<blk top=Dp(8.0) bottom=Dp(8.0)>
-				<bg col=c/>
+				<bg color=c/>
 				<text size=Dp(24.0) text=&*p.text/>
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
@@ -45,9 +45,9 @@ fn _list_item(p:ListItem)->Elements {
 	let selected=use_state(||false);
 
 	apx!{
-		<bg col=match *selected {true=>0x0000ff, false=>0xffffff}/>
+		<bg color=match *selected {true=>0x0000ff, false=>0xffffff}/>
 		<text size=Pc(100.0) text=&*p.text 
-			col=match *selected {true=>0xffffff, false=>0x000000}/>
+			color=match *selected {true=>0xffffff, false=>0x000000}/>
 		<interaction on_click=rc_with_clone!([selected],move||selected.set(!*selected))/>
 	}
 }
@@ -119,7 +119,7 @@ fn app()->Elements {
 
 	apx!{
 		<blk top=Pc(0.0) height=Dp(48.0)>
-			<bg col=0x000000/>
+			<bg color=0x000000/>
 			<flow width=Dp(8.0)/>
 			<flow_button text="+ Start"
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::AddStart))/>
@@ -131,7 +131,7 @@ fn app()->Elements {
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::RemoveEnd))/>
 		</blk>
 		<blk top=Dp(48.0)>
-			<bg col=0x000080/>
+			<bg color=0x000080/>
 			{app.items.iter().flat_map(|item|{
 				apx!{
 					<flow height=Dp(50.0) key=item.clone()>

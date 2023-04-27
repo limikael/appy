@@ -27,7 +27,7 @@ impl Dim {
             Dim::Px(v) => v,
             Dim::Pc(v) => max * v / 100.0,
             Dim::Dp(v) => v * pixel_ratio,
-            Dim::None => panic!("can't get px from none"),
+            Dim::None => 0.0,
         }
     }
 

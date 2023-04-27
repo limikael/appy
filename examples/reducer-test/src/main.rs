@@ -39,8 +39,8 @@ fn _text_button(props:TextButton)->Elements {
 	};
 
 	apx! {
-		<bg col=c/>
-		<text text=&*props.text align=Align::Center size=Pc(60.0) col=0xffffff/>
+		<bg color=c/>
+		<text text=&*props.text align=Align::Center size=Pc(60.0) color=0xffffff/>
 		<interaction hover_state_ref=hover_state on_click=props.on_click.unwrap()/>
 	}
 }
@@ -53,7 +53,7 @@ pub fn app()->Elements {
 
 	apx!{
 		<blk top=Pc(25.0) height=Pc(25.0)>
-			<text text=&*s align=Align::Center size=Pc(60.0) col=0xffffff/>
+			<text text=&*s align=Align::Center size=Pc(60.0) color=0xffffff/>
 		</blk>
 		<grid cols=2>
 			<blk top=Pc(50.0) height=Pc(20.0) width=Pc(50.0)>

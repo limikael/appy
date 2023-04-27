@@ -4,10 +4,10 @@ use appy::{*, components::*, types::*};
 pub fn app()->Elements {
 	vec![
 		blk().left(Pc(0.0)).width(Pc(50.0)).children(vec![
-			bg().col(0xffff00)
+			bg().color(0xffff00)
 		]),
 		blk().right(Pc(0.0)).width(Pc(50.0)).children(vec![
-			bg().col(0xff0000)
+			bg().color(0xff0000)
 		])
 	]
 

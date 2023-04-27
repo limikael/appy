@@ -71,13 +71,13 @@ impl ArrayBuffer {
     ///
     /// The `offs` parameter specifies the first component to bind, and `num`
     /// specifies the number of compontns to bind.
-    pub fn bind(&self, attrib_location: u32, offs: usize, num: u32) {
+    pub fn bind(&self, attrib_location: i32, offs: usize, num: u32) {
         unsafe {
             gl::BindVertexArray(self.vao);
-            gl::EnableVertexAttribArray(attrib_location); // this is "layout (location = 0)" in vertex shader
+            gl::EnableVertexAttribArray(attrib_location as u32); // this is "layout (location = 0)" in vertex shader
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
             gl::VertexAttribPointer(
-                attrib_location, // index of the generic vertex attribute ("layout (location = 0)")
+                attrib_location as u32, // index of the generic vertex attribute ("layout (location = 0)")
                 num as i32,      // the number of components per generic vertex attribute
                 gl::FLOAT,       // data type
                 gl::FALSE,       // normalized (int-to-float conversion)

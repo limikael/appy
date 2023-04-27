@@ -27,7 +27,7 @@ use crate::types::{*};
 /// ```
 #[derive_component(ComponentBuilder,SnakeFactory)]
 pub struct Text {
-	col: u32,
+	color: u32,
 	text: String,
 	align: Align,
 	valign: VAlign,
@@ -38,7 +38,7 @@ pub struct Text {
 impl Default for Text {
 	fn default()->Self {
 		Self {
-			col: 0xffffff,
+			color: 0xffffff,
 			text: "<text>".to_string(),
 			align: Align::Center,
 			valign: VAlign::Middle,
@@ -72,7 +72,7 @@ fn _text(props:Text)->Elements {
 	};
 
 	let mut tr=app_context.text_renderer.borrow_mut();
-	tr.draw(&props.text,x as f32,y as f32,&font,size,props.col);
+	tr.draw(&props.text,x as f32,y as f32,&font,size,props.color);
 
 	props.children
 }

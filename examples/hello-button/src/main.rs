@@ -23,13 +23,13 @@ pub fn app()->Elements {
 
 	apx!{
 		<blk top=Pc(25.0) height=Pc(25.0)>
-			<text text=&*s align=Align::Center size=Pc(60.0) col=0xffffff/>
+			<text text=&*s align=Align::Center size=Pc(60.0) color=0xffffff/>
 		</blk>
 		<blk top=Pc(50.0) height=Pc(20.0) width=Pc(25.0)>
-			<bg col=0xffffff/>
+			<bg color=0xffffff/>
 			<blk margin=Dp(2.0)>
-				<bg col=c/>
-				<text text="+1" align=Align::Center size=Pc(60.0) col=0xffffff/>
+				<bg color=c/>
+				<text text="+1" align=Align::Center size=Pc(60.0) color=0xffffff/>
 				<interaction hover_state_ref=hover_state on_click=on_button_click/>
 			</blk>
 		</blk>

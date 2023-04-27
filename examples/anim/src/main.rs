@@ -17,7 +17,7 @@ fn _button(props:Button)->Elements {
 	};
 
 	apx! {
-		<bg col=c/>
+		<bg color=c/>
 		<text text=&*props.text size=Pc(50.0) align=Align::Center/>
 		<interaction on_click=props.on_click.unwrap() hover_state_ref=hover_state/>
 	}
@@ -47,7 +47,7 @@ pub fn main()->Elements {
 
 		<Blk right=Dp(50.0)>
 			<Blk left=Pc(*x) width=Dp(50.0) height=Dp(50.0) top=Dp(50.0)>
-				<Bg col=0xff0000/>
+				<Bg color=0xff0000/>
 			</Blk>
 		</Blk>
 	}

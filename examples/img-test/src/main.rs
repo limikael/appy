@@ -25,7 +25,7 @@ fn _flow_button(p:FlowButton)->Elements {
 	apx!{
 		<flow width=Px(w+w2*2.0) height=Dp(48.0)>
 			<blk top=Dp(8.0) bottom=Dp(8.0)>
-				<bg col=c/>
+				<bg color=c/>
 				<text size=Dp(24.0) text=&*p.text/>
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
@@ -46,7 +46,7 @@ fn main()->Elements {
 
 	apx!{
 		<blk top=Pc(0.0) height=Dp(48.0)>
-			<bg col=0x404080/>
+			<bg color=0x404080/>
 			<flow width=Dp(8.0)/>
 
 			<flow_button text="Fit"
@@ -72,7 +72,7 @@ fn main()->Elements {
 		</blk>
 
 		<blk width=Pc(50.0) height=Pc(50.0)>
-			<bg col=0x000080/>
+			<bg color=0x000080/>
 			<img src=img_src.as_rc()
 				align=(*align).clone()
 				valign=(*valign).clone()

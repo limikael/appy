@@ -105,7 +105,7 @@ impl ShaderProgram {
 	}
 
 	/// The the location of an attrib.
-	pub fn get_attrib_location(&self, name: &str)->u32 {
+	pub fn get_attrib_location(&self, name: &str)->i32 {
 		//self.ensure_linked();
 
 		let s=CString::new(name).unwrap();
@@ -119,6 +119,6 @@ impl ShaderProgram {
 			panic!("Can't find attrib: {}",name)
 		}
 
-		loc as u32
+		loc
 	}
 }
