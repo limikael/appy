@@ -18,6 +18,3 @@ pub use with_clone::*;
 
 mod image_renderer;
 pub use image_renderer::*;
-
-mod font_util;
-pub use font_util::*;

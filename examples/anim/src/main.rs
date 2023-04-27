@@ -18,7 +18,7 @@ fn _button(props:Button)->Elements {
 
 	apx! {
 		<bg col=c/>
-		<text text=props.text size=Pc(50.0) align=Align::Center/>
+		<text text=&*props.text size=Pc(50.0) align=Align::Center/>
 		<interaction on_click=props.on_click.unwrap() hover_state_ref=hover_state/>
 	}
 }
@@ -31,17 +31,17 @@ pub fn main()->Elements {
 
 	apx! {
 		<Blk left=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
-			<Button text="smooth".to_string()
+			<Button text="smooth"
 					on_click=rc_with_clone!([x],move||x.target(0.0))/>
 		</Blk>
 
 		<Blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
-			<Button text="smooth".to_string()
+			<Button text="smooth"
 					on_click=rc_with_clone!([x],move||x.target(100.0))/>
 		</Blk>
 
 		<Blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
-			<Button text="chop".to_string()
+			<Button text="chop"
 					on_click=rc_with_clone!([x],move||x.set(100.0))/>
 		</Blk>
 

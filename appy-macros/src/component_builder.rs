@@ -47,6 +47,13 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 					}
 
 					else {panic!("expected generic argiments for option")}
+				} else if i.to_string()=="String" {
+					builder_body.extend(quote!{
+						pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: &str)->appy::types::ElementWrap<Self> {
+							self.#ident=val.to_string();
+							self
+						}
+					});
 				} else {
 					builder_body.extend(quote!{
 						pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: #ty)->appy::types::ElementWrap<Self> {

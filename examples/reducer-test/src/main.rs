@@ -40,7 +40,7 @@ fn _text_button(props:TextButton)->Elements {
 
 	apx! {
 		<bg col=c/>
-		<text text=props.text align=Align::Center size=Pc(60.0) col=0xffffff/>
+		<text text=&*props.text align=Align::Center size=Pc(60.0) col=0xffffff/>
 		<interaction hover_state_ref=hover_state on_click=props.on_click.unwrap()/>
 	}
 }
@@ -53,18 +53,18 @@ pub fn app()->Elements {
 
 	apx!{
 		<blk top=Pc(25.0) height=Pc(25.0)>
-			<text text=s.to_string() align=Align::Center size=Pc(60.0) col=0xffffff/>
+			<text text=&*s align=Align::Center size=Pc(60.0) col=0xffffff/>
 		</blk>
 		<grid cols=2>
 			<blk top=Pc(50.0) height=Pc(20.0) width=Pc(50.0)>
-				<text_button text="-1".to_string() 
+				<text_button text="-1" 
 					on_click=rc_with_clone!([state],move||{
 						state.dispatch(Action::Sub);
 					})
 				/>
 			</blk>
 			<blk top=Pc(50.0) height=Pc(20.0) width=Pc(50.0)>
-				<text_button text="+1".to_string() 
+				<text_button text="+1" 
 					on_click=rc_with_clone!([state],move||{
 						state.dispatch(Action::Add);
 					})

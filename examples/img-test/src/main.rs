@@ -13,7 +13,7 @@ fn _flow_button(p:FlowButton)->Elements {
 	let app_context=use_context::<AppContext>();
 	let z=app_context.compute_v_px(Dp(24.0));
 
-	let w=app_context.text_renderer.borrow().get_str_width(&*p.text,z);
+	let w=app_context.default_font.get_str_width(&*p.text,z);
 	let w2=app_context.compute_h_px(Dp(8.0));
 
 	let c=match *hover_state {
@@ -26,7 +26,7 @@ fn _flow_button(p:FlowButton)->Elements {
 		<flow width=Px(w+w2*2.0) height=Dp(48.0)>
 			<blk top=Dp(8.0) bottom=Dp(8.0)>
 				<bg col=c/>
-				<text size=Dp(24.0) text=p.text/>
+				<text size=Dp(24.0) text=&*p.text/>
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
 		</flow>
@@ -49,25 +49,25 @@ fn main()->Elements {
 			<bg col=0x404080/>
 			<flow width=Dp(8.0)/>
 
-			<flow_button text="Fit".to_string()
+			<flow_button text="Fit"
 				on_click=rc_with_clone!([scale_mode],move||scale_mode.set(ScaleMode::Fit))/>
-			<flow_button text="Fill".to_string()
+			<flow_button text="Fill"
 				on_click=rc_with_clone!([scale_mode],move||scale_mode.set(ScaleMode::Fill))/>
-			<flow_button text="No Scale".to_string()
+			<flow_button text="No Scale"
 				on_click=rc_with_clone!([scale_mode],move||scale_mode.set(ScaleMode::None))/>
 
-			<flow_button text="Left".to_string()
+			<flow_button text="Left"
 				on_click=rc_with_clone!([align],move||align.set(Align::Left))/>
-			<flow_button text="Center".to_string()
+			<flow_button text="Center"
 				on_click=rc_with_clone!([align],move||align.set(Align::Center))/>
-			<flow_button text="Right".to_string()
+			<flow_button text="Right"
 				on_click=rc_with_clone!([align],move||align.set(Align::Right))/>
 
-			<flow_button text="Top".to_string()
+			<flow_button text="Top"
 				on_click=rc_with_clone!([valign],move||valign.set(VAlign::Top))/>
-			<flow_button text="Middle".to_string()
+			<flow_button text="Middle"
 				on_click=rc_with_clone!([valign],move||valign.set(VAlign::Middle))/>
-			<flow_button text="Bottom".to_string()
+			<flow_button text="Bottom"
 				on_click=rc_with_clone!([valign],move||valign.set(VAlign::Bottom))/>
 		</blk>
 
@@ -79,7 +79,7 @@ fn main()->Elements {
 				scale_mode=(*scale_mode).clone()/>
 		</blk>
 		<blk bottom=Pc(0.0) height=Dp(16.0)>
-			<text text="Hello, testing image component. Putting this text to make sure the font texture doesn't get messed up.".to_string() size=Pc(100.0)/>
+			<text text="Hello, testing image component. Putting this text to make sure the font texture doesn't get messed up." size=Pc(100.0)/>
 		</blk>
 	}
 }

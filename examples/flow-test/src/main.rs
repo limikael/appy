@@ -7,10 +7,10 @@ pub fn app()->Elements {
 			<blk>
 				<bg col=0x800000/>
 				<flow height=Dp(50.0)>
-					<text text="Hello".to_string() size=Pc(100.0)/>
+					<text text="Hello" size=Pc(100.0)/>
 				</flow>
 				<flow height=Dp(50.0)>
-					<text text="World".to_string() size=Pc(100.0)/>
+					<text text="World" size=Pc(100.0)/>
 				</flow>
 			</blk>
 			<grid rows=2>

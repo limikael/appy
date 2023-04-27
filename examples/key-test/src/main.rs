@@ -14,7 +14,7 @@ fn _flow_button(p:FlowButton)->Elements {
 	let app_context=use_context::<AppContext>();
 	let z=app_context.compute_v_px(Dp(24.0));
 
-	let w=app_context.text_renderer.borrow().get_str_width(&*p.text,z);
+	let w=app_context.default_font.get_str_width(&*p.text,z);
 	let w2=app_context.compute_h_px(Dp(8.0));
 
 	let c=match *hover_state {
@@ -27,7 +27,7 @@ fn _flow_button(p:FlowButton)->Elements {
 		<flow width=Px(w+w2*2.0) height=Dp(48.0)>
 			<blk top=Dp(8.0) bottom=Dp(8.0)>
 				<bg col=c/>
-				<text size=Dp(24.0) text=p.text/>
+				<text size=Dp(24.0) text=&*p.text/>
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
 		</flow>
@@ -46,7 +46,7 @@ fn _list_item(p:ListItem)->Elements {
 
 	apx!{
 		<bg col=match *selected {true=>0x0000ff, false=>0xffffff}/>
-		<text size=Pc(100.0) text=p.text 
+		<text size=Pc(100.0) text=&*p.text 
 			col=match *selected {true=>0xffffff, false=>0x000000}/>
 		<interaction on_click=rc_with_clone!([selected],move||selected.set(!*selected))/>
 	}
@@ -121,13 +121,13 @@ fn app()->Elements {
 		<blk top=Pc(0.0) height=Dp(48.0)>
 			<bg col=0x000000/>
 			<flow width=Dp(8.0)/>
-			<flow_button text="+ Start".to_string()
+			<flow_button text="+ Start"
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::AddStart))/>
-			<flow_button text="- Start".to_string()
+			<flow_button text="- Start"
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::RemoveStart))/>
-			<flow_button text="+ End".to_string()
+			<flow_button text="+ End"
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::AddEnd))/>
-			<flow_button text="- End".to_string()
+			<flow_button text="- End"
 				on_click=rc_with_clone!([app],move||app.dispatch(AppAction::RemoveEnd))/>
 		</blk>
 		<blk top=Dp(48.0)>
@@ -136,7 +136,7 @@ fn app()->Elements {
 				apx!{
 					<flow height=Dp(50.0) key=item.clone()>
 						<blk top=Dp(5.0) right=Dp(5.0) bottom=Dp(5.0) left=Dp(5.0)>
-							<list_item text=item.clone()/>
+							<list_item text=&*item/>
 						</blk>
 					</flow>
 				}

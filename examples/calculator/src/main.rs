@@ -33,7 +33,7 @@ fn _button(props:Button)->Elements {
 		<blk left=Pc(10.0) top=Pc(10.0) right=Pc(10.0) bottom=Pc(10.0)>
 			<interaction on_click=on_click hover_state_ref=hover_state_ref/>
 			<bg col=col/>
-			<text text=props.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
+			<text text=&*props.id.to_string() size=Pc(65.0) align=Align::Center col=0x000000/>
 		</blk>
 	)
 }
@@ -80,7 +80,7 @@ fn app()->Elements {
 		<blk height=Pc(25.0) top=Pc(0.0)>
 			<bg col=0x3C1518/>
 			<blk left=Pc(5.0) right=Pc(5.0)>
-				<text align=Align::Right text=model.get_display_value() size=Pc(50.0) col=0xffffff/>
+				<text align=Align::Right text=&*model.get_display_value() size=Pc(50.0) col=0xffffff/>
 			</blk>
 		</blk>
 		<blk top=Pc(25.0)>
@@ -98,7 +98,7 @@ fn app()->Elements {
 		<blk top=Pc(5.0) left=Pc(5.0) width=Pc(10.0) height=Pc(10.0)>
 			<button_bg normal=0x000000 active=0x404040 hover=0x808080
 					on_click=on_info_click.clone()/>
-			<text text="i".to_string() size=Pc(100.0) align=Align::Center col=0xffffff/>
+			<text text="i" size=Pc(100.0) align=Align::Center col=0xffffff/>
 		</blk>
 		{if *show_info {
 			apx!(
@@ -107,9 +107,9 @@ fn app()->Elements {
 					<blk bottom=Pc(10.0) width=Pc(50.0) height=Pc(10.0)>
 						<button_bg normal=0x0000f0 active=0x4040f0 hover=0x8080f0
 								on_click=on_info_click.clone()/>
-						<text text="Ok".to_string() align=Align::Center size=Pc(100.0) col=0xffffff/>
+						<text text="Ok" align=Align::Center size=Pc(100.0) col=0xffffff/>
 					</blk>
-					<text text="This is a little calculator...".to_string() align=Align::Center size=Dp(32.0) col=0xffffff/>
+					<text text="This is a little calculator..." align=Align::Center size=Dp(32.0) col=0xffffff/>
 				</blk>
 			)
 		} else {apx!()}}
