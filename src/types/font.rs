@@ -1,102 +1,62 @@
-use std::collections::HashMap;
-use crate::{gl, gl::types::*};
-use crate::{utils::*, hooks::*};
-use rusttype::{Scale, VMetrics};
+use rusttype::{Scale, PositionedGlyph, Point, point};
 
-/// Represents a font face without specified size.
-///
-/// Creating a `FontFace` is the first step when drawing text.
-/// The second step is to create a font with a given size,
-/// using [`Font`](Font).
-///
-/// To obtain a `FontFace`, use the [`use_font_face`](use_font_face) hook.
-pub struct FontFace<'a> {
-    pub rusttype_font: rusttype::Font<'a>
-}
-
-impl<'a> FontFace<'a> {
-    pub fn from_data(ttf_data:&'a [u8])->Self {
-        let f=rusttype::Font::try_from_bytes(ttf_data).unwrap();
-
-        Self {
-            rusttype_font: f,
-        }
-    }
-}
-
-/// Represents a font with a specified size, rendered to a texture.
+/// Represents a font.
 ///
 /// To obtain a `Font`, use the [`use_font`](use_font) hook.
 pub struct Font {
-	id: GLuint,
-    /*width: i32,
-    height: i32,*/
-    pub character_infos: HashMap<char,CharacterInfos>,
-    pub size:f32,
-    pub v_metrics: VMetrics
+    rusttype_font: rusttype::Font<'static>,
 }
 
 impl Font {
-    pub fn new(font_face: &FontFace, size: f32)->Self {
-        let r=[0x20u32..0xff];
-        let chars=r.iter().cloned().flatten().map(|c|std::char::from_u32(c).unwrap()); //.collect();
-        let (data,w,h,infos)=build_font_image(&font_face.rusttype_font,chars,size as u32).unwrap();
-
-        let mut id: GLuint = 0;
-        unsafe { 
-            gl::GenTextures(1, &mut id); 
-            gl::BindTexture(gl::TEXTURE_2D, id);
-        }
-
-        unsafe {
-            gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
-            gl::TexImage2D(
-                gl::TEXTURE_2D,
-                0,
-                gl::R8 as i32,
-                w as i32, 
-                h as i32,
-                0,
-                gl::RED as u32,
-                gl::UNSIGNED_BYTE,
-                data.as_ptr() as *const _,
-            );
-        }
-
-        let v_metrics=font_face.rusttype_font.v_metrics(Scale::uniform(size));
+    pub fn from_data(ttf_data:&'static[u8])->Self {
+        let f=rusttype::Font::try_from_bytes(ttf_data).unwrap();
 
         Self {
-            id,
-            /*width: w as i32,
-            height: h as i32,*/
-            character_infos: infos,
-            size,
-            v_metrics
+            rusttype_font: f
         }
     }
 
-    pub fn bind(&self) {
-        unsafe {
-        	gl::BindTexture(gl::TEXTURE_2D, self.id)
-        }
+    fn get_glyph_advance(&self, c: char, s: Scale) -> (f32, f32) {
+        let g = self.rusttype_font.glyph(c).scaled(s);
+        let h = g.h_metrics().advance_width;
+        let v_metrics = self.rusttype_font.v_metrics(s);
+        let v = v_metrics.ascent - v_metrics.descent + v_metrics.line_gap;
+        (h, v)
     }
 
-    pub fn get_str_width(&self, s: &str)->f32 {
-        let mut x:f32=0.0;
+    /// Get width in pixels of a string of rendered text.
+    pub fn get_str_width(&self, str: &str, size: f32) -> f32 {
+        let mut w: f32 = 0.0;
+        let s = Scale::uniform(size);
 
-        for c in s.chars() {
-            let cinfo=self.character_infos.get(&c).unwrap();
-            x+=self.size*(cinfo.size.0+cinfo.left_padding/2.0+cinfo.right_padding/2.0);
+        for c in str.chars() {
+            let (adv_x, _adv_y) = self.get_glyph_advance(c, s);
+            w += adv_x;
         }
 
-        x
+        w
     }
-}
 
-impl Drop for Font {
-    fn drop(&mut self) {
-        unsafe {
-            gl::DeleteTextures(1, [self.id].as_ptr());
+    pub fn create_glyphs<'a>(&self, str: &str, x: f32, y: f32, size: f32)
+            ->Vec<PositionedGlyph<'a>> {
+        let mut v = Vec::new();
+        let mut p:Point<f32>=rusttype::point(x,y);
+        let s:Scale=rusttype::Scale::uniform(size);
+
+        for c in str.chars() {
+            let base_glyph = self.rusttype_font.glyph(c);
+            v.push(base_glyph.scaled(s).positioned(p));
+
+            let (adv_x, _adv_y) = self.get_glyph_advance(c, s);
+            p = point(p.x + adv_x, p.y);
         }
+
+        v
+    }
+
+    pub fn baseline(&self, size:f32)->f32 {
+        let s = Scale::uniform(size);
+        let v_metrics = self.rusttype_font.v_metrics(s);
+        size + v_metrics.descent
     }
 }

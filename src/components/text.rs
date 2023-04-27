@@ -31,7 +31,8 @@ pub struct Text {
 	text: String,
 	align: Align,
 	valign: VAlign,
-	font: Option<Rc<Font>>
+	font: Option<Rc<Font>>,
+	size: Dim
 }
 
 impl Default for Text {
@@ -43,7 +44,8 @@ impl Default for Text {
 			valign: VAlign::Middle,
 			children: vec![],
 			key: None,
-			font: Option::<Rc::<Font>>::None
+			font: Option::<Rc::<Font>>::None,
+			size: Dim::Dp(20.0)
 		}
 	}
 }
@@ -53,12 +55,9 @@ fn _text(props:Text)->Elements {
 	let app_context=use_context::<AppContext>();
 	let r=&app_context.rect;
 
-	if props.font.is_none() {
-		return vec![]
-	}
-
-	let font=props.font.unwrap();
-	let w=font.get_str_width(&props.text) as i32;
+	let font=props.font.unwrap_or(app_context.default_font.clone());
+	let size=app_context.compute_v_px(props.size);
+	let w=font.get_str_width(&props.text,size) as i32;
 
 	let x=match props.align {
 		Align::Left => r.x,
@@ -68,12 +67,12 @@ fn _text(props:Text)->Elements {
 
 	let y=match props.valign {
 		VAlign::Top => r.y,
-		VAlign::Middle => r.y+(r.h-font.size as i32)/2,
-		VAlign::Bottom => r.y+r.h-font.size as i32,
+		VAlign::Middle => r.y+(r.h-size as i32)/2,
+		VAlign::Bottom => r.y+r.h-size as i32,
 	};
 
 	let mut tr=app_context.text_renderer.borrow_mut();
-	tr.draw(&props.text,x as f32,y as f32,&font,props.col);
+	tr.draw(&props.text,x as f32,y as f32,&font,size,props.col);
 
 	props.children
 }

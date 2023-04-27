@@ -1,64 +1,155 @@
 use crate::{gl, gl::types::*};
-use crate::{utils::*,types::*};
-//extern crate nalgebra_glm as glm;
+use crate::{utils::*, types::*};
+use rusttype::{gpu_cache::Cache, PositionedGlyph};
+extern crate nalgebra_glm as glm;
 
 /// Render text on screen.
 pub struct TextRenderer {
     program: ShaderProgram,
     buf: ArrayBuffer,
+    tex_id: u32,
     loc_vertex: u32,
     loc_tex_coord: u32,
     loc_col: i32,
     loc_mvp: i32,
     pub window_width: i32,
     pub window_height: i32,
+    cache: Cache<'static>,
 }
 
 impl TextRenderer {
     /// Create a text renderer for a specified window size.
     pub fn new(window_width:i32, window_height:i32) -> Self {
+        let cache: Cache<'static> = Cache::builder().dimensions(0,0).build();
+        let mut tex_id: GLuint = 0;
+        unsafe {
+            gl::GenTextures(1, &mut tex_id);
+        }
+
         let program = ShaderProgram::new(vec![
             ShaderSource::VertexShader("
-				#version 300 es
-				precision mediump float;
-				uniform mat4 mvp;
-				in vec2 vertex;
-				in vec2 tex_coord;
-				out vec2 fragment_tex_coord;
-				void main() {
-					gl_Position=mvp*vec4(vertex,0.0,1.0);
-					fragment_tex_coord=tex_coord;
-				}
-			".to_string()),
+                #version 300 es
+                precision mediump float;
+                uniform mat4 mvp;
+                in vec2 vertex;
+                in vec2 tex_coord;
+                out vec2 fragment_tex_coord;
+                void main() {
+                    gl_Position=mvp*vec4(vertex,0.0,1.0);
+                    fragment_tex_coord=tex_coord;
+                }
+            ".to_string()),
             ShaderSource::FragmentShader("
-				#version 300 es
-				precision mediump float;
-				uniform vec4 col;
-				uniform sampler2D texture0;
-				in vec2 fragment_tex_coord;
-				out vec4 fragment_color;
-				void main() {
-					vec4 tex_data=texture(texture0,fragment_tex_coord);
-					fragment_color=vec4(col.r,col.g,col.b,tex_data.r);
-				}
-			".to_string()),
+                #version 300 es
+                precision mediump float;
+                uniform vec4 col;
+                uniform sampler2D texture0;
+                in vec2 fragment_tex_coord;
+                out vec4 fragment_color;
+                void main() {
+                    vec4 tex_data=texture(texture0,fragment_tex_coord);
+                    fragment_color=vec4(col.r,col.g,col.b,tex_data.r);
+                }
+            ".to_string()),
         ]);
 
-        Self {
+        let mut slf=Self {
             loc_vertex: program.get_attrib_location("vertex"),
             loc_tex_coord: program.get_attrib_location("tex_coord"),
             loc_col: program.get_uniform_location("col"),
             loc_mvp: program.get_uniform_location("mvp"),
             buf: ArrayBuffer::new(4),
             program,
+            tex_id,
             window_width,
             window_height,
+            cache,
+        };
+
+        slf.set_cache_size(1);
+        slf
+    }
+
+    fn set_cache_size(&mut self, size: u32) {
+        println!("font cache size: {:?}x{:?}",size,size);
+
+        self.cache.to_builder().dimensions(size,size).rebuild(&mut self.cache);
+
+        unsafe {
+            gl::BindTexture(gl::TEXTURE_2D,self.tex_id);
+            gl::ActiveTexture(gl::TEXTURE0);
+            gl::TexImage2D(
+                gl::TEXTURE_2D,          // target
+                0,                       // level
+                gl::R8 as i32,
+                size as i32, // width
+                size as i32, // height
+                0,                       // border, must be 0
+                gl::RED as u32,
+                gl::UNSIGNED_BYTE,
+                std::ptr::null(),
+            );
         }
     }
 
+    fn render_cache(&mut self) {
+        unsafe {
+            gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
+        }
+
+        let mut do_build=true;
+        while do_build {
+            let res=self.cache.cache_queued(|rect, data| {
+                //println!("populate font cache: {:?}",data.as_ptr());
+                unsafe {
+                    gl::ActiveTexture(gl::TEXTURE0);
+                    gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
+                    gl::TexSubImage2D(
+                        gl::TEXTURE_2D,
+                        0,
+                        rect.min.x as i32,
+                        rect.min.y as i32,
+                        (rect.width()) as i32,
+                        rect.height() as i32,
+                        gl::RED,
+                        gl::UNSIGNED_BYTE,
+                        data.as_ptr() as *const _,
+                    );
+                }
+            });
+
+            match res {
+                Err(_)=>{
+                    self.set_cache_size(self.cache.dimensions().0*2);
+                },
+                Ok(_)=>{
+                    do_build=false;
+                }
+            };
+        }
+    }
+
+    fn vertices_for(&self, glyph: &PositionedGlyph) -> Vec<f32> {
+        let rect = self.cache.rect_for(0, glyph).unwrap();
+        if rect.is_none() {
+            return vec![];
+        }
+
+        let (uv, screen) = rect.unwrap();
+        vec![
+            screen.min.x as f32, screen.min.y as f32,  uv.min.x, uv.min.y,
+            screen.max.x as f32, screen.min.y as f32,  uv.max.x, uv.min.y,
+            screen.max.x as f32, screen.max.y as f32,  uv.max.x, uv.max.y,
+
+            screen.min.x as f32, screen.min.y as f32,  uv.min.x, uv.min.y,
+            screen.max.x as f32, screen.max.y as f32,  uv.max.x, uv.max.y,
+            screen.min.x as f32, screen.max.y as f32,  uv.min.x, uv.max.y,
+        ]
+    }
+
     /// Draw text.
-    pub fn draw(&mut self, str: &str, mut x: f32, y: f32, fx: &Font, col: u32) {
-        let m = nalgebra_glm::ortho(
+    pub fn draw(&mut self, text: &str, x: f32, mut y: f32, font: &Font, size: f32, col: u32) {
+        let m = glm::ortho(
             0.0,
             self.window_width as f32,
             self.window_height as f32,
@@ -66,43 +157,36 @@ impl TextRenderer {
             -1.0,
             1.0,
         );
-        let c = nalgebra_glm::vec4(
+        let c = glm::vec4(
             ((col & 0xff0000) >> 16) as f32 / 255.0,
             ((col & 0x00ff00) >> 8) as f32 / 255.0,
             (col & 0x0000ff) as f32 / 255.0,
             1.0,
         );
 
-        let mut data=vec![];
-        for c in str.chars() {
-            let cinfo=fx.character_infos.get(&c).unwrap();
-            let txmin=(cinfo.tex_coords.0, cinfo.tex_coords.1);
-            let txmax=(cinfo.tex_coords.0+cinfo.tex_size.0, cinfo.tex_coords.1+cinfo.tex_size.1);
-            let scmin=(
-                x+fx.size*cinfo.left_padding/2.0,
-                y+fx.size*(1.0-cinfo.height_over_line)+fx.v_metrics.descent
-            );
-            let scmax=(scmin.0+fx.size*cinfo.size.0,scmin.1+fx.size*cinfo.size.1);
+        y+=font.baseline(size);
 
-            data.append(&mut vec![
-                scmin.0, scmin.1,  txmin.0, txmin.1,
-                scmax.0, scmin.1,  txmax.0, txmin.1,
-                scmax.0, scmax.1,  txmax.0, txmax.1,
-                scmin.0, scmin.1,  txmin.0, txmin.1,
-                scmax.0, scmax.1,  txmax.0, txmax.1,
-                scmin.0, scmax.1,  txmin.0, txmax.1,
-            ]);
+        let glyphs = font.create_glyphs(text,x,y,size);
+        for glyph in glyphs.clone() {
+            self.cache.queue_glyph(0, glyph);
+        }
 
-            x+=fx.size*(cinfo.size.0+cinfo.left_padding/2.0+cinfo.right_padding/2.0);
+        self.render_cache();
+        let mut data: Vec<f32> = vec![];
+        for glyph in glyphs {
+            data.append(&mut self.vertices_for(&glyph));
         }
 
         self.buf.set_data(data);
+
+        //println!("tex id: {}",self.tex_id);
+
         self.program.use_program();
         self.buf.bind(self.loc_vertex, 0, 2);
         self.buf.bind(self.loc_tex_coord, 2, 2);
-        fx.bind();
 
         unsafe {
+            gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
             gl::ActiveTexture(gl::TEXTURE0);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);

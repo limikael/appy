@@ -107,36 +107,10 @@ pub fn use_hover_state_ref()->StateRef<HoverState> {
 ///		<Text text="Hello World" font=font/>
 ///	}
 /// ```
-pub fn use_font_face<F>(closure: F)->Rc<FontFace<'static>> 
+pub fn use_font_data<F>(closure: F)->Rc<Font> 
 		where F: Fn()->&'static [u8] {
 	let state_ref=use_state(||{
-		FontFace::from_data(closure())
-	});
-
-	state_ref.as_rc()
-}
-
-/// Render a font face with a specific size.
-///
-/// In order to draw text, use:
-///
-/// - [`use_font_face`](use_font_face) - To get the data for the font.
-/// - [`use_font`](use_font) - To render the font to a texture for a specific size.
-/// - [`Text`](crate::components::Text) - To render text on screen.
-///
-/// Example:
-/// ```
-///	let font_face=use_font_face(||include_bytes!("./Roboto-Regular.ttf"));
-///	let font=use_font(font_face,100.0);
-///
-///	apx!{
-///		<Text text="Hello World" font=font/>
-///	}
-/// ```
-pub fn use_font(font_face: Rc<FontFace>, size:f32)->Rc<Font> {
-	let app_context=use_context::<AppContext>();
-	let state_ref=use_state(||{
-		Font::new(&font_face,app_context.pixel_ratio*size)
+		Font::from_data(closure())
 	});
 
 	state_ref.as_rc()

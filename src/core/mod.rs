@@ -14,7 +14,7 @@ use self::component::ComponentInstance;
 use self::component::ComponentPath;
 use self::component::ComponentPathComponent;
 use self::component::HookRef;
-use crate::types::{Element, Elements};
+use crate::types::{Element, Elements, Font};
 use crate::core::element::root_element;
 use crate::components::context_provider;
 
@@ -201,7 +201,10 @@ impl Appy {
                         let size=w.size();
                         self.app_context=Some(Rc::new(AppContext::new(
                             size.0,size.1,
-                            w.pixel_ratio()
+                            w.pixel_ratio(),
+                            Font::from_data(
+                                include_bytes!("./Roboto-Regular.ttf")
+                            )
                         )));
                     }
                 },

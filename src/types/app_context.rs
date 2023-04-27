@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::cmp::max;
-use crate::types::{Rect, Dim};
+use crate::types::{Rect, Dim, Font};
 use crate::utils::{RectRenderer, TextRenderer, ImageRenderer};
 
 struct FlowAnchor {
@@ -47,18 +47,20 @@ pub struct AppContext {
     pub rect_renderer: Rc<RefCell<RectRenderer>>,
     pub text_renderer: Rc<RefCell<TextRenderer>>,
     pub image_renderer: Rc<RefCell<ImageRenderer>>,
+    pub default_font: Rc<Font>
 }
 
 impl AppContext {
     #[doc(hidden)]
-    pub fn new(w: i32, h:i32, pixel_ratio:f32)->Self {
+    pub fn new(w: i32, h:i32, pixel_ratio:f32, default_font:Font)->Self {
         Self {
             pixel_ratio: pixel_ratio,
             rect: Rect{x:0,y:0,w,h},
             rect_renderer: Rc::new(RefCell::new(RectRenderer::new(w,h))),
             text_renderer: Rc::new(RefCell::new(TextRenderer::new(w,h))),
             image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w,h))),
-            flow_anchor: Rc::new(RefCell::new(FlowAnchor::new()))
+            flow_anchor: Rc::new(RefCell::new(FlowAnchor::new())),
+            default_font: Rc::new(default_font)
         }
     }
 
