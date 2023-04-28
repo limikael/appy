@@ -25,10 +25,22 @@ pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 ///
 /// The function specified will be called after the children of the
 /// current component has been rendered.
-pub fn use_post_render(f: Rc<dyn Fn()>) {
+pub fn use_post_render(f: Box<dyn FnOnce()>) {
 	Appy::with(|appy|{
 		appy.with_current_component_instance(|ci|{
-			ci.post_render=Some(f.clone());
+			ci.post_render=Some(f);
+		})
+	})
+}
+
+/// Second render pass.
+///
+/// The function specified will be called after the children of the
+/// current component has been rendered.
+pub fn use_second_render_pass(f: Box<dyn FnOnce()->Elements>) {
+	Appy::with(|appy|{
+		appy.with_current_component_instance(|ci|{
+			ci.second_render=Some(f);
 		})
 	})
 }

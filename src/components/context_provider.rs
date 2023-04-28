@@ -49,7 +49,7 @@ impl<T: 'static> Element for ContextProvider<T> {
 	        appy.contexts.get_mut(&type_id).unwrap().push(t);
 		});
 
-		use_post_render(Rc::new(||{
+		use_post_render(Box::new(||{
 			Appy::with(|appy|{
 		        let type_id=TypeId::of::<T>();
 

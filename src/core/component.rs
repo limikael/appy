@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use std::any::TypeId;
 use std::any::Any;
 use std::rc::Rc;
+use crate::types::Elements;
 
 #[derive(Clone)]
 pub struct HookData {
@@ -60,7 +61,9 @@ impl<T> Deref for HookRef<T> {
 #[derive(Default)]
 pub struct ComponentInstance {
     hook_data: Vec<HookData>,
-    pub post_render: Option<Rc<dyn Fn()>>,
+    pub post_render: Option<Box<dyn FnOnce()>>,
+    pub second_render: Option<Box<dyn FnOnce()->Elements>>
+//    pub second_render: Option<Box<dyn FnOnce()>>
 }
 
 impl ComponentInstance {
@@ -70,14 +73,8 @@ impl ComponentInstance {
 
     pub fn pre_render(&mut self) {
         self.post_render=None;
+        self.second_render=None;
     }
-
-    /*pub fn post_render(&self) {
-        if self.post_render.is_some() {
-            let f = self.post_render.as_ref().unwrap();
-            (*f)();
-        }
-    }*/
 
     pub fn create_hook_ref<F, T: 'static>(&mut self,
             index:usize,  ctor:F, trigger:Rc<dyn Fn()>)->HookRef<T>

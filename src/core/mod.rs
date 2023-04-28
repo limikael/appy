@@ -112,9 +112,33 @@ impl Appy {
         self.render_fragment(child_fragment,this_path.clone());
 
         if self.instances.contains_key(&this_path) {
-            let post_render=&self.instances.get(&this_path).unwrap().post_render;
-            if post_render.is_some() {
-                let cb=post_render.clone().unwrap();
+/*            let second=&mut self.instances.get_mut(&this_path).unwrap().second_render;
+            if second.is_some() {
+                //let cb=second.clone().unwrap();
+                //let child_fragment=appy_instance::using(self,||{
+                //    cb()
+                //});
+
+//                let cb=second.clone().unwrap();
+//                let child_fragment=cb();
+                //self.render_fragment(child_fragment,this_path.clone());
+ 
+                (second.take().unwrap())();
+            }*/
+
+            let ci=&mut self.instances.get_mut(&this_path).unwrap();
+            if ci.second_render.is_some() {
+                let cb=ci.second_render.take().unwrap();
+                let child_fragment=appy_instance::using(self,||{
+                    cb()
+                });
+
+                self.render_fragment(child_fragment,this_path.clone());
+            }
+
+            let ci=&mut self.instances.get_mut(&this_path).unwrap();
+            if ci.post_render.is_some() {
+                let cb=ci.post_render.take().unwrap();
                 appy_instance::using(self,||{
                     cb();
                 });

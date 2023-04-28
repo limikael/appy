@@ -3,11 +3,13 @@ use std::cell::RefCell;
 use std::cmp::max;
 use crate::types::{Rect, Dim, Font};
 use crate::utils::{RectRenderer, TextRenderer, ImageRenderer};
+use crate::types::Elements;
 
-struct FlowAnchor {
+pub struct FlowAnchor {
     x: i32,
     y: i32,
-    line_height: i32
+    line_height: i32,
+    pub elements: Vec<(i32, i32, i32, i32, Elements)>
 }
 
 impl FlowAnchor {
@@ -15,7 +17,8 @@ impl FlowAnchor {
         Self {
             x: 0,
             y: 0,
-            line_height: 0
+            line_height: 0,
+            elements: vec![]
         }
     }
 
@@ -41,7 +44,7 @@ impl FlowAnchor {
 /// with `use_context::<AppContext>()`. See [`use_context`](crate::hooks::use_context).
 #[derive(Clone)]
 pub struct AppContext {
-    flow_anchor: Rc<RefCell<FlowAnchor>>,
+    pub flow_anchor: Rc<RefCell<FlowAnchor>>,
     pub pixel_ratio: f32,
     pub rect: Rect<i32>,
     pub rect_renderer: Rc<RectRenderer>,
@@ -109,5 +112,10 @@ impl AppContext {
 
     pub fn compute_v_px(&self, val: Dim)->f32 {
         val.to_px(self.rect.h as f32,self.pixel_ratio)
+    }
+
+    pub fn flow(&self, w:i32, h:i32, children:Elements) {
+        let (x,y)=self.flow_anchor.borrow_mut().advance(w,h,self.rect.w);
+        self.flow_anchor.borrow_mut().elements.push((x,y,w,h,children));
     }
 }
