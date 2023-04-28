@@ -5,6 +5,7 @@ use std::any::TypeId;
 use std::collections::HashMap;
 use std::rc::Rc;
 use environmental::environmental;
+use std::time::Instant;
 
 use glapp::{App,AppEvent};
 use crate::utils::Trigger;
@@ -218,7 +219,11 @@ impl Appy {
                     self.app_context=Some(Rc::new(new_context));
                 }
                 AppEvent::Render=>{
+                    let start = Instant::now();
                     self.render();
+                    let duration = start.elapsed();
+                    println!("Render time: {:?}", duration);
+//                    self.render();
                 },
                 _=>{}
             }
