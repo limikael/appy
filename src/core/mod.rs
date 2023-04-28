@@ -17,6 +17,7 @@ use self::component::HookRef;
 use crate::types::{Element, Elements, Font};
 use crate::core::element::root_element;
 use crate::components::context_provider;
+use std::time::Instant;
 
 #[doc(hidden)]
 pub mod component;
@@ -112,20 +113,6 @@ impl Appy {
         self.render_fragment(child_fragment,this_path.clone());
 
         if self.instances.contains_key(&this_path) {
-/*            let second=&mut self.instances.get_mut(&this_path).unwrap().second_render;
-            if second.is_some() {
-                //let cb=second.clone().unwrap();
-                //let child_fragment=appy_instance::using(self,||{
-                //    cb()
-                //});
-
-//                let cb=second.clone().unwrap();
-//                let child_fragment=cb();
-                //self.render_fragment(child_fragment,this_path.clone());
- 
-                (second.take().unwrap())();
-            }*/
-
             let ci=&mut self.instances.get_mut(&this_path).unwrap();
             if ci.second_render.is_some() {
                 let cb=ci.second_render.take().unwrap();
@@ -242,7 +229,10 @@ impl Appy {
                     self.app_context=Some(Rc::new(new_context));
                 }
                 AppEvent::Render=>{
+                    let start = Instant::now();
                     self.render();
+                    let duration = start.elapsed();
+                    println!("Render time: {:?}", duration);
                 },
                 _=>{}
             }
