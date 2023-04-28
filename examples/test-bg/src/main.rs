@@ -58,7 +58,7 @@ fn _slider(props:Slider)->Elements {
 				<bg color=0xc0c0c0 border_width=1 border_color=0xffffff corner_radius=10/>
 			</blk>
 		</blk>
-	}	
+	}
 }
 
 #[derive_component(ComponentBuilder,Default,SnakeFactory)]
@@ -135,7 +135,7 @@ fn main()->Elements {
 				corner_radius=*rad
 				border_color=0x8080ff
 				border_width=*border
-				borders=borders.map(|b|(*b).clone())/>
+				borders=borders.map(|b|*b)/>
 		</blk>
 	}
 }
