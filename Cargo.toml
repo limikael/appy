@@ -11,6 +11,7 @@ license = "MIT"
 [lib]
 name="appy"
 path="src/lib.rs"
+doctest=false
 
 [dependencies]
 appy-macros = {version="0.1.5", path="./appy-macros"}

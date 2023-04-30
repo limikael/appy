@@ -27,7 +27,7 @@ pub enum ScaleMode {
 }
 
 /// Specify a horizontal alignment.
-#[derive(Default,Clone)]
+#[derive(Default,Clone,Debug)]
 pub enum Align {
 	Left,
 
@@ -37,7 +37,7 @@ pub enum Align {
 }
 
 /// Specify a vertical state.
-#[derive(Default,Clone)]
+#[derive(Default,Clone,Debug)]
 pub enum VAlign {
 	Top,
 

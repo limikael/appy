@@ -1,42 +1,6 @@
 use std::rc::Rc;
 use std::cell::RefCell;
-use std::cmp::max;
-use crate::types::{Rect, Dim, Font};
-use crate::utils::{RectRenderer, TextRenderer, ImageRenderer};
-use crate::types::Elements;
-
-pub struct FlowAnchor {
-    x: i32,
-    y: i32,
-    line_height: i32,
-    pub elements: Vec<(i32, i32, i32, i32, Elements)>
-}
-
-impl FlowAnchor {
-    pub fn new()->Self {
-        Self {
-            x: 0,
-            y: 0,
-            line_height: 0,
-            elements: vec![]
-        }
-    }
-
-    pub fn advance(&mut self, w:i32, h:i32, max_w:i32)->(i32,i32) {
-        if self.x+w>max_w {
-            self.x=0;
-            self.y+=self.line_height;
-            self.line_height=0;
-        }
-
-        let res=(self.x,self.y);
-
-        self.x+=w;
-        self.line_height=max(self.line_height,h);
-
-        res
-    }
-}
+use crate::{types::*, utils::*};
 
 /// Information about the current application window.
 ///
@@ -44,7 +8,7 @@ impl FlowAnchor {
 /// with `use_context::<AppContext>()`. See [`use_context`](crate::hooks::use_context).
 #[derive(Clone)]
 pub struct AppContext {
-    pub flow_anchor: Rc<RefCell<FlowAnchor>>,
+    pub flow_bucket: Rc<RefCell<FlowBucket<Elements>>>,
     pub pixel_ratio: f32,
     pub rect: Rect<i32>,
     pub rect_renderer: Rc<RectRenderer>,
@@ -64,7 +28,7 @@ impl AppContext {
             rect_renderer: Rc::new(RectRenderer::new()),
             text_renderer: Rc::new(RefCell::new(TextRenderer::new(w,h))),
             image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w,h))),
-            flow_anchor: Rc::new(RefCell::new(FlowAnchor::new())),
+            flow_bucket: Rc::new(RefCell::new(FlowBucket::new(w as f32,h as f32))),
             default_font: Rc::new(default_font)
         }
     }
@@ -79,23 +43,20 @@ impl AppContext {
         resized.text_renderer.borrow_mut().window_width=w;
         resized.text_renderer.borrow_mut().window_height=h;
         resized.image_renderer.borrow_mut().set_size(w,h);
+        resized.flow_bucket=Rc::new(RefCell::new(FlowBucket::new(w as f32,h as f32)));
 
         resized
     }
 
     pub fn abs(&self, x:i32, y:i32, w:i32, h:i32)->Self {
         let mut resized=self.clone();
-        resized.flow_anchor=Rc::new(RefCell::new(FlowAnchor::new()));
+        resized.flow_bucket=Rc::new(RefCell::new(FlowBucket::new(w as f32,h as f32)));
         resized.rect=resized.rect.abs(x,y,w,h);
         resized
     }
 
     pub fn reset_flow(&self) {
-        *self.flow_anchor.borrow_mut()=FlowAnchor::new();
-    }
-
-    pub fn advance_flow(&self, w:i32, h:i32)->(i32,i32) {
-        self.flow_anchor.borrow_mut().advance(w,h,self.rect.w)
+        *self.flow_bucket.borrow_mut()=FlowBucket::new(self.rect.w as f32,self.rect.h as f32);
     }
 
     pub fn compute_h_span(&self, start: Dim, size: Dim, end: Dim)->(f32, f32) {
@@ -112,10 +73,5 @@ impl AppContext {
 
     pub fn compute_v_px(&self, val: Dim)->f32 {
         val.to_px(self.rect.h as f32,self.pixel_ratio)
-    }
-
-    pub fn flow(&self, w:i32, h:i32, children:Elements) {
-        let (x,y)=self.flow_anchor.borrow_mut().advance(w,h,self.rect.w);
-        self.flow_anchor.borrow_mut().elements.push((x,y,w,h,children));
     }
 }

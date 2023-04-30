@@ -1,5 +1,4 @@
-use std::rc::Rc;
-use appy::{*, types::*, components::*, hooks::*};
+use appy::{*, types::*, hooks::*};
 
 /// Positions a block in a flow layout
 ///
@@ -28,40 +27,8 @@ fn _flow(props:Flow)->Elements {
     let w=app_context.compute_h_px(props.width);
     let h=app_context.compute_v_px(props.height);
 
-    app_context.flow(w as i32, h as i32, props.children);
+    //app_context.flow_anchor.borrow_mut().add_children(w as i32, h as i32, props.children);
+    app_context.flow_bucket.borrow_mut().add(props.children,w,h);
 
     vec![]
-
-    /*app_context.flow_children(
-        w as i32,
-        h as i32,
-        props.children
-    );
-
-    vec![]*/
-
-//    let (x,y)=app_context.advance_flow(w as i32,h as i32,props.children);
-
-//    app_context.push_flowed
-
-
-//    let new_context=app_context.abs(x,y,w as i32,h as i32);
-
-/*    use_second_render_pass(Box::new(move||{
-        vec![
-            context_provider()
-                .value(Rc::new(new_context))
-                .children(props.children)
-        ]
-
-//        props.children
-    }));
-
-    vec![]
-
-    /*vec![
-        context_provider()
-            .value(Rc::new(new_context))
-            .children(props.children)
-    ]*/*/
 }

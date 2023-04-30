@@ -1,7 +1,6 @@
 use crate::types::{Elements,ElementWrap};
 use crate::types::{AppContext, Dim};
 use crate::hooks::{use_context,use_second_render_pass};
-use crate::apx;
 use std::rc::Rc;
 use appy::{function_component,derive_component,SnakeFactory,ComponentBuilder};
 use appy::components::context_provider;
@@ -50,25 +49,26 @@ fn _blk(props:Blk)->Elements {
 
     let c=new_context.clone();
     use_second_render_pass(Box::new(move||{
-        let mut extra_children:Elements=vec![];
+        let mut flow_children:Elements=vec![];
 
-        let mut v:Vec<(i32, i32, i32, i32, Elements)>=vec![];
-        v.append(&mut c.flow_anchor.borrow_mut().elements);
-
-        for (x,y,w,h,elements) in v {
-            extra_children.push(blk()
+        c.flow_bucket.borrow_mut().with_items(|e,x,y,w,h|{
+            flow_children.push(blk()
                 .left(x)
                 .width(w)
                 .top(y)
                 .height(h)
-                .children(elements)
+                .children(e)
             );
+        });
+
+        if flow_children.len()==0 {
+            return flow_children;
         }
 
         vec![
             context_provider()
                 .value(Rc::new(c))
-                .children(extra_children)
+                .children(flow_children)
         ]
     }));
 
