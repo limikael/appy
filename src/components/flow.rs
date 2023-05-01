@@ -1,4 +1,4 @@
-use appy::{*, types::*, hooks::*};
+use appy::{*, types::*, hooks::*, utils::*};
 
 /// Positions a block in a flow layout
 ///
@@ -23,12 +23,12 @@ impl Default for Flow {
 #[function_component]
 fn _flow(props:Flow)->Elements {
     let app_context = use_context::<AppContext>();
-
-    let w=props.width.to_abs(app_context.rect.w);
-    let h=props.height.to_abs(app_context.rect.h);
-
-    //app_context.flow_anchor.borrow_mut().add_children(w as i32, h as i32, props.children);
-    app_context.flow_bucket.borrow_mut().add(props.children,w,h);
+    app_context.flow_elements.borrow_mut().push(FlowElement{
+        width: props.width.to_abs(app_context.rect.w),
+        height: props.height.to_abs(app_context.rect.h),
+        children: props.children,
+        key: props.key
+    });
 
     vec![]
 }

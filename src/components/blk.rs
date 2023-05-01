@@ -2,8 +2,9 @@ use crate::types::{Elements,ElementWrap};
 use crate::types::{AppContext, Dim};
 use crate::hooks::{use_context,use_second_render_pass};
 use std::rc::Rc;
-use appy::{function_component,derive_component,SnakeFactory,ComponentBuilder};
+use appy::{function_component,derive_component,SnakeFactory,ComponentBuilder,with_clone};
 use appy::components::context_provider;
+use crate::utils::{FlowBucket};
 
 /// Positions a block relative to the parent.
 ///
@@ -47,30 +48,21 @@ fn _blk(props:Blk)->Elements {
     let v=Dim::compute_span(app_context.rect.h,props.top,props.height,props.bottom);
     let new_context=app_context.abs(h.0,v.0,h.1,v.1);
 
-    let c=new_context.clone();
-    use_second_render_pass(Box::new(move||{
-        let mut flow_children:Elements=vec![];
+    use_second_render_pass(Box::new(with_clone!([new_context],move||{
+        let mut bucket=FlowBucket::new(new_context.rect.w,new_context.rect.h);
+        let mut flow_elements=vec![];
+        flow_elements.append(&mut *new_context.flow_elements.borrow_mut());
 
-        c.flow_bucket.borrow_mut().with_items(|e,x,y,w,h|{
-            flow_children.push(blk()
-                .left(x)
-                .width(w)
-                .top(y)
-                .height(h)
-                .children(e)
-            );
-        });
-
-        if flow_children.len()==0 {
-            return flow_children;
+        for flow_element in flow_elements {
+            bucket.add(flow_element)
         }
 
         vec![
             context_provider()
-                .value(Rc::new(c))
-                .children(flow_children)
+                .value(Rc::new(new_context))
+                .children(bucket.create_blocks())
         ]
-    }));
+    })));
 
     vec![
         context_provider()

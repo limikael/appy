@@ -1,6 +1,14 @@
 //use crate::types::{Align,VAlign};
+use crate::{types::*,components::*};
 
-#[derive(Debug)]
+pub struct FlowElement {
+	pub width: f32,
+	pub height: f32,
+	pub children: Elements,
+	pub key: Option<String>
+}
+
+//#[derive(Debug)]
 pub struct FlowConf {
 	pub width: f32,
 	pub height: f32,
@@ -10,22 +18,20 @@ pub struct FlowConf {
 	pub valign: VAlign*/
 }
 
-#[derive(Debug)]
-struct FlowItem<T> {
-	item: T,
-	width: f32,
-	height: f32,
+//#[derive(Debug)]
+struct FlowItem {
+	element: FlowElement,
 	x: f32
 }
 
-#[derive(Debug)]
-struct FlowLine<T> {
-	items: Vec<FlowItem<T>>,
+//#[derive(Debug)]
+struct FlowLine {
+	items: Vec<FlowItem>,
 	width: f32,
 	height: f32,
 }
 
-impl<T> FlowLine<T> {
+impl FlowLine {
 	pub fn new()->Self {
 		Self {
 			items: vec![],
@@ -42,7 +48,7 @@ impl<T> FlowLine<T> {
 		self.width+conf.gap+width<=conf.width
 	}
 
-	pub fn add(&mut self, conf:&FlowConf, item:T, width:f32, height: f32) {
+	pub fn add(&mut self, conf:&FlowConf, element:FlowElement) {
 		let x=if self.items.len()==0 {
 			0.0
 		}
@@ -51,22 +57,22 @@ impl<T> FlowLine<T> {
 			self.width+conf.gap
 		};
 
-		self.items.push(FlowItem{item,width,height,x});
-		self.width=x+width;
-
-		if height>self.height {
-			self.height=height;
+		self.width=x+element.width;
+		if element.height>self.height {
+			self.height=element.height;
 		}
+
+		self.items.push(FlowItem{element,x});
 	}
 }
 
-#[derive(Debug)]
-pub struct FlowBucket<T> {
+//#[derive(Debug)]
+pub struct FlowBucket {
 	conf: FlowConf,
-	lines: Vec<FlowLine<T>>
+	lines: Vec<FlowLine>
 }
 
-impl<T> FlowBucket<T> {
+impl FlowBucket {
 	pub fn new(w: f32, h: f32)->Self {
 		Self {
 			conf: FlowConf{
@@ -79,18 +85,18 @@ impl<T> FlowBucket<T> {
 		}
 	}
 
-	fn current_line(&self)->&FlowLine<T> {
+	fn current_line(&self)->&FlowLine {
 		let l=self.lines.len()-1;
 		&self.lines[l]
 	}
 
-	pub fn add(&mut self, item:T, width:f32, height: f32) {
-		if !self.current_line().can_fit(&self.conf,width) {
+	pub fn add(&mut self, element:FlowElement) {
+		if !self.current_line().can_fit(&self.conf,element.width) {
 			self.lines.push(FlowLine::new())
 		}
 
 		let l=self.lines.len()-1;
-		self.lines[l].add(&self.conf,item,width,height);
+		self.lines[l].add(&self.conf,element);
 	}
 
 	pub fn height(&self)->f32 {
@@ -106,8 +112,9 @@ impl<T> FlowBucket<T> {
 		h
 	}
 
-	pub fn with_items<F>(&mut self, mut f:F)
-			where F:FnMut(T,f32,f32,f32,f32) {
+	pub fn create_blocks(&mut self)->Elements {
+        let mut elements:Elements=vec![];
+
 		let mut lines=vec![];
 		lines.append(&mut self.lines);
 		let mut y=0.;
@@ -117,10 +124,19 @@ impl<T> FlowBucket<T> {
 			items.append(&mut line.items);
 
 			for item in items {
-				f(item.item,item.x,y,item.width,item.height);
+	            elements.push(blk()
+	                .left(item.x)
+	                .top(y)
+	                .width(item.element.width)
+	                .height(item.element.height)
+	                .children(item.element.children)
+	                .key_option(item.element.key)
+	            )
 			}
 
 			y+=line.height+self.conf.vgap;
 		}
+
+		elements
 	}
 }
