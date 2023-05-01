@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::{types::*, utils::*};
+use crate::{types::*, utils::*, components::*};
 
 /// Information about the current application window.
 ///
@@ -8,7 +8,7 @@ use crate::{types::*, utils::*};
 /// with `use_context::<AppContext>()`. See [`use_context`](crate::hooks::use_context).
 #[derive(Clone)]
 pub struct AppContext {
-    pub flow_elements: Rc<RefCell<Vec<FlowElement>>>,
+    pub flow_elements: Rc<RefCell<Vec<Flow>>>,
 //    pub flow: Rc<RefCell<Elements>>,
     pub pixel_ratio: f32,
     pub rect: Rect,

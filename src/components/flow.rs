@@ -1,12 +1,12 @@
-use appy::{*, types::*, hooks::*, utils::*};
+use appy::{*, types::*, hooks::*, components::*};
 
 /// Positions a block in a flow layout
 ///
 /// Will place items in a flow. Left to right, then top to bottom.
 #[derive_component(ComponentBuilder,SnakeFactory)]
 pub struct Flow {
-    width: Dim,
-    height: Dim,
+    pub width: Dim,
+    pub height: Dim,
 }
 
 impl Default for Flow {
@@ -25,13 +25,19 @@ fn _flow(mut props:Flow)->Elements {
     let app_context = use_context::<AppContext>();
     props.width=Dim::Absolute(props.width.to_abs(app_context.rect.w));
     props.height=Dim::Absolute(props.height.to_abs(app_context.rect.h));
-
-    app_context.flow_elements.borrow_mut().push(FlowElement{
-        width: props.width.get_abs(), //app_context.rect.w),
-        height: props.height.get_abs(), //app_context.rect.h),
-        children: props.children,
-        key: props.key
-    });
+    app_context.flow_elements.borrow_mut().push(props);
 
     vec![]
+}
+
+impl Flow {
+    pub fn make_block(self: Self, x:f32, y:f32)->ElementWrap<Blk> {
+        blk()
+            .left(x)
+            .top(y)
+            .width(self.width.clone())
+            .height(self.height.clone())
+            .key_option(self.get_key())
+            .children(self.children)
+    }
 }

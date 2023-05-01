@@ -2,12 +2,12 @@
 use crate::{types::*,components::*};
 use std::mem::take;
 
-pub struct FlowElement {
+/*pub struct FlowElement {
 	pub width: f32,
 	pub height: f32,
 	pub children: Elements,
 	pub key: Option<String>
-}
+}*/
 
 //#[derive(Debug)]
 pub struct FlowConf {
@@ -21,7 +21,7 @@ pub struct FlowConf {
 
 //#[derive(Debug)]
 struct FlowItem {
-	element: FlowElement,
+	element: Flow,
 	x: f32
 }
 
@@ -49,7 +49,7 @@ impl FlowLine {
 		self.width+conf.gap+width<=conf.width
 	}
 
-	pub fn add(&mut self, conf:&FlowConf, element:FlowElement) {
+	pub fn add(&mut self, conf:&FlowConf, element:Flow) {
 		let x=if self.items.len()==0 {
 			0.0
 		}
@@ -58,9 +58,9 @@ impl FlowLine {
 			self.width+conf.gap
 		};
 
-		self.width=x+element.width;
-		if element.height>self.height {
-			self.height=element.height;
+		self.width=x+element.width.get_abs();
+		if element.height.get_abs()>self.height {
+			self.height=element.height.get_abs();
 		}
 
 		self.items.push(FlowItem{element,x});
@@ -74,7 +74,7 @@ pub struct FlowBucket {
 }
 
 impl FlowBucket {
-	pub fn flow(elements:Vec<FlowElement>, conf:FlowConf)->Elements {
+	pub fn flow(elements:Vec<Flow>, conf:FlowConf)->Elements {
 		let mut flow_bucket=FlowBucket::new(conf);
 		for element in elements {
 			flow_bucket.add(element)
@@ -95,8 +95,8 @@ impl FlowBucket {
 		&self.lines[l]
 	}
 
-	pub fn add(&mut self, element:FlowElement) {
-		if !self.current_line().can_fit(&self.conf,element.width) {
+	pub fn add(&mut self, element:Flow) {
+		if !self.current_line().can_fit(&self.conf,element.width.get_abs()) {
 			self.lines.push(FlowLine::new())
 		}
 
@@ -133,14 +133,7 @@ impl FlowBucket {
 			};
 
 			for item in take(&mut line.items) {
-	            elements.push(blk()
-	                .left(line_start+item.x)
-	                .top(y)
-	                .width(item.element.width)
-	                .height(item.element.height)
-	                .children(item.element.children)
-	                .key_option(item.element.key)
-	            )
+				elements.push(item.element.make_block(line_start+item.x,y));
 			}
 
 			y+=line.height+self.conf.vgap;
