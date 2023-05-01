@@ -27,8 +27,8 @@ pub struct Blk {
     height: Dim,
     bottom: Dim,
     right: Dim,
-    flow_gap: f32,
-    flow_vgap: f32,
+    flow_gap: Dim,
+    flow_vgap: Dim,
     flow_align: Align,
     flow_valign: VAlign
 }
@@ -57,8 +57,8 @@ fn _blk(props:Blk)->Elements {
         let conf=FlowConf{
             width: new_context.rect.w,
             height: new_context.rect.h,
-            gap: props.flow_gap,
-            vgap: props.flow_vgap,
+            gap: props.flow_gap.get_abs(),
+            vgap: props.flow_vgap.get_abs(),
             align: props.flow_align,
             valign: props.flow_valign
         };

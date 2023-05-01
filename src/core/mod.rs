@@ -222,7 +222,7 @@ impl Appy {
                     }
                 },
                 AppEvent::Resize{width,height}=>{
-                    println!("size: {}x{}",width,height);
+                    //println!("size: {}x{}",width,height);
                     let new_context=self.app_context.as_ref().unwrap().resize(
                         width,
                         height,

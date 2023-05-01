@@ -9,7 +9,6 @@ use crate::{types::*, utils::*, components::*};
 #[derive(Clone)]
 pub struct AppContext {
     pub flow_elements: Rc<RefCell<Vec<Flow>>>,
-//    pub flow: Rc<RefCell<Elements>>,
     pub pixel_ratio: f32,
     pub rect: Rect,
     pub rect_renderer: Rc<RectRenderer>,
@@ -44,19 +43,19 @@ impl AppContext {
         resized.text_renderer.borrow_mut().window_width=w;
         resized.text_renderer.borrow_mut().window_height=h;
         resized.image_renderer.borrow_mut().set_size(w,h);
-        resized.flow_elements=Rc::new(RefCell::new(vec![]));//FlowBucket::new(w,h)));
+        resized.flow_elements=Rc::new(RefCell::new(vec![]));
 
         resized
     }
 
     pub fn abs(&self, x:f32, y:f32, w:f32, h:f32)->Self {
         let mut resized=self.clone();
-        resized.flow_elements=Rc::new(RefCell::new(vec![]));//FlowBucket::new(w,h)));
+        resized.flow_elements=Rc::new(RefCell::new(vec![]));
         resized.rect=resized.rect.abs(x,y,w,h);
         resized
     }
 
     pub fn reset_flow(&self) {
-        *self.flow_elements.borrow_mut()=vec![];//FlowBucket::new(self.rect.w,self.rect.h);
+        *self.flow_elements.borrow_mut()=vec![];
     }
 }

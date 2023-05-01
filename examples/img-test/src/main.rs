@@ -27,7 +27,6 @@ fn _flow_button(p:FlowButton)->Elements {
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
 		</flow>
-		<flow width=8/>
 	}
 }
 
@@ -42,10 +41,8 @@ fn main()->Elements {
 	let valign=use_state(||VAlign::Middle);
 
 	apx!{
-		<blk top=0 height=48>
+		<blk top=0 height=48 flow_gap=8>
 			<bg color=0x404080/>
-			<flow width=8/>
-
 			<flow_button text="Fit"
 				on_click=rc_with_clone!([scale_mode],move||scale_mode.set(ScaleMode::Fit))/>
 			<flow_button text="Fill"

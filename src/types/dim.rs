@@ -27,9 +27,9 @@ impl Dim {
 
     pub fn get_abs(&self)->f32 {
         match *self {
+            Dim::None => 0.0,
             Dim::Absolute(v) => v,
             Dim::Percent(_v) => panic!("Expected absolute value"),
-            Dim::None => panic!("Expected absolute value"),
         }
     }
 

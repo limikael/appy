@@ -1,13 +1,5 @@
-//use crate::types::{Align,VAlign};
 use crate::{types::*,components::*};
 use std::mem::take;
-
-/*pub struct FlowElement {
-	pub width: f32,
-	pub height: f32,
-	pub children: Elements,
-	pub key: Option<String>
-}*/
 
 //#[derive(Debug)]
 pub struct FlowConf {
