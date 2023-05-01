@@ -198,7 +198,7 @@ dependencies = [
 
 [[package]]
 name = "glapp"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "android_log-sys",
  "gl",
@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "glapp-macros"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "proc-macro2",
  "quote",

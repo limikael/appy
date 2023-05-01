@@ -2,10 +2,10 @@ use crate::utils::{ArrayBuffer, ShaderProgram, ShaderSource};
 use crate::types::Rect;
 use crate::gl;
 
-fn compute_viewport_matrix(size: (u32,u32))->nalgebra_glm::TMat4<f32> {
+fn compute_viewport_matrix(size: (f32,f32))->nalgebra_glm::TMat4<f32> {
     nalgebra_glm::ortho(
-        0.0, size.0 as f32,
-        size.1 as f32, 0.0,
+        0.0, size.0,
+        size.1, 0.0,
         -1.0, 1.0,
     )
 }
@@ -32,7 +32,7 @@ impl NineSlice {
         }
     }
 
-    pub fn rect(&self, col:usize, row:usize)->Rect<f32> {
+    pub fn rect(&self, col:usize, row:usize)->Rect {
         Rect{
             x:self.horiz[col],
             w:self.horiz[col+1]-self.horiz[col],
@@ -41,7 +41,7 @@ impl NineSlice {
         }
     }
 
-    pub fn edge_rect(&self, edge:usize, width:f32)->Rect<f32> {
+    pub fn edge_rect(&self, edge:usize, width:f32)->Rect {
         match edge {
             0=>self.rect(1,0).edge(0,width),
             1=>self.rect(2,1).edge(1,width),
@@ -51,7 +51,7 @@ impl NineSlice {
         }
     }
 
-    pub fn corner_rect(&self, corner:usize)->Rect<f32> {
+    pub fn corner_rect(&self, corner:usize)->Rect {
         match corner {
             0=>self.rect(0,0).hvflip(),
             1=>self.rect(2,0).vflip(),
@@ -63,8 +63,8 @@ impl NineSlice {
 }
 
 pub struct RectRendererSpec {
-    pub viewport_size: (u32, u32),
-    pub rect: Rect<f32>,
+    pub viewport_size: (f32, f32),
+    pub rect: Rect,
     pub col: u32,
     pub border_col: u32,
     pub border_width: f32,
@@ -173,14 +173,14 @@ impl RectRenderer {
         }
     }
 
-    fn round(&self, spec: &RectRendererSpec, r:Rect<f32>, col:u32, inner:f32) {
+    fn round(&self, spec: &RectRendererSpec, r:Rect, col:u32, inner:f32) {
         let m=compute_viewport_matrix(spec.viewport_size);
         let c=color_rgba_from_u32(col);
         self.round_program.use_program();
         self.buf.bind(self.round_vertex, 0, 2);
 
-        if r.w.abs()!=r.h.abs() {
-            panic!("expected w and h to be same")
+        if (r.w.abs()-r.h.abs()).abs()>0.0001 {
+            panic!("expected w and h to be same, they are: {},{}",r.w,r.h)
         }
 
         let smoothness=1.0/r.w.abs();
@@ -199,7 +199,7 @@ impl RectRenderer {
         }
     }
 
-    fn square(&self, spec: &RectRendererSpec, r:Rect<f32>, col:u32) {
+    fn square(&self, spec: &RectRendererSpec, r:Rect, col:u32) {
         let m=compute_viewport_matrix(spec.viewport_size);
         let c=color_rgba_from_u32(col);
         self.square_program.use_program();

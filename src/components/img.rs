@@ -32,41 +32,42 @@ fn _img_render(props:Img)->Elements {
 	let tx=props.src.unwrap();
 	let r=&app_context.rect;
 
-	let target_aspect=r.w as f32/r.h as f32;
+	let target_aspect=r.w/r.h;
 	let src_aspect=tx.width as f32/tx.height as f32;
 
 	let size=match props.scale_mode {
 		ScaleMode::Fit=>
 			if src_aspect>target_aspect {
-				(r.w as f32,r.w as f32/src_aspect)
+				(r.w,r.w/src_aspect)
 			} else {
-				(r.h as f32*src_aspect,r.h as f32)
+				(r.h*src_aspect,r.h)
 			},
 
 		ScaleMode::Fill=>
 			if src_aspect<target_aspect {
-				(r.w as f32,r.w as f32/src_aspect)
+				(r.w,r.w/src_aspect)
 			} else {
-				(r.h as f32*src_aspect,r.h as f32)
+				(r.h*src_aspect,r.h)
 			},
 
 		ScaleMode::None=>
-			(tx.width as f32*app_context.pixel_ratio,tx.height as f32*app_context.pixel_ratio)
+			(tx.width as f32,tx.height as f32)
+			//(tx.width*app_context.pixel_ratio,tx.height*app_context.pixel_ratio)
 	};
 
 	let x=match props.align {
 		Align::Left => r.x,
-		Align::Center => r.x+(r.w-size.0 as i32)/2,
-		Align::Right => r.x+r.w-size.0 as i32,
+		Align::Center => r.x+(r.w-size.0)/2.0,
+		Align::Right => r.x+r.w-size.0,
 	};
 
 	let y=match props.valign {
 		VAlign::Top => r.y,
-		VAlign::Middle => r.y+(r.h-size.1 as i32)/2,
-		VAlign::Bottom => r.y+r.h-size.1 as i32,
+		VAlign::Middle => r.y+(r.h-size.1)/2.0,
+		VAlign::Bottom => r.y+r.h-size.1,
 	};
 
-	let r=Rect{x,y,w:size.0 as i32,h:size.1 as i32};
+	let r=Rect{x,y,w:size.0,h:size.1};
 
 	app_context.image_renderer.borrow().draw(&r,&*tx);
 

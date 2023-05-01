@@ -19,8 +19,8 @@ fn _slider(props:Slider)->Elements {
 	let max=props.max;
 
 	use_app_event(rc_with_clone!([val,app_context,down,max],move|e|{
-		let update=rc_with_clone!([val,app_context],move|x:i32| {
-			let v=max*(x-app_context.rect.x) as f32/app_context.rect.w as f32;
+		let update=rc_with_clone!([val,app_context],move|x:f32| {
+			let v=max*(x-app_context.rect.x)/app_context.rect.w;
 			val.set(v.max(0.0).min(max));
 		});
 
@@ -43,14 +43,14 @@ fn _slider(props:Slider)->Elements {
 		}
 	}));
 
-	let p=(*val/max)*(app_context.rect.w as f32-app_context.compute_h_px(Dim::DeviceIndependentPixels(20.0)));
+	let p=(*val/max)*(app_context.rect.w-20.);
 
 	apx!{
 		<blk height=20>
 			<blk width=pct(100) height=10>
 				<bg color=0x808080 corner_radius=5 border_width=1 border_color=0xffffff/>
 			</blk>
-			<blk width=20 height=20 left=Dim::HardwarePixels(p)>
+			<blk width=20 height=20 left=p>
 				<bg color=0xc0c0c0 border_width=1 border_color=0xffffff corner_radius=10/>
 			</blk>
 		</blk>
@@ -65,13 +65,10 @@ pub struct FlowItem {
 #[function_component]
 fn _flow_item(props:FlowItem)->Elements {
 	let app_context=use_context::<AppContext>();
-
-	let z=app_context.compute_v_px(Dim::DeviceIndependentPixels(24.0));
-	let w=app_context.default_font.get_str_width(&*props.text,z);
-	let w2=app_context.compute_h_px(Dim::DeviceIndependentPixels(8.0));
+	let w=app_context.default_font.get_str_width(&*props.text,24.);
 
 	apx!{
-		<flow width=Dim::HardwarePixels(w+w2*2.0) height=40>
+		<flow width=w+16. height=40>
 			<bg color=0x808080 border_color=0xffffff border_width=1/>
 			<text text=&*props.text size=24/>
 		</flow>

@@ -222,9 +222,10 @@ impl Appy {
                     }
                 },
                 AppEvent::Resize{width,height}=>{
+                    println!("size: {}x{}",width,height);
                     let new_context=self.app_context.as_ref().unwrap().resize(
-                        width as i32,
-                        height as i32,
+                        width,
+                        height,
                         w.pixel_ratio()
                     );
 

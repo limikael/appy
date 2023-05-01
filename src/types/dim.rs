@@ -8,13 +8,8 @@ pub enum Dim {
     /// Percentual size relative to parent.
     Percent(f32),
 
-    /// Absolute size specified in hardware pixels.
-    HardwarePixels(f32),
-
-    /// Size specified in device independent pixels.
-    /// This is the same as hardware pixels, scaled with
-    /// a factor defined by the device.
-    DeviceIndependentPixels(f32)
+    /// Size specified as an absolute value.
+    Absolute(f32)
 }
 
 impl Dim {
@@ -22,28 +17,27 @@ impl Dim {
         !matches!(*self, Dim::None)
     }
 
-    pub fn to_px(&self, max: f32, pixel_ratio: f32) -> f32 {
+    pub fn to_abs(&self, max: f32) -> f32 {
         match *self {
-            Dim::HardwarePixels(v) => v,
             Dim::Percent(v) => max * v / 100.0,
-            Dim::DeviceIndependentPixels(v) => v * pixel_ratio,
+            Dim::Absolute(v) => v,
             Dim::None => 0.0,
         }
     }
 
-    pub fn compute_span(max: f32, pr: f32, start: Dim, size: Dim, end: Dim) -> (f32, f32) {
+    pub fn compute_span(max: f32, start: Dim, size: Dim, end: Dim) -> (f32, f32) {
         let c = if start.is_some() { 1 << 2 } else { 0 }
             + if size.is_some() { 1 << 1 } else { 0 }
             + if end.is_some() { 1 << 0 } else { 0 };
 
         match c {
             0b000 => (0.0, max),
-            0b001 => (0.0, max - end.to_px(max,pr)),
-            0b010 => ((max - size.to_px(max,pr)) / 2.0, size.to_px(max,pr)),
-            0b011 => (max - size.to_px(max,pr) - end.to_px(max,pr), size.to_px(max,pr)),
-            0b100 => (start.to_px(max,pr), max - start.to_px(max,pr)),
-            0b101 => (start.to_px(max,pr), max - start.to_px(max,pr) - end.to_px(max,pr)),
-            0b110 => (start.to_px(max,pr), size.to_px(max,pr)),
+            0b001 => (0.0, max - end.to_abs(max)),
+            0b010 => ((max - size.to_abs(max)) / 2.0, size.to_abs(max)),
+            0b011 => (max - size.to_abs(max) - end.to_abs(max), size.to_abs(max)),
+            0b100 => (start.to_abs(max), max - start.to_abs(max)),
+            0b101 => (start.to_abs(max), max - start.to_abs(max) - end.to_abs(max)),
+            0b110 => (start.to_abs(max), size.to_abs(max)),
             0b111 => panic!("over constrained"),
             _ => panic!("bad constraints"),
         }
@@ -52,8 +46,9 @@ impl Dim {
 
 impl<T> From<T> for Dim
         where f64: From<T> {
+    /// Create a Dim from a value.
     fn from(val: T)->Self {
-        Dim::DeviceIndependentPixels(f64::from(val) as f32)
+        Dim::Absolute(f64::from(val) as f32)
     }
 }
 

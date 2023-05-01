@@ -12,14 +12,14 @@ pub struct TextRenderer {
     loc_tex_coord: i32,
     loc_col: i32,
     loc_mvp: i32,
-    pub window_width: i32,
-    pub window_height: i32,
+    pub window_width: f32,
+    pub window_height: f32,
     cache: Cache<'static>,
 }
 
 impl TextRenderer {
     /// Create a text renderer for a specified window size.
-    pub fn new(window_width:i32, window_height:i32) -> Self {
+    pub fn new(window_width:f32, window_height:f32) -> Self {
         let cache: Cache<'static> = Cache::builder().dimensions(0,0).build();
         let mut tex_id: GLuint = 0;
         unsafe {
@@ -129,7 +129,7 @@ impl TextRenderer {
         }
     }
 
-    fn vertices_for(&self, glyph: &PositionedGlyph) -> Vec<f32> {
+    fn vertices_for(&self, glyph: &PositionedGlyph, pr:f32) -> Vec<f32> {
         let rect = self.cache.rect_for(0, glyph).unwrap();
         if rect.is_none() {
             return vec![];
@@ -137,22 +137,22 @@ impl TextRenderer {
 
         let (uv, screen) = rect.unwrap();
         vec![
-            screen.min.x as f32, screen.min.y as f32,  uv.min.x, uv.min.y,
-            screen.max.x as f32, screen.min.y as f32,  uv.max.x, uv.min.y,
-            screen.max.x as f32, screen.max.y as f32,  uv.max.x, uv.max.y,
+            screen.min.x as f32/pr, screen.min.y as f32/pr,  uv.min.x, uv.min.y,
+            screen.max.x as f32/pr, screen.min.y as f32/pr,  uv.max.x, uv.min.y,
+            screen.max.x as f32/pr, screen.max.y as f32/pr,  uv.max.x, uv.max.y,
 
-            screen.min.x as f32, screen.min.y as f32,  uv.min.x, uv.min.y,
-            screen.max.x as f32, screen.max.y as f32,  uv.max.x, uv.max.y,
-            screen.min.x as f32, screen.max.y as f32,  uv.min.x, uv.max.y,
+            screen.min.x as f32/pr, screen.min.y as f32/pr,  uv.min.x, uv.min.y,
+            screen.max.x as f32/pr, screen.max.y as f32/pr,  uv.max.x, uv.max.y,
+            screen.min.x as f32/pr, screen.max.y as f32/pr,  uv.min.x, uv.max.y,
         ]
     }
 
     /// Draw text.
-    pub fn draw(&mut self, text: &str, x: f32, mut y: f32, font: &Font, size: f32, col: u32) {
+    pub fn draw(&mut self, text: &str, x: f32, mut y: f32, font: &Font, size: f32, col: u32, pr:f32) {
         let m = glm::ortho(
             0.0,
-            self.window_width as f32,
-            self.window_height as f32,
+            self.window_width,
+            self.window_height,
             0.0,
             -1.0,
             1.0,
@@ -166,7 +166,7 @@ impl TextRenderer {
 
         y+=font.baseline(size);
 
-        let glyphs = font.create_glyphs(text,x,y,size);
+        let glyphs = font.create_glyphs(text,x*pr,y*pr,size*pr);
         for glyph in glyphs.clone() {
             self.cache.queue_glyph(0, glyph);
         }
@@ -174,7 +174,7 @@ impl TextRenderer {
         self.render_cache();
         let mut data: Vec<f32> = vec![];
         for glyph in glyphs {
-            data.append(&mut self.vertices_for(&glyph));
+            data.append(&mut self.vertices_for(&glyph,pr));
         }
 
         self.buf.set_data(data);

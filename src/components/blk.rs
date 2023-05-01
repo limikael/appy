@@ -43,9 +43,9 @@ impl Blk {
 fn _blk(props:Blk)->Elements {
     let app_context = use_context::<AppContext>();
 
-    let h=app_context.compute_h_span(props.left,props.width,props.right);
-    let v=app_context.compute_v_span(props.top,props.height,props.bottom);
-    let new_context=app_context.abs(h.0 as i32, v.0 as i32, h.1 as i32, v.1 as i32);
+    let h=Dim::compute_span(app_context.rect.w,props.left,props.width,props.right);
+    let v=Dim::compute_span(app_context.rect.h,props.top,props.height,props.bottom);
+    let new_context=app_context.abs(h.0,v.0,h.1,v.1);
 
     let c=new_context.clone();
     use_second_render_pass(Box::new(move||{

@@ -24,8 +24,8 @@ impl Default for Flow {
 fn _flow(props:Flow)->Elements {
     let app_context = use_context::<AppContext>();
 
-    let w=app_context.compute_h_px(props.width);
-    let h=app_context.compute_v_px(props.height);
+    let w=props.width.to_abs(app_context.rect.w);
+    let h=props.height.to_abs(app_context.rect.h);
 
     //app_context.flow_anchor.borrow_mut().add_children(w as i32, h as i32, props.children);
     app_context.flow_bucket.borrow_mut().add(props.children,w,h);

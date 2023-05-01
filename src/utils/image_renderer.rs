@@ -7,8 +7,8 @@ use crate::gl;
 pub struct ImageRenderer {
     program: ShaderProgram,
     buf: ArrayBuffer,
-    window_width: i32,
-    window_height: i32,
+    window_width: f32,
+    window_height: f32,
     loc_vertex: i32,
     loc_tex_coord: i32,
     loc_mvp: i32,
@@ -17,7 +17,7 @@ pub struct ImageRenderer {
 }
 
 impl ImageRenderer {
-    pub fn new(window_width:i32, window_height:i32) -> Self {
+    pub fn new(window_width:f32, window_height:f32) -> Self {
         let program = ShaderProgram::new(vec![
             ShaderSource::VertexShader("
 				#version 300 es
@@ -71,12 +71,12 @@ impl ImageRenderer {
     	}
 	}
 
-	pub fn set_size(&mut self, window_width:i32, window_height:i32) {
+	pub fn set_size(&mut self, window_width:f32, window_height:f32) {
 		self.window_width=window_width;
 		self.window_height=window_height;
 	}
 
-	pub fn draw(&self, rect: &Rect<i32>, image: &ImageSource) {
+	pub fn draw(&self, rect: &Rect, image: &ImageSource) {
         let m = glm::ortho(
             0.0,
             self.window_width as f32,
