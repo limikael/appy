@@ -18,7 +18,7 @@ mod font;
 pub use font::*;
 
 /// Define how an image should scale in relation to its container.
-#[derive(Default,Clone)]
+#[derive(Default,Clone,Copy)]
 pub enum ScaleMode {
 	#[default]
 	Fit,
@@ -27,7 +27,7 @@ pub enum ScaleMode {
 }
 
 /// Specify a horizontal alignment.
-#[derive(Default,Clone,Debug)]
+#[derive(Default,Clone,Debug,Copy)]
 pub enum Align {
 	Left,
 
@@ -36,8 +36,8 @@ pub enum Align {
 	Right
 }
 
-/// Specify a vertical state.
-#[derive(Default,Clone,Debug)]
+/// Specify a vertical alignment.
+#[derive(Default,Clone,Debug,Copy)]
 pub enum VAlign {
 	Top,
 

@@ -1,10 +1,10 @@
 use crate::types::{Elements,ElementWrap};
-use crate::types::{AppContext, Dim};
+use crate::types::{AppContext, Dim, Align, VAlign};
 use crate::hooks::{use_context,use_second_render_pass};
 use std::rc::Rc;
 use appy::{function_component,derive_component,SnakeFactory,ComponentBuilder,with_clone};
 use appy::components::context_provider;
-use crate::utils::{FlowBucket};
+use crate::utils::{FlowBucket,FlowConf};
 
 /// Positions a block relative to the parent.
 ///
@@ -27,6 +27,10 @@ pub struct Blk {
     height: Dim,
     bottom: Dim,
     right: Dim,
+    flow_gap: f32,
+    flow_vgap: f32,
+    flow_align: Align,
+    flow_valign: VAlign
 }
 
 impl Blk {
@@ -49,18 +53,20 @@ fn _blk(props:Blk)->Elements {
     let new_context=app_context.abs(h.0,v.0,h.1,v.1);
 
     use_second_render_pass(Box::new(with_clone!([new_context],move||{
-        let mut bucket=FlowBucket::new(new_context.rect.w,new_context.rect.h);
-        let mut flow_elements=vec![];
-        flow_elements.append(&mut *new_context.flow_elements.borrow_mut());
-
-        for flow_element in flow_elements {
-            bucket.add(flow_element)
-        }
+        let elements=new_context.flow_elements.take();
+        let conf=FlowConf{
+            width: new_context.rect.w,
+            height: new_context.rect.h,
+            gap: props.flow_gap,
+            vgap: props.flow_vgap,
+            align: props.flow_align,
+            valign: props.flow_valign
+        };
 
         vec![
             context_provider()
                 .value(Rc::new(new_context))
-                .children(bucket.create_blocks())
+                .children(FlowBucket::flow(elements,conf))
         ]
     })));
 

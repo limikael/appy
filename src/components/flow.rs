@@ -21,11 +21,14 @@ impl Default for Flow {
 }
 
 #[function_component]
-fn _flow(props:Flow)->Elements {
+fn _flow(mut props:Flow)->Elements {
     let app_context = use_context::<AppContext>();
+    props.width=Dim::Absolute(props.width.to_abs(app_context.rect.w));
+    props.height=Dim::Absolute(props.height.to_abs(app_context.rect.h));
+
     app_context.flow_elements.borrow_mut().push(FlowElement{
-        width: props.width.to_abs(app_context.rect.w),
-        height: props.height.to_abs(app_context.rect.h),
+        width: props.width.get_abs(), //app_context.rect.w),
+        height: props.height.get_abs(), //app_context.rect.h),
         children: props.children,
         key: props.key
     });

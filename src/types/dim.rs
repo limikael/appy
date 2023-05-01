@@ -25,6 +25,14 @@ impl Dim {
         }
     }
 
+    pub fn get_abs(&self)->f32 {
+        match *self {
+            Dim::Absolute(v) => v,
+            Dim::Percent(_v) => panic!("Expected absolute value"),
+            Dim::None => panic!("Expected absolute value"),
+        }
+    }
+
     pub fn compute_span(max: f32, start: Dim, size: Dim, end: Dim) -> (f32, f32) {
         let c = if start.is_some() { 1 << 2 } else { 0 }
             + if size.is_some() { 1 << 1 } else { 0 }

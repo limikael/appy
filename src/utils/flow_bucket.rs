@@ -1,5 +1,6 @@
 //use crate::types::{Align,VAlign};
 use crate::{types::*,components::*};
+use std::mem::take;
 
 pub struct FlowElement {
 	pub width: f32,
@@ -14,8 +15,8 @@ pub struct FlowConf {
 	pub height: f32,
 	pub gap: f32,
 	pub vgap: f32,
-	/*pub align: Align,
-	pub valign: VAlign*/
+	pub align: Align,
+	pub valign: VAlign
 }
 
 //#[derive(Debug)]
@@ -73,14 +74,18 @@ pub struct FlowBucket {
 }
 
 impl FlowBucket {
-	pub fn new(w: f32, h: f32)->Self {
+	pub fn flow(elements:Vec<FlowElement>, conf:FlowConf)->Elements {
+		let mut flow_bucket=FlowBucket::new(conf);
+		for element in elements {
+			flow_bucket.add(element)
+		}
+
+		flow_bucket.create_blocks()
+	}
+
+	pub fn new(conf: FlowConf)->Self {
 		Self {
-			conf: FlowConf{
-				width: w,
-				height: h,
-				gap: 0.,
-				vgap: 0.
-			},
+			conf,
 			lines: vec![FlowLine::new()]
 		}
 	}
@@ -114,18 +119,22 @@ impl FlowBucket {
 
 	pub fn create_blocks(&mut self)->Elements {
         let mut elements:Elements=vec![];
+		let mut y=match self.conf.valign {
+			VAlign::Top=>0.,
+			VAlign::Middle=>(self.conf.height-self.height())/2.0,
+			VAlign::Bottom=>self.conf.height-self.height()
+		};
 
-		let mut lines=vec![];
-		lines.append(&mut self.lines);
-		let mut y=0.;
+		for mut line in take(&mut self.lines) {
+			let line_start=match self.conf.align {
+				Align::Left=>0.,
+				Align::Center=>(self.conf.width-line.width)/2.0,
+				Align::Right=>self.conf.width-line.width
+			};
 
-		for mut line in lines {
-			let mut items=vec![];
-			items.append(&mut line.items);
-
-			for item in items {
+			for item in take(&mut line.items) {
 	            elements.push(blk()
-	                .left(item.x)
+	                .left(line_start+item.x)
 	                .top(y)
 	                .width(item.element.width)
 	                .height(item.element.height)

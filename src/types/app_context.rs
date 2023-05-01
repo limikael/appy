@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use std::cell::RefCell;
-use crate::{types::*, utils::*, components::Flow};
+use crate::{types::*, utils::*};
 
 /// Information about the current application window.
 ///
