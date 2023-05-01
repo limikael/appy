@@ -45,7 +45,7 @@ impl Default for Text {
 			children: vec![],
 			key: None,
 			font: Option::<Rc::<Font>>::None,
-			size: Dim::DeviceIndependentPixels(20.0)
+			size: Dim::Absolute(20.0)
 		}
 	}
 }
@@ -56,23 +56,23 @@ fn _text(props:Text)->Elements {
 	let r=&app_context.rect;
 
 	let font=props.font.unwrap_or(app_context.default_font.clone());
-	let size=app_context.compute_v_px(props.size);
-	let w=font.get_str_width(&props.text,size) as i32;
+	let size=props.size.to_abs(app_context.rect.h);
+	let w=font.get_str_width(&props.text,size);
 
 	let x=match props.align {
 		Align::Left => r.x,
-		Align::Center => r.x+(r.w-w)/2,
+		Align::Center => r.x+(r.w-w)/2.0,
 		Align::Right => r.x+r.w-w,
 	};
 
 	let y=match props.valign {
 		VAlign::Top => r.y,
-		VAlign::Middle => r.y+(r.h-size as i32)/2,
-		VAlign::Bottom => r.y+r.h-size as i32,
+		VAlign::Middle => r.y+(r.h-size)/2.0,
+		VAlign::Bottom => r.y+r.h-size,
 	};
 
 	let mut tr=app_context.text_renderer.borrow_mut();
-	tr.draw(&props.text,x as f32,y as f32,&font,size,props.color);
+	tr.draw(&props.text,x,y,&font,size,props.color,app_context.pixel_ratio);
 
 	props.children
 }

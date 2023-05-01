@@ -12,10 +12,7 @@ pub struct FlowButton {
 fn _flow_button(p:FlowButton)->Elements {
 	let hover_state=use_hover_state_ref();
 	let app_context=use_context::<AppContext>();
-	let z=app_context.compute_v_px(Dim::DeviceIndependentPixels(24.0));
-
-	let w=app_context.default_font.get_str_width(&*p.text,z);
-	let w2=app_context.compute_h_px(Dim::DeviceIndependentPixels(8.0));
+	let w=app_context.default_font.get_str_width(&*p.text,24.0);
 
 	let c=match *hover_state {
 		HoverState::Normal=>0x808080,
@@ -24,7 +21,7 @@ fn _flow_button(p:FlowButton)->Elements {
 	};
 
 	apx!{
-		<flow width=Dim::HardwarePixels(w+w2*2.0) height=48>
+		<flow width=w+16.0 height=48>
 			<blk top=8 bottom=8>
 				<bg color=c/>
 				<text size=24 text=&*p.text/>

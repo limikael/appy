@@ -1,13 +1,12 @@
-use std::rc::Rc;
-use appy::{*, types::*, components::*, hooks::*};
+use appy::{*, types::*, hooks::*, components::*};
 
 /// Positions a block in a flow layout
 ///
 /// Will place items in a flow. Left to right, then top to bottom.
 #[derive_component(ComponentBuilder,SnakeFactory)]
 pub struct Flow {
-    width: Dim,
-    height: Dim,
+    pub width: Dim,
+    pub height: Dim,
 }
 
 impl Default for Flow {
@@ -22,18 +21,23 @@ impl Default for Flow {
 }
 
 #[function_component]
-fn _flow(props:Flow)->Elements {
+fn _flow(mut props:Flow)->Elements {
     let app_context = use_context::<AppContext>();
+    props.width=Dim::Absolute(props.width.to_abs(app_context.rect.w));
+    props.height=Dim::Absolute(props.height.to_abs(app_context.rect.h));
+    app_context.flow_elements.borrow_mut().push(props);
 
-    let w=app_context.compute_h_px(props.width);
-    let h=app_context.compute_v_px(props.height);
-    let (x,y)=app_context.advance_flow(w as i32,h as i32);
+    vec![]
+}
 
-    let new_context=app_context.abs(x,y,w as i32,h as i32);
-
-    vec![
-        context_provider()
-            .value(Rc::new(new_context))
-            .children(props.children)
-    ]
+impl Flow {
+    pub fn make_block(self: Self, x:f32, y:f32)->ElementWrap<Blk> {
+        blk()
+            .left(x)
+            .top(y)
+            .width(self.width.clone())
+            .height(self.height.clone())
+            .key_option(self.get_key())
+            .children(self.children)
+    }
 }

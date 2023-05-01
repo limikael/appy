@@ -11,10 +11,7 @@ pub struct FlowButton {
 fn _flow_button(p:FlowButton)->Elements {
 	let hover_state=use_hover_state_ref();
 	let app_context=use_context::<AppContext>();
-	let z=app_context.compute_v_px(Dim::DeviceIndependentPixels(24.0));
-
-	let w=app_context.default_font.get_str_width(&*p.text,z);
-	let w2=app_context.compute_h_px(Dim::DeviceIndependentPixels(8.0));
+	let w=app_context.default_font.get_str_width(&*p.text,24.0);
 
 	let c=match *hover_state {
 		HoverState::Normal=>0x808080,
@@ -23,14 +20,13 @@ fn _flow_button(p:FlowButton)->Elements {
 	};
 
 	apx!{
-		<flow width=Dim::HardwarePixels(w+w2*2.0) height=48>
+		<flow width=w+16.0 height=48>
 			<blk top=8 bottom=8>
-				<bg color=c/>
+				<bg color=c border_width=1 border_color=0xffffff/>
 				<text size=24 text=&*p.text/>
 			</blk>
 			<interaction hover_state_ref=hover_state on_click_option=p.on_click/>
 		</flow>
-		<flow width=8/>
 	}
 }
 
@@ -45,10 +41,8 @@ fn main()->Elements {
 	let valign=use_state(||VAlign::Middle);
 
 	apx!{
-		<blk top=0 height=48>
+		<blk top=0 height=48 flow_gap=8>
 			<bg color=0x404080/>
-			<flow width=8/>
-
 			<flow_button text="Fit"
 				on_click=rc_with_clone!([scale_mode],move||scale_mode.set(ScaleMode::Fit))/>
 			<flow_button text="Fill"

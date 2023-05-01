@@ -17,7 +17,8 @@ use self::component::ComponentPathComponent;
 use self::component::HookRef;
 use crate::types::{Element, Elements, Font};
 use crate::core::element::root_element;
-use crate::components::context_provider;
+use crate::components::{context_provider,blk};
+//use std::time::Instant;
 
 #[doc(hidden)]
 pub mod component;
@@ -113,9 +114,19 @@ impl Appy {
         self.render_fragment(child_fragment,this_path.clone());
 
         if self.instances.contains_key(&this_path) {
-            let post_render=&self.instances.get(&this_path).unwrap().post_render;
-            if post_render.is_some() {
-                let cb=post_render.clone().unwrap();
+            let ci=&mut self.instances.get_mut(&this_path).unwrap();
+            if ci.second_render.is_some() {
+                let cb=ci.second_render.take().unwrap();
+                let child_fragment=appy_instance::using(self,||{
+                    cb()
+                });
+
+                self.render_fragment(child_fragment,this_path.clone());
+            }
+
+            let ci=&mut self.instances.get_mut(&this_path).unwrap();
+            if ci.post_render.is_some() {
+                let cb=ci.post_render.take().unwrap();
                 appy_instance::using(self,||{
                     cb();
                 });
@@ -132,13 +143,15 @@ impl Appy {
         self.previous_instances=take(&mut self.instances);
         self.instances=HashMap::new();
 
-        self.app_context.as_ref().unwrap().reset_flow(); //flow_anchor.borrow_mut()=(0,0);
+        self.app_context.as_ref().unwrap().reset_flow();
 
         self.render_component(
             context_provider()
                 .value(self.app_context.clone().unwrap())
                 .children(vec![
-                    root_element().root(self.root)
+                    blk().children(vec![
+                        root_element().root(self.root)
+                    ])
                 ]),
             vec![]
         );
@@ -210,20 +223,20 @@ impl Appy {
                     }
                 },
                 AppEvent::Resize{width,height}=>{
+                    //println!("size: {}x{}",width,height);
                     let new_context=self.app_context.as_ref().unwrap().resize(
-                        width as i32,
-                        height as i32,
+                        width,
+                        height,
                         w.pixel_ratio()
                     );
 
                     self.app_context=Some(Rc::new(new_context));
                 }
                 AppEvent::Render=>{
-                    let start = Instant::now();
+                    //let start = Instant::now();
                     self.render();
-                    let duration = start.elapsed();
-                    println!("Render time: {:?}", duration);
-//                    self.render();
+                    //let duration = start.elapsed();
+                    //println!("Render time: {:?}", duration);
                 },
                 _=>{}
             }

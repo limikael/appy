@@ -1,16 +1,16 @@
-use std::ops::{Add,Neg};
+//use std::ops::{Add,Neg};
 
 /// Holds information about a rectangle.
 #[derive(Clone)]
-pub struct Rect<T> {
-	pub x: T,
-	pub y: T,
-	pub w: T,
-	pub h: T
+pub struct Rect {
+	pub x: f32,
+	pub y: f32,
+	pub w: f32,
+	pub h: f32
 }
 
-impl<T: PartialOrd+Copy+Add<Output=T>+Neg<Output=T>> Rect<T> {
-	pub fn abs(&self, x:T, y:T, w:T, h:T)->Rect<T> {
+impl Rect {
+	pub fn abs(&self, x:f32, y:f32, w:f32, h:f32)->Rect {
 		Self{
 			x: self.x+x,
 			y: self.y+y,
@@ -19,7 +19,7 @@ impl<T: PartialOrd+Copy+Add<Output=T>+Neg<Output=T>> Rect<T> {
 		}
 	}
 
-	pub fn contains(&self, x:T, y:T)->bool {
+	pub fn contains(&self, x:f32, y:f32)->bool {
 		if x>=self.x && 
 				y>=self.y && 
 				x <self.x+self.w && 
@@ -30,7 +30,7 @@ impl<T: PartialOrd+Copy+Add<Output=T>+Neg<Output=T>> Rect<T> {
 		false
 	}
 
-	pub fn vflip(self: Self)->Rect<T> {
+	pub fn vflip(self: Self)->Rect {
 		Self {
 			x: self.x,
 			y: self.y+self.h,
@@ -39,7 +39,7 @@ impl<T: PartialOrd+Copy+Add<Output=T>+Neg<Output=T>> Rect<T> {
 		}
 	}
 
-	pub fn hflip(self: Self)->Rect<T> {
+	pub fn hflip(self: Self)->Rect {
 		Self {
 			x: self.x+self.w,
 			y: self.y,
@@ -48,11 +48,11 @@ impl<T: PartialOrd+Copy+Add<Output=T>+Neg<Output=T>> Rect<T> {
 		}
 	}
 
-	pub fn hvflip(self: Self)->Rect<T> {
+	pub fn hvflip(self: Self)->Rect {
 		self.vflip().hflip()
 	}
 
-	pub fn edge(self: Self, edge: u32, size:T)->Self {
+	pub fn edge(self: Self, edge: u32, size:f32)->Self {
 		match edge {
 			0=>Self{x:self.x, w:self.w, y:self.y, h:size},
 			1=>Self{x:self.x+self.w, w:-size, y:self.y, h:self.h},
