@@ -1,5 +1,4 @@
-use appy::{function_component,derive_component,ComponentBuilder,SnakeFactory};
-use crate::types::Elements;
+use appy::{*, types::*};
 
 pub fn flatten_elements(el: &mut [Elements]) -> Elements {
     let mut res: Elements = vec![];

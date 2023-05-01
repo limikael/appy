@@ -1,23 +1,16 @@
 use std::time::SystemTime;
 use std::mem::take;
-use std::any::Any;
-use std::any::TypeId;
+use std::any::{Any,TypeId};
 use std::collections::HashMap;
 use std::rc::Rc;
 use environmental::environmental;
-use std::time::Instant;
 
-use glapp::{App,AppEvent};
-use crate::utils::Trigger;
+use crate::{types::*, utils::*, glapp::*, components::*};
 
-use crate::types::AppContext;
-use self::component::ComponentInstance;
-use self::component::ComponentPath;
-use self::component::ComponentPathComponent;
-use self::component::HookRef;
-use crate::types::{Element, Elements, Font};
+use self::component::*;
+
 use crate::core::element::root_element;
-use crate::components::{context_provider,blk};
+
 //use std::time::Instant;
 
 #[doc(hidden)]
