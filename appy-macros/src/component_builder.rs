@@ -46,7 +46,7 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 						});
 					}
 
-					else {panic!("expected generic argiments for option")}
+					else {panic!("expected generic arguments for option")}
 				} else if i.to_string()=="String" {
 					builder_body.extend(quote!{
 						pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: &str)->appy::types::ElementWrap<Self> {
@@ -62,25 +62,6 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 							self
 						}
 					});
-
-					/*builder_body.extend(quote!{
-						pub fn #ident<T>(mut self:appy::types::ElementWrap<Self>, val: T)->appy::types::ElementWrap<Self>
-								where f64: From<T> {
-
-							self.#ident=appy::types::Dim::Dp(f64::from(val) as f32);
-							self
-						}
-					});
-
-					let ident_pc=format_ident!("{}{}",ident,"_pc");
-					builder_body.extend(quote!{
-						pub fn #ident_pc<T>(mut self:appy::types::ElementWrap<Self>, val: T)->appy::types::ElementWrap<Self>
-								where f64: From<T> {
-
-							self.#ident=appy::types::Dim::Pc(f64::from(val) as f32);
-							self
-						}
-					});*/
 				} else {
 					builder_body.extend(quote!{
 						pub fn #ident(mut self:appy::types::ElementWrap<Self>, val: #ty)->appy::types::ElementWrap<Self> {
@@ -95,9 +76,12 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
 		fields
 	} else {panic!("parse error")});
 
-	let struct_ident=ast.ident.clone();
+	let struct_ident=&ast.ident;
+	let generics = &ast.generics;
+	let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
 	builder_body=quote!{
-		impl #struct_ident {
+		impl #impl_generics #struct_ident #ty_generics #where_clause {
 			pub fn new()->appy::types::ElementWrap<Self> {
 				appy::types::ElementWrap::new(Self::default())
 			}
@@ -105,6 +89,8 @@ pub fn component_builder(input: TokenStream) -> TokenStream {
             #builder_body
         }
 	};
+
+	//println!("{:?}",builder_body.to_string());
 
 	TokenStream::from(builder_body)
 }
