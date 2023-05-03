@@ -8,3 +8,7 @@ appname="Testing Flow"
 
 [dependencies]
 appy = {path="../..",features=["sdl"]}
+
+[profile.profiling]
+inherits = "release"
+debug = true
