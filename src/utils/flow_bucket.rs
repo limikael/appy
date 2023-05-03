@@ -75,7 +75,7 @@ impl FlowBucket {
 		flow_bucket.create_blocks()
 	}
 
-	pub fn new(conf: FlowConf)->Self {
+	fn new(conf: FlowConf)->Self {
 		Self {
 			conf,
 			lines: vec![FlowLine::new()]
@@ -87,7 +87,7 @@ impl FlowBucket {
 		&self.lines[l]
 	}
 
-	pub fn add(&mut self, element:Flow) {
+	fn add(&mut self, element:Flow) {
 		if !self.current_line().can_fit(&self.conf,element.width.get_abs()) {
 			self.lines.push(FlowLine::new())
 		}
@@ -96,7 +96,7 @@ impl FlowBucket {
 		self.lines[l].add(&self.conf,element);
 	}
 
-	pub fn height(&self)->f32 {
+	fn height(&self)->f32 {
 		let mut h:f32=0.;
 
 		for i in 0..self.lines.len() {
@@ -109,7 +109,7 @@ impl FlowBucket {
 		h
 	}
 
-	pub fn create_blocks(&mut self)->Elements {
+	fn create_blocks(&mut self)->Elements {
         let mut elements:Elements=vec![];
 		let mut y=match self.conf.valign {
 			VAlign::Top=>0.,

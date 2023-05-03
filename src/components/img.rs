@@ -5,15 +5,18 @@ use std::rc::Rc;
 ///
 /// Example:
 /// ```rust
-/// /*use appy::{*, hooks::*, types::*, components::*};
+/// use appy::{*, hooks::*, types::*, components::*};
 ///
-/// let img_src=use_state(||ImageSource::from_memory(include_bytes!(
-///     "../../examples/img-test/assets/rustacean.png"
-/// )));
+/// #[main_window]
+/// pub fn main()->Elements {
+///     let img_src=use_state(||ImageSource::from_memory(include_bytes!(
+///         "../../examples/img-test/assets/rustacean.png"
+///     )));
 ///
-/// apx!{
-///     <img src=img_src.as_rc()/>
-/// };*/
+///     apx!{
+///         <img src=img_src.as_rc()/>
+///     }
+/// }
 /// ```
 #[derive_component(ComponentBuilder,Default,SnakeFactory)]
 pub struct Img {
