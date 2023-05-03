@@ -9,7 +9,7 @@ use crate::core::Appy;
 ///
 /// Provide a context to be used together with [`use_context`](appy::hooks::use_context()).
 #[derive_component(ComponentBuilder,SnakeFactory)]
-pub struct ContextProvider<T> {
+pub struct ContextProvider<T: 'static> {
 	value: Option<Rc<T>>,
 }
 
@@ -24,7 +24,7 @@ impl<T> Default for ContextProvider<T> {
 }
 
 #[function_component]
-fn _context_provider<T: 'static>(props:ContextProvider<T>)->Elements {
+fn _context_provider<T>(props:ContextProvider<T>)->Elements {
 	let t=props.value.clone().unwrap();
 
 	Appy::with(|appy|{

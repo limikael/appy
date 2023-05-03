@@ -19,14 +19,10 @@ pub fn function_component(_attr: TokenStream, input: TokenStream) -> TokenStream
 	};
 
 	let out=quote!{
-		impl #impl_generics appy::types::Element for #arg_type {
+		impl #impl_generics appy::types::RenderElement for #arg_type {
 			fn render(self:appy::types::ElementWrap<Self>)->appy::types::Elements {
 				#name(*self)
 			}
-
-		    fn get_key(&self)->Option<String> {
-		    	self.key.clone()
-		    }
 		}
 		#ast
 	};

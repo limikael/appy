@@ -39,9 +39,19 @@ pub fn derive_component(attr_stream: TokenStream, input: TokenStream) -> TokenSt
 		fields
 	} else {panic!("parse error")});
 
+	let struct_ident=&ast.ident;
+	let generics=&ast.generics;
+	let (impl_generics, ty_generics, where_clause)=generics.split_for_impl();
+
 	let out=quote!{
 		#[derive(#attr_out)]
 		#ast
+
+		impl #impl_generics appy::types::Element for #struct_ident #ty_generics #where_clause {
+		    fn get_key(&self)->Option<String> {
+		    	self.key.clone()
+		    }
+		}
 	};
 
 	//println!("*********** macro out: {:?}",out.to_string());
