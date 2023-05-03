@@ -94,24 +94,26 @@ impl SpringRef {
 /// target, and then the value will smoothly change frame by frame towards
 /// that target. For example:
 /// ```
+/// use appy::{*, types::*, components::*, hooks::*};
+///
 /// #[main_window]
 /// pub fn app()->Elements {
 ///	   let x=use_spring(||0.0,SpringConf::DEFAULT);
 ///
 ///	    apx! {
 ///         // This will have the effect of animating smoothly.
-///	        <blk right=Dp(10.0) bottom=Dp(10.0) height=Dp(90.0) width=Dp(150.0)>
-///		        <interaction on_click=cb_with_clone!([x],move||x.target(100.0))/>
+///	        <blk right=10 bottom=10 height=90 width=150>
+///		        <interaction on_click=rc_with_clone!([x],move||x.target(100.0))/>
 ///	        </blk>
 ///
 ///         // This will "hard" set the value, similar to set_state.
-///	        <blk right=Dp(10.0) bottom=Dp(110.0) height=Dp(90.0) width=Dp(150.0)>
-///		        <interaction on_click=cb_with_clone!([x],move||x.set(100.0))/>
+///	        <blk right=10 bottom=110 height=90 width=150>
+///		        <interaction on_click=rc_with_clone!([x],move||x.set(100.0))/>
 ///	        </blk>
 ///
-///	        <blk right=Dp(50.0)>
-///		        <blk left=Pc(*x) width=Dp(50.0) height=Dp(50.0) top=Dp(50.0)>
-///			        <bg col=0xff0000/>
+///	        <blk right=50>
+///		        <blk left=pct(*x) width=50 height=50 top=50>
+///			        <bg color=0xff0000/>
 ///		        </blk>
 ///	        </blk>
 ///     }

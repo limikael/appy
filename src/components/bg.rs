@@ -6,9 +6,11 @@ use crate::utils::RectRendererSpec;
 /// It is intented to be used inside [crate::apx], e.g.:
 ///
 /// ```rust
+/// use appy::{*, components::*};
+///
 /// apx!{
-///   <bg col=0x112233 />
-///	}
+///   <bg color=0x112233 />
+///	};
 ///
 #[derive_component(ComponentBuilder,Default,SnakeFactory)]
 pub struct Bg {

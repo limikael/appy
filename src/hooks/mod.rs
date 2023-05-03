@@ -81,19 +81,21 @@ pub fn use_context<T: 'static>()->Rc<T> {
 ///
 /// For example:
 /// ```
+/// use appy::{*, components::*, types::*, hooks::*};
+///
 /// #[main_window]
 /// pub fn app()->Elements {
 ///     let hover_state=use_hover_state_ref();
-///     let col=match *hover_state {
+///     let color=match *hover_state {
 ///         HoverState::Normal=>0x808080,
 ///         HoverState::Active=>0x404040,
 ///         HoverState::Hover=>0xc0c0c0,
 ///     };
 ///
 ///     apx!{
-///         <blk top=Pc(25.0) height=Pc(25.0) width=Pc(50.0) height=Pc(50.0)>
-///             <bg col=col/>
-///             <interaction hover_state_ref=Some(hover_state)/>
+///         <blk top=pct(25) height=pct(25) width=pct(50) height=pct(50)>
+///             <bg color=color/>
+///             <interaction hover_state_ref=hover_state/>
 ///         </blk>
 ///     }
 /// }
@@ -102,22 +104,23 @@ pub fn use_hover_state_ref()->StateRef<HoverState> {
     use_state(||HoverState::Normal)
 }
 
-/// Get a font face from data.
+/// Get a from data.
 ///
-/// In order to draw text, use:
-///
-/// - [`use_font_face`](use_font_face) - To get the data for the font.
-/// - [`use_font`](use_font) - To render the font to a texture for a specific size.
-/// - [`Text`](crate::components::Text) - To render text on screen.
+/// A font is a rather heavy resource, the best way to use it is probably
+/// to create it once and pass it down using a context or prop drilling.
 ///
 /// Example:
 /// ```
-///	let font_face=use_font_face(||include_bytes!("./Roboto-Regular.ttf"));
-///	let font=use_font(font_face,100.0);
+/// use appy::{*, hooks::*, components::*, types::*};
 ///
-///	apx!{
-///		<Text text="Hello World" font=font/>
-///	}
+/// #[main_window]
+/// pub fn main()->Elements {
+///	    let font=use_font_data(||include_bytes!("../core/Roboto-Regular.ttf"));
+///
+///	    apx!{
+///		    <Text text="Hello World" font=font size=100/>
+///	    }
+/// }
 /// ```
 pub fn use_font_data<F>(closure: F)->Rc<Font> 
 		where F: Fn()->&'static [u8] {

@@ -10,20 +10,21 @@ use crate::types::{*};
 /// The alignment inside the `blk` can be speficied with the align and valign
 /// props.
 ///
-/// In order to draw text, use:
-///
-/// - [`use_font_face`](crate::hooks::use_font_face) - To get the data for the font.
-/// - [`use_font`](crate::hooks::use_font) - To render the font to a texture for a specific size.
-/// - [`Text`](crate::components::Text) - To render text on screen.
+/// In order to use custom fonts, first get a reference to the font using
+/// [`use_font_data`](crate::hooks::use_font_data).
 ///
 /// Example:
 /// ```
-///	let font_face=use_font_face(||include_bytes!("./Roboto-Regular.ttf"));
-///	let font=use_font(font_face,100.0);
+/// use appy::{*, hooks::*, components::*, types::*};
 ///
-///	apx!{
-///		<Text text="Hello World" font=font/>
-///	}
+/// #[main_window]
+/// fn main()->Elements {
+///	    let font=use_font_data(||include_bytes!("../core/Roboto-Regular.ttf"));
+///
+///	    apx!{
+///		    <Text text="Hello World" font=font size=100/>
+///	    }
+/// }
 /// ```
 #[derive_component(ComponentBuilder,SnakeFactory)]
 pub struct Text {

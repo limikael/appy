@@ -11,13 +11,13 @@
 //! ## Example
 //! 
 //! ```rust
-//! use appy::*;
+//! use appy::{*, types::*, components::*};
 //!
 //! #[main_window]
 //! pub fn app()->Elements {
 //!    apx!{
-//!        <bg col=0x800000/>
-//!        <text text="Hello World".to_string() align=Align::Center/>
+//!        <bg color=0x800000/>
+//!        <text text="Hello World" align=Align::Center/>
 //!    }
 //! }
 //! ```

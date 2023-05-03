@@ -2,7 +2,7 @@ use rusttype::{Scale, PositionedGlyph, Point, point};
 
 /// Represents a font.
 ///
-/// To obtain a `Font`, use the [`use_font`](use_font) hook.
+/// To obtain a `Font`, use the [`use_font_data`](crate::hooks::use_font_data) hook.
 pub struct Font {
     rusttype_font: rusttype::Font<'static>,
 }

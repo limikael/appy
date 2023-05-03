@@ -3,19 +3,25 @@
 /// Convenience macro for cloning variables, especially intended to be used
 /// in closures. For example, the following:
 /// ```rust
-/// with_clone([a,b],||{
+/// use appy::with_clone;
+/// let a=1;
+/// let b=2;
+/// with_clone!([a,b],||{
 ///   // ..
-/// })
+/// });
 /// ```
 /// Will expand to:
 /// ```rust
+/// use appy::with_clone;
+/// let a=1;
+/// let b=2;
 /// {
 ///   let a=a.clone();
 ///   let b=b.clone();
 ///   ||{
 ///     // ..
 ///   }
-/// }
+/// };
 /// ```
 #[macro_export]
 macro_rules! with_clone {
