@@ -136,7 +136,7 @@ impl Appy {
         self.previous_instances=take(&mut self.instances);
         self.instances=HashMap::new();
 
-        self.app_context.as_ref().unwrap().reset_flow();
+        self.app_context.as_ref().unwrap().begin_frame();
 
         self.render_component(
             context_provider()
@@ -172,6 +172,8 @@ impl Appy {
         } else {
             self.last_render=None
         }
+
+        self.app_context.as_ref().unwrap().end_frame();
 
         //println!("instances post render: {}",self.instances.len());
         //println!("dirty after render: {}",self.dirty.get_state());

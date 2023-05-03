@@ -15,6 +15,7 @@ pub struct TextRenderer {
     pub window_width: f32,
     pub window_height: f32,
     cache: Cache<'static>,
+    used_glyphs: Vec<PositionedGlyph<'static>>
 }
 
 impl TextRenderer {
@@ -64,6 +65,7 @@ impl TextRenderer {
             window_width,
             window_height,
             cache,
+            used_glyphs: vec![]
         };
 
         slf.set_cache_size(1);
@@ -71,7 +73,7 @@ impl TextRenderer {
     }
 
     fn set_cache_size(&mut self, size: u32) {
-        println!("font cache size: {:?}x{:?}",size,size);
+        //println!("font cache size: {:?}x{:?}",size,size);
 
         self.cache.to_builder().dimensions(size,size).rebuild(&mut self.cache);
 
@@ -97,6 +99,7 @@ impl TextRenderer {
             gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
         }
 
+        let mut cache_misses=0;
         let mut do_build=true;
         while do_build {
             let res=self.cache.cache_queued(|rect, data| {
@@ -116,16 +119,23 @@ impl TextRenderer {
                         data.as_ptr() as *const _,
                     );
                 }
+
+                cache_misses+=1;
             });
 
             match res {
                 Err(_)=>{
+                    cache_misses=0;
                     self.set_cache_size(self.cache.dimensions().0*2);
                 },
                 Ok(_)=>{
                     do_build=false;
                 }
             };
+        }
+
+        if cache_misses>0 {
+            //println!("Font cache misses: {:?}",cache_misses);
         }
     }
 
@@ -168,6 +178,7 @@ impl TextRenderer {
 
         let glyphs = font.create_glyphs(text,x*pr,y*pr,size*pr);
         for glyph in glyphs.clone() {
+            self.used_glyphs.push(glyph.clone());
             self.cache.queue_glyph(0, glyph);
         }
 
@@ -197,5 +208,18 @@ impl TextRenderer {
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
             gl::DrawArrays(gl::TRIANGLES, 0, self.buf.len() as i32);
         }
+    }
+
+    pub fn begin_frame(&mut self) {
+        self.used_glyphs=vec![];
+    }
+
+    pub fn end_frame(&mut self) {
+        for glyph in self.used_glyphs.clone() {
+            self.cache.queue_glyph(0, glyph);
+        }
+
+        self.render_cache();
+        self.used_glyphs=vec![];
     }
 }

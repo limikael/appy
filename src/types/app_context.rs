@@ -55,7 +55,12 @@ impl AppContext {
         resized
     }
 
-    pub fn reset_flow(&self) {
-        *self.flow_elements.borrow_mut()=vec![];
+    pub fn begin_frame(&self) {
+        self.flow_elements.replace(vec![]);
+        self.text_renderer.borrow_mut().begin_frame();
+    }
+
+    pub fn end_frame(&self) {
+        self.text_renderer.borrow_mut().end_frame();
     }
 }
