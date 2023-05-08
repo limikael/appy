@@ -10,7 +10,7 @@ use std::rc::Rc;
 /// #[main_window]
 /// pub fn main()->Elements {
 ///     let img_src=use_state(||ImageSource::from_memory(include_bytes!(
-///         "../../examples/img-test/assets/rustacean.png"
+///         "../../examples/img/rustacean.png"
 ///     )));
 ///
 ///     apx!{
