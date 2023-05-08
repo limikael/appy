@@ -18,32 +18,32 @@ mod font;
 pub use font::*;
 
 /// Define how an image should scale in relation to its container.
-#[derive(Default,Clone,Copy)]
+#[derive(Default, Clone, Copy)]
 pub enum ScaleMode {
-	#[default]
-	Fit,
-	Fill,
-	None
+    #[default]
+    Fit,
+    Fill,
+    None,
 }
 
 /// Specify a horizontal alignment.
-#[derive(Default,Clone,Debug,Copy)]
+#[derive(Default, Clone, Debug, Copy)]
 pub enum Align {
-	Left,
+    Left,
 
-	#[default]
-	Center,
-	Right
+    #[default]
+    Center,
+    Right,
 }
 
 /// Specify a vertical alignment.
-#[derive(Default,Clone,Debug,Copy)]
+#[derive(Default, Clone, Debug, Copy)]
 pub enum VAlign {
-	Top,
+    Top,
 
-	#[default]
-	Middle,
-	Bottom
+    #[default]
+    Middle,
+    Bottom,
 }
 
 /// Hold information about the hovered state of a component.
@@ -54,4 +54,3 @@ pub enum HoverState {
     Hover,
     Active,
 }
-

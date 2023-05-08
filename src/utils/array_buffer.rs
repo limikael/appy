@@ -4,7 +4,7 @@ use crate::gl;
 ///
 /// This array buffer can hold a number of floating point components.
 /// It is set as a flat array, but should be thought of as a two
-/// dimensional array. The number of components is the number of 
+/// dimensional array. The number of components is the number of
 /// columns in the array. The array buffer can be bound to several
 /// attribute locations, with each attribute location using one or
 /// more components.
@@ -16,10 +16,9 @@ pub struct ArrayBuffer {
 }
 
 impl ArrayBuffer {
-
     /// Create an [`ArrayBuffer`] with a specified number of components.
     pub fn new(components: u32) -> Self {
-        let mut vao:gl::types::GLuint = 0;
+        let mut vao: gl::types::GLuint = 0;
         unsafe {
             gl::GenVertexArrays(1, &mut vao);
             gl::BindVertexArray(vao);
@@ -78,9 +77,9 @@ impl ArrayBuffer {
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vbo);
             gl::VertexAttribPointer(
                 attrib_location as u32, // index of the generic vertex attribute ("layout (location = 0)")
-                num as i32,      // the number of components per generic vertex attribute
-                gl::FLOAT,       // data type
-                gl::FALSE,       // normalized (int-to-float conversion)
+                num as i32,             // the number of components per generic vertex attribute
+                gl::FLOAT,              // data type
+                gl::FALSE,              // normalized (int-to-float conversion)
                 ((self.components as usize) * std::mem::size_of::<f32>()) as gl::types::GLint, // stride (byte offset between consecutive attributes)
                 (offs * std::mem::size_of::<f32>()) as *const _, // offset of the first component
             );

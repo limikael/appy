@@ -1,6 +1,6 @@
-use std::rc::Rc;
+use crate::{components::*, types::*, utils::*};
 use std::cell::RefCell;
-use crate::{types::*, utils::*, components::*};
+use std::rc::Rc;
 
 /// Information about the current application window.
 ///
@@ -15,43 +15,43 @@ pub struct AppContext {
     pub text_renderer: Rc<RefCell<TextRenderer>>,
     pub image_renderer: Rc<RefCell<ImageRenderer>>,
     pub default_font: Rc<Font>,
-    pub viewport_size: (f32,f32),
+    pub viewport_size: (f32, f32),
 }
 
 impl AppContext {
     #[doc(hidden)]
-    pub fn new(w: f32, h:f32, pixel_ratio:f32, default_font:Font)->Self {
+    pub fn new(w: f32, h: f32, pixel_ratio: f32, default_font: Font) -> Self {
         Self {
             pixel_ratio: pixel_ratio,
-            viewport_size: (w,h),
-            rect: Rect{x:0.,y:0.,w,h},
+            viewport_size: (w, h),
+            rect: Rect { x: 0., y: 0., w, h },
             rect_renderer: Rc::new(RectRenderer::new()),
-            text_renderer: Rc::new(RefCell::new(TextRenderer::new(w,h))),
-            image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w,h))),
+            text_renderer: Rc::new(RefCell::new(TextRenderer::new(w, h))),
+            image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w, h))),
             flow_elements: Rc::new(RefCell::new(vec![])),
-            default_font: Rc::new(default_font)
+            default_font: Rc::new(default_font),
         }
     }
 
     #[doc(hidden)]
-    pub fn resize(&self, w:f32, h:f32, pixel_ratio:f32)->Self {
-        let mut resized=self.clone();
-        resized.viewport_size=(w,h);
-        resized.rect.w=w;
-        resized.rect.h=h;
-        resized.pixel_ratio=pixel_ratio;
-        resized.text_renderer.borrow_mut().window_width=w;
-        resized.text_renderer.borrow_mut().window_height=h;
-        resized.image_renderer.borrow_mut().set_size(w,h);
-        resized.flow_elements=Rc::new(RefCell::new(vec![]));
+    pub fn resize(&self, w: f32, h: f32, pixel_ratio: f32) -> Self {
+        let mut resized = self.clone();
+        resized.viewport_size = (w, h);
+        resized.rect.w = w;
+        resized.rect.h = h;
+        resized.pixel_ratio = pixel_ratio;
+        resized.text_renderer.borrow_mut().window_width = w;
+        resized.text_renderer.borrow_mut().window_height = h;
+        resized.image_renderer.borrow_mut().set_size(w, h);
+        resized.flow_elements = Rc::new(RefCell::new(vec![]));
 
         resized
     }
 
-    pub fn abs(&self, x:f32, y:f32, w:f32, h:f32)->Self {
-        let mut resized=self.clone();
-        resized.flow_elements=Rc::new(RefCell::new(vec![]));
-        resized.rect=resized.rect.abs(x,y,w,h);
+    pub fn abs(&self, x: f32, y: f32, w: f32, h: f32) -> Self {
+        let mut resized = self.clone();
+        resized.flow_elements = Rc::new(RefCell::new(vec![]));
+        resized.rect = resized.rect.abs(x, y, w, h);
         resized
     }
 

@@ -1,61 +1,61 @@
-use crate::hooks::{HookRef,use_state,use_animation_frame};
+use crate::hooks::{use_animation_frame, use_state, HookRef};
 use crate::rc_with_clone;
 use std::ops::Deref;
 
 #[derive(Clone)]
 pub struct SpringConf {
-	stiffness: f32,
-	damping: f32,
-	epsilon: f32
+    stiffness: f32,
+    damping: f32,
+    epsilon: f32,
 }
 
 impl SpringConf {
-	pub const DEFAULT:SpringConf=SpringConf::new(170.0,26.0);
-	pub const STIFF:SpringConf=SpringConf::new(210.0,20.0);
+    pub const DEFAULT: SpringConf = SpringConf::new(170.0, 26.0);
+    pub const STIFF: SpringConf = SpringConf::new(210.0, 20.0);
 
-	pub const fn new(stiffness:f32, damping:f32)->Self {
-		Self {
-			stiffness,
-			damping,
-			epsilon: 0.001
-		}
-	}
+    pub const fn new(stiffness: f32, damping: f32) -> Self {
+        Self {
+            stiffness,
+            damping,
+            epsilon: 0.001,
+        }
+    }
 }
 
 #[derive(Clone)]
 struct SpringData {
-	current: f32,
-	velocity: f32,
-	target: f32,
+    current: f32,
+    velocity: f32,
+    target: f32,
 }
 
 impl SpringData {
-	fn tick(&self, conf:&SpringConf, delta:f32)->Self {
-		fn dampened_hooke_force(displacement:f32, velocity:f32,
-				stiffness:f32, damping:f32)->f32 {
-			let hooke_force = -1.0 * (stiffness * displacement);
-			hooke_force - (damping * velocity)
-		}
+    fn tick(&self, conf: &SpringConf, delta: f32) -> Self {
+        fn dampened_hooke_force(
+            displacement: f32,
+            velocity: f32,
+            stiffness: f32,
+            damping: f32,
+        ) -> f32 {
+            let hooke_force = -1.0 * (stiffness * displacement);
+            hooke_force - (damping * velocity)
+        }
 
-		let mut spring:SpringData=self.clone();
-		let displacement=spring.current-spring.target;
-		let force=dampened_hooke_force(
-			displacement,
-			spring.velocity,
-			conf.stiffness,
-			conf.damping
-		);
+        let mut spring: SpringData = self.clone();
+        let displacement = spring.current - spring.target;
+        let force =
+            dampened_hooke_force(displacement, spring.velocity, conf.stiffness, conf.damping);
 
-		spring.velocity+=force*delta;
-		spring.current+=spring.velocity*delta;
+        spring.velocity += force * delta;
+        spring.current += spring.velocity * delta;
 
-		spring
-	}
+        spring
+    }
 }
 
 #[derive(Clone)]
 pub struct SpringRef {
-	hook_ref: HookRef<SpringData>
+    hook_ref: HookRef<SpringData>,
 }
 
 impl Deref for SpringRef {
@@ -67,19 +67,19 @@ impl Deref for SpringRef {
 }
 
 impl SpringRef {
-	pub fn target(&self, v:f32) {
-		let mut d=(*self.hook_ref).clone();
-		d.target=v;
-		self.hook_ref.set(d);
-	}
+    pub fn target(&self, v: f32) {
+        let mut d = (*self.hook_ref).clone();
+        d.target = v;
+        self.hook_ref.set(d);
+    }
 
-	pub fn set(&self, v:f32) {
-		let mut d=(*self.hook_ref).clone();
-		d.current=v;
-		d.target=v;
-		d.velocity=0.0;
-		self.hook_ref.set(d);
-	}
+    pub fn set(&self, v: f32) {
+        let mut d = (*self.hook_ref).clone();
+        d.current = v;
+        d.target = v;
+        d.velocity = 0.0;
+        self.hook_ref.set(d);
+    }
 }
 
 /// Animate value with spring physics.
@@ -119,26 +119,25 @@ impl SpringRef {
 ///     }
 /// }
 /// ```
-pub fn use_spring<F>(ctor: F, conf: SpringConf)->SpringRef
-		where F:Fn()->f32 {
-	let h=use_state(||{
-		let initial_value=ctor();
-		SpringData{
-			current: initial_value,
-			target: initial_value,
-			velocity: 0.0,
-		}
-	});
+pub fn use_spring<F>(ctor: F, conf: SpringConf) -> SpringRef
+where
+    F: Fn() -> f32,
+{
+    let h = use_state(|| {
+        let initial_value = ctor();
+        SpringData {
+            current: initial_value,
+            target: initial_value,
+            velocity: 0.0,
+        }
+    });
 
-	if ((*h).current-(*h).target).abs()>conf.epsilon ||
-			(*h).velocity.abs()>conf.epsilon {
-		use_animation_frame(rc_with_clone!([h],move|delta|{
-			//println!("delta: {:?}",delta);
-			h.set((*h).tick(&conf,delta));
-		}));
-	}
+    if ((*h).current - (*h).target).abs() > conf.epsilon || (*h).velocity.abs() > conf.epsilon {
+        use_animation_frame(rc_with_clone!([h], move |delta| {
+            //println!("delta: {:?}",delta);
+            h.set((*h).tick(&conf, delta));
+        }));
+    }
 
-	SpringRef {
-		hook_ref: h
-	}
+    SpringRef { hook_ref: h }
 }

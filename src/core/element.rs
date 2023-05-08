@@ -1,4 +1,4 @@
-use appy::{*, types::*};
+use appy::{types::*, *};
 
 pub fn flatten_elements(el: &mut [Elements]) -> Elements {
     let mut res: Elements = vec![];
@@ -10,12 +10,12 @@ pub fn flatten_elements(el: &mut [Elements]) -> Elements {
     res
 }
 
-#[derive_component(ComponentBuilder,Default,SnakeFactory)]
+#[derive_component(ComponentBuilder, Default, SnakeFactory)]
 pub struct RootElement {
-    root: Option<fn()->Elements>
+    root: Option<fn() -> Elements>,
 }
 
 #[function_component]
-fn _root_element(props:RootElement)->Elements {
+fn _root_element(props: RootElement) -> Elements {
     (props.root.unwrap())()
 }

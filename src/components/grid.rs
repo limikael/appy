@@ -1,11 +1,11 @@
-use crate::{*, types::*, components::*};
+use crate::{components::*, types::*, *};
 
 /// Layout of components in a fixed grid.
 ///
 /// The number of children should be the same as rows * columns.
 /// The children is a flat array, they will be layed out two dimensionally
 /// column-wise, then row-wise.
-#[derive_component(ComponentBuilder,Default,SnakeFactory)]
+#[derive_component(ComponentBuilder, Default, SnakeFactory)]
 pub struct Grid {
     cols: usize,
     rows: usize,
@@ -13,9 +13,9 @@ pub struct Grid {
 
 #[allow(unused_parens)]
 #[function_component]
-fn _grid(props:Grid)->Elements {
-    let rows=if props.rows>=1 {props.rows} else {1};
-    let cols=if props.cols>=1 {props.cols} else {1};
+fn _grid(props: Grid) -> Elements {
+    let rows = if props.rows >= 1 { props.rows } else { 1 };
+    let cols = if props.cols >= 1 { props.cols } else { 1 };
 
     let mut items = vec![];
 

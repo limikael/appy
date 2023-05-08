@@ -35,13 +35,11 @@ macro_rules! with_clone {
 
 /// Clone variables for closure, and create Rc.
 ///
-/// Does the same as [with_clone], and then also applies `Rc::new` 
+/// Does the same as [with_clone], and then also applies `Rc::new`
 /// on the result.
 #[macro_export]
 macro_rules! rc_with_clone {
-	($args:tt,$body:expr) => {
-		{
-			std::rc::Rc::new($crate::with_clone!($args,$body))
-		}
-	}
+    ($args:tt,$body:expr) => {{
+        std::rc::Rc::new($crate::with_clone!($args, $body))
+    }};
 }

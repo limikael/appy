@@ -1,8 +1,8 @@
 extern crate nalgebra_glm as glm;
 
-use crate::{utils::*, types::*};
-use crate::gl::types::*;
 use crate::gl;
+use crate::gl::types::*;
+use crate::{types::*, utils::*};
 
 pub struct ImageRenderer {
     program: ShaderProgram,
@@ -17,9 +17,10 @@ pub struct ImageRenderer {
 }
 
 impl ImageRenderer {
-    pub fn new(window_width:f32, window_height:f32) -> Self {
+    pub fn new(window_width: f32, window_height: f32) -> Self {
         let program = ShaderProgram::new(vec![
-            ShaderSource::VertexShader("
+            ShaderSource::VertexShader(
+                "
 				#version 300 es
 				precision mediump float;
 				uniform mat4 mvp;
@@ -33,8 +34,11 @@ impl ImageRenderer {
 					gl_Position=mvp*vec4(pos+vertex*size,0.0,1.0);
 					fragment_tex_coord=tex_coord;
 				}
-			".to_string()),
-            ShaderSource::FragmentShader("
+			"
+                .to_string(),
+            ),
+            ShaderSource::FragmentShader(
+                "
 				#version 300 es
 				precision mediump float;
 				uniform sampler2D texture0;
@@ -44,39 +48,36 @@ impl ImageRenderer {
 					vec4 tex_data=texture(texture0,fragment_tex_coord);
 					fragment_color=vec4(tex_data.r,tex_data.g,tex_data.b,tex_data.a);
 				}
-			".to_string()),
+			"
+                .to_string(),
+            ),
         ]);
 
-        let mut buf=ArrayBuffer::new(4);
+        let mut buf = ArrayBuffer::new(4);
         buf.set_data(vec![
-        	0.0, 0.0,  0.0, 0.0,
-        	1.0, 0.0,  1.0, 0.0,
-        	1.0, 1.0,  1.0, 1.0,
+            0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+            1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0,
+        ]);
 
-        	0.0, 0.0,  0.0, 0.0,
-        	1.0, 1.0,  1.0, 1.0,
-	       	0.0, 1.0,  0.0, 1.0,
- 		]);
-
-    	Self {
+        Self {
             loc_vertex: program.get_attrib_location("vertex"),
             loc_tex_coord: program.get_attrib_location("tex_coord"),
             loc_mvp: program.get_uniform_location("mvp"),
             loc_pos: program.get_uniform_location("pos"),
             loc_size: program.get_uniform_location("size"),
-    		program,
-    		window_width,
-    		window_height,
-    		buf
-    	}
-	}
+            program,
+            window_width,
+            window_height,
+            buf,
+        }
+    }
 
-	pub fn set_size(&mut self, window_width:f32, window_height:f32) {
-		self.window_width=window_width;
-		self.window_height=window_height;
-	}
+    pub fn set_size(&mut self, window_width: f32, window_height: f32) {
+        self.window_width = window_width;
+        self.window_height = window_height;
+    }
 
-	pub fn draw(&self, rect: &Rect, image: &ImageSource) {
+    pub fn draw(&self, rect: &Rect, image: &ImageSource) {
         let m = glm::ortho(
             0.0,
             self.window_width as f32,
@@ -86,7 +87,7 @@ impl ImageRenderer {
             1.0,
         );
 
-		image.bind();
+        image.bind();
 
         self.program.use_program();
         self.buf.bind(self.loc_vertex, 0, 2);
@@ -104,6 +105,5 @@ impl ImageRenderer {
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
             gl::DrawArrays(gl::TRIANGLES, 0, self.buf.len() as i32);
         }
-
-	}
+    }
 }

@@ -9,7 +9,7 @@
 //!   cross-platform operation with a single application code base.
 //!
 //! ## Example
-//! 
+//!
 //! ```rust
 //! use appy::{*, types::*, components::*};
 //!

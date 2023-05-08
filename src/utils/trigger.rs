@@ -1,6 +1,6 @@
+use crate::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::*;
 
 /// A trigger is similar to an event, but more asynchronous in nature.
 ///
@@ -13,21 +13,18 @@ use crate::*;
 /// was created.
 pub struct Trigger {
     state: Rc<RefCell<bool>>,
-    trigger: Rc<dyn Fn()>
+    trigger: Rc<dyn Fn()>,
 }
 
 impl Trigger {
     /// Create a trigger.
     pub fn new() -> Self {
-        let state=Rc::new(RefCell::new(false));
-        let trigger=Rc::new(with_clone!([state],move||{
+        let state = Rc::new(RefCell::new(false));
+        let trigger = Rc::new(with_clone!([state], move || {
             *state.borrow_mut() = true;
         }));
 
-        Trigger {
-            state,
-            trigger
-        }
+        Trigger { state, trigger }
     }
 
     /// Get the current state of the trigger.

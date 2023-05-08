@@ -1,5 +1,5 @@
 use crate::{gl, gl::types::*};
-use crate::{utils::*, types::*};
+use crate::{types::*, utils::*};
 use rusttype::{gpu_cache::Cache, PositionedGlyph};
 extern crate nalgebra_glm as glm;
 
@@ -15,20 +15,21 @@ pub struct TextRenderer {
     pub window_width: f32,
     pub window_height: f32,
     cache: Cache<'static>,
-    used_glyphs: Vec<PositionedGlyph<'static>>
+    used_glyphs: Vec<PositionedGlyph<'static>>,
 }
 
 impl TextRenderer {
     /// Create a text renderer for a specified window size.
-    pub fn new(window_width:f32, window_height:f32) -> Self {
-        let cache: Cache<'static> = Cache::builder().dimensions(0,0).build();
+    pub fn new(window_width: f32, window_height: f32) -> Self {
+        let cache: Cache<'static> = Cache::builder().dimensions(0, 0).build();
         let mut tex_id: GLuint = 0;
         unsafe {
             gl::GenTextures(1, &mut tex_id);
         }
 
         let program = ShaderProgram::new(vec![
-            ShaderSource::VertexShader("
+            ShaderSource::VertexShader(
+                "
                 #version 300 es
                 precision mediump float;
                 uniform mat4 mvp;
@@ -39,8 +40,11 @@ impl TextRenderer {
                     gl_Position=mvp*vec4(vertex,0.0,1.0);
                     fragment_tex_coord=tex_coord;
                 }
-            ".to_string()),
-            ShaderSource::FragmentShader("
+            "
+                .to_string(),
+            ),
+            ShaderSource::FragmentShader(
+                "
                 #version 300 es
                 precision mediump float;
                 uniform vec4 col;
@@ -51,10 +55,12 @@ impl TextRenderer {
                     vec4 tex_data=texture(texture0,fragment_tex_coord);
                     fragment_color=vec4(col.r,col.g,col.b,tex_data.r);
                 }
-            ".to_string()),
+            "
+                .to_string(),
+            ),
         ]);
 
-        let mut slf=Self {
+        let mut slf = Self {
             loc_vertex: program.get_attrib_location("vertex"),
             loc_tex_coord: program.get_attrib_location("tex_coord"),
             loc_col: program.get_uniform_location("col"),
@@ -65,7 +71,7 @@ impl TextRenderer {
             window_width,
             window_height,
             cache,
-            used_glyphs: vec![]
+            used_glyphs: vec![],
         };
 
         slf.set_cache_size(1);
@@ -75,18 +81,21 @@ impl TextRenderer {
     fn set_cache_size(&mut self, size: u32) {
         //println!("font cache size: {:?}x{:?}",size,size);
 
-        self.cache.to_builder().dimensions(size,size).rebuild(&mut self.cache);
+        self.cache
+            .to_builder()
+            .dimensions(size, size)
+            .rebuild(&mut self.cache);
 
         unsafe {
-            gl::BindTexture(gl::TEXTURE_2D,self.tex_id);
+            gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
             gl::ActiveTexture(gl::TEXTURE0);
             gl::TexImage2D(
-                gl::TEXTURE_2D,          // target
-                0,                       // level
+                gl::TEXTURE_2D, // target
+                0,              // level
                 gl::R8 as i32,
                 size as i32, // width
                 size as i32, // height
-                0,                       // border, must be 0
+                0,           // border, must be 0
                 gl::RED as u32,
                 gl::UNSIGNED_BYTE,
                 std::ptr::null(),
@@ -99,10 +108,10 @@ impl TextRenderer {
             gl::BindTexture(gl::TEXTURE_2D, self.tex_id);
         }
 
-        let mut cache_misses=0;
-        let mut do_build=true;
+        let mut cache_misses = 0;
+        let mut do_build = true;
         while do_build {
-            let res=self.cache.cache_queued(|rect, data| {
+            let res = self.cache.cache_queued(|rect, data| {
                 //println!("populate font cache: {:?}",data.as_ptr());
                 unsafe {
                     gl::ActiveTexture(gl::TEXTURE0);
@@ -120,26 +129,26 @@ impl TextRenderer {
                     );
                 }
 
-                cache_misses+=1;
+                cache_misses += 1;
             });
 
             match res {
-                Err(_)=>{
-                    cache_misses=0;
-                    self.set_cache_size(self.cache.dimensions().0*2);
-                },
-                Ok(_)=>{
-                    do_build=false;
+                Err(_) => {
+                    cache_misses = 0;
+                    self.set_cache_size(self.cache.dimensions().0 * 2);
+                }
+                Ok(_) => {
+                    do_build = false;
                 }
             };
         }
 
-        if cache_misses>0 {
+        if cache_misses > 0 {
             //println!("Font cache misses: {:?}",cache_misses);
         }
     }
 
-    fn vertices_for(&self, glyph: &PositionedGlyph, pr:f32) -> Vec<f32> {
+    fn vertices_for(&self, glyph: &PositionedGlyph, pr: f32) -> Vec<f32> {
         let rect = self.cache.rect_for(0, glyph).unwrap();
         if rect.is_none() {
             return vec![];
@@ -147,26 +156,45 @@ impl TextRenderer {
 
         let (uv, screen) = rect.unwrap();
         vec![
-            screen.min.x as f32/pr, screen.min.y as f32/pr,  uv.min.x, uv.min.y,
-            screen.max.x as f32/pr, screen.min.y as f32/pr,  uv.max.x, uv.min.y,
-            screen.max.x as f32/pr, screen.max.y as f32/pr,  uv.max.x, uv.max.y,
-
-            screen.min.x as f32/pr, screen.min.y as f32/pr,  uv.min.x, uv.min.y,
-            screen.max.x as f32/pr, screen.max.y as f32/pr,  uv.max.x, uv.max.y,
-            screen.min.x as f32/pr, screen.max.y as f32/pr,  uv.min.x, uv.max.y,
+            screen.min.x as f32 / pr,
+            screen.min.y as f32 / pr,
+            uv.min.x,
+            uv.min.y,
+            screen.max.x as f32 / pr,
+            screen.min.y as f32 / pr,
+            uv.max.x,
+            uv.min.y,
+            screen.max.x as f32 / pr,
+            screen.max.y as f32 / pr,
+            uv.max.x,
+            uv.max.y,
+            screen.min.x as f32 / pr,
+            screen.min.y as f32 / pr,
+            uv.min.x,
+            uv.min.y,
+            screen.max.x as f32 / pr,
+            screen.max.y as f32 / pr,
+            uv.max.x,
+            uv.max.y,
+            screen.min.x as f32 / pr,
+            screen.max.y as f32 / pr,
+            uv.min.x,
+            uv.max.y,
         ]
     }
 
     /// Draw text.
-    pub fn draw(&mut self, text: &str, x: f32, mut y: f32, font: &Font, size: f32, col: u32, pr:f32) {
-        let m = glm::ortho(
-            0.0,
-            self.window_width,
-            self.window_height,
-            0.0,
-            -1.0,
-            1.0,
-        );
+    pub fn draw(
+        &mut self,
+        text: &str,
+        x: f32,
+        mut y: f32,
+        font: &Font,
+        size: f32,
+        col: u32,
+        pr: f32,
+    ) {
+        let m = glm::ortho(0.0, self.window_width, self.window_height, 0.0, -1.0, 1.0);
         let c = glm::vec4(
             ((col & 0xff0000) >> 16) as f32 / 255.0,
             ((col & 0x00ff00) >> 8) as f32 / 255.0,
@@ -174,9 +202,9 @@ impl TextRenderer {
             1.0,
         );
 
-        y+=font.baseline(size);
+        y += font.baseline(size);
 
-        let glyphs = font.create_glyphs(text,x*pr,y*pr,size*pr);
+        let glyphs = font.create_glyphs(text, x * pr, y * pr, size * pr);
         for glyph in glyphs.clone() {
             self.used_glyphs.push(glyph.clone());
             self.cache.queue_glyph(0, glyph);
@@ -185,7 +213,7 @@ impl TextRenderer {
         self.render_cache();
         let mut data: Vec<f32> = vec![];
         for glyph in glyphs {
-            data.append(&mut self.vertices_for(&glyph,pr));
+            data.append(&mut self.vertices_for(&glyph, pr));
         }
 
         self.buf.set_data(data);
@@ -211,7 +239,7 @@ impl TextRenderer {
     }
 
     pub fn begin_frame(&mut self) {
-        self.used_glyphs=vec![];
+        self.used_glyphs = vec![];
     }
 
     pub fn end_frame(&mut self) {
@@ -220,6 +248,6 @@ impl TextRenderer {
         }
 
         self.render_cache();
-        self.used_glyphs=vec![];
+        self.used_glyphs = vec![];
     }
 }

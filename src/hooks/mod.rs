@@ -1,9 +1,9 @@
-use std::rc::Rc;
-use std::any::TypeId;
-use glapp::{AppEvent};
-use crate::core::Appy;
 use crate::core::component::HookRef;
-use crate::{types::*};
+use crate::core::Appy;
+use crate::types::*;
+use glapp::AppEvent;
+use std::any::TypeId;
+use std::rc::Rc;
 
 mod use_reducer;
 pub use use_reducer::*;
@@ -11,14 +11,14 @@ pub use use_reducer::*;
 mod use_spring;
 pub use use_spring::*;
 
-pub type StateRef<T>=HookRef<T>;
+pub type StateRef<T> = HookRef<T>;
 
 /// Track state in a function component.
-pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
-		where F:Fn()->T {
-	Appy::with(|appy|{
-		appy.use_hook_ref(ctor)
-	})
+pub fn use_state<F, T: 'static>(ctor: F) -> StateRef<T>
+where
+    F: Fn() -> T,
+{
+    Appy::with(|appy| appy.use_hook_ref(ctor))
 }
 
 /// Post render handler.
@@ -26,55 +26,55 @@ pub fn use_state<F, T: 'static>(ctor: F)->StateRef<T>
 /// The function specified will be called after the children of the
 /// current component has been rendered.
 pub fn use_post_render(f: Box<dyn FnOnce()>) {
-	Appy::with(|appy|{
-		appy.with_current_component_instance(|ci|{
-			ci.post_render=Some(f);
-		})
-	})
+    Appy::with(|appy| {
+        appy.with_current_component_instance(|ci| {
+            ci.post_render = Some(f);
+        })
+    })
 }
 
 /// Second render pass.
 ///
 /// The function specified will be called after the children of the
 /// current component has been rendered.
-pub fn use_second_render_pass(f: Box<dyn FnOnce()->Elements>) {
-	Appy::with(|appy|{
-		appy.with_current_component_instance(|ci|{
-			ci.second_render=Some(f);
-		})
-	})
+pub fn use_second_render_pass(f: Box<dyn FnOnce() -> Elements>) {
+    Appy::with(|appy| {
+        appy.with_current_component_instance(|ci| {
+            ci.second_render = Some(f);
+        })
+    })
 }
 
 /// Low level event handler.
 ///
 /// Function handler for low level application events.
 pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
-	Appy::with(|appy|{
-		appy.app_event_handlers.push(f.clone());
-	})
+    Appy::with(|appy| {
+        appy.app_event_handlers.push(f.clone());
+    })
 }
 
 /// Animation frame.
 ///
 /// The registered function will be called after the next render.
 pub fn use_animation_frame(f: Rc<dyn Fn(f32)>) {
-	Appy::with(|appy|{
-		appy.animation_frame_handlers.push(f.clone());
-	})
+    Appy::with(|appy| {
+        appy.animation_frame_handlers.push(f.clone());
+    })
 }
 
 /// A context is a way to access global state.
 ///
 /// A context can be provided with [`ContextProvider`](appy::components::ContextProvider),
 /// and then accessed further down in the tree with this function.
-pub fn use_context<T: 'static>()->Rc<T> {
-	let type_id=TypeId::of::<T>();
+pub fn use_context<T: 'static>() -> Rc<T> {
+    let type_id = TypeId::of::<T>();
 
-	Appy::with(|appy|{
-		let v=appy.contexts.get(&type_id).unwrap();
-		let any=v[v.len()-1].clone();
-		any.downcast::<T>().unwrap()
-	})
+    Appy::with(|appy| {
+        let v = appy.contexts.get(&type_id).unwrap();
+        let any = v[v.len() - 1].clone();
+        any.downcast::<T>().unwrap()
+    })
 }
 
 /// Used to continously check the hover state of an interaction component.
@@ -100,8 +100,8 @@ pub fn use_context<T: 'static>()->Rc<T> {
 ///     }
 /// }
 /// ```
-pub fn use_hover_state_ref()->StateRef<HoverState> {
-    use_state(||HoverState::Normal)
+pub fn use_hover_state_ref() -> StateRef<HoverState> {
+    use_state(|| HoverState::Normal)
 }
 
 /// Get a from data.
@@ -122,11 +122,11 @@ pub fn use_hover_state_ref()->StateRef<HoverState> {
 ///	    }
 /// }
 /// ```
-pub fn use_font_data<F>(closure: F)->Rc<Font> 
-		where F: Fn()->&'static [u8] {
-	let state_ref=use_state(||{
-		Font::from_data(closure())
-	});
+pub fn use_font_data<F>(closure: F) -> Rc<Font>
+where
+    F: Fn() -> &'static [u8],
+{
+    let state_ref = use_state(|| Font::from_data(closure()));
 
-	state_ref.as_rc()
+    state_ref.as_rc()
 }

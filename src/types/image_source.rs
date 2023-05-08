@@ -1,7 +1,7 @@
 use crate::gl;
 use crate::gl::types::*;
 //use std::path::Path;
-use image::{EncodableLayout};
+use image::EncodableLayout;
 
 /// An image to be used with the [img](appy::components::Img) component.
 ///
@@ -10,35 +10,35 @@ use image::{EncodableLayout};
 /// image from a file or other assets.
 #[derive(Debug)]
 pub struct ImageSource {
-	id: GLuint,
+    id: GLuint,
     pub width: i32,
-    pub height: i32
+    pub height: i32,
 }
 
 impl ImageSource {
-    pub fn from_memory(buffer: &[u8])->Self {
-        let mut im=Self::gen();
+    pub fn from_memory(buffer: &[u8]) -> Self {
+        let mut im = Self::gen();
         im.process_image(image::load_from_memory(buffer).expect("Unable to load image"));
         im
     }
 
     // This only works for desktop.
     // TODO: Find a way to load android assets (and other assets).
-	/*pub fn load(path:&str)->Self {
-		let mut im=Self::gen();
+    /*pub fn load(path:&str)->Self {
+        let mut im=Self::gen();
         im.process_image(image::open(path).expect("Unable to load image"));
-		im
-	}*/
+        im
+    }*/
 
     fn gen() -> Self {
         let mut id: GLuint = 0;
-        unsafe { 
-        	gl::GenTextures(1, &mut id); 
-       	}
+        unsafe {
+            gl::GenTextures(1, &mut id);
+        }
         Self {
             id,
             width: -1,
-            height: -1
+            height: -1,
         }
     }
 
@@ -60,14 +60,12 @@ impl ImageSource {
             );
         }
 
-        self.width=img.width() as i32;
-        self.height=img.height() as i32;
+        self.width = img.width() as i32;
+        self.height = img.height() as i32;
     }
 
     pub fn bind(&self) {
-        unsafe {
-        	gl::BindTexture(gl::TEXTURE_2D, self.id)
-        }
+        unsafe { gl::BindTexture(gl::TEXTURE_2D, self.id) }
     }
 }
 

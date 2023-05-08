@@ -9,7 +9,7 @@ pub enum Dim {
     Percent(f32),
 
     /// Size specified as an absolute value.
-    Absolute(f32)
+    Absolute(f32),
 }
 
 impl Dim {
@@ -25,7 +25,7 @@ impl Dim {
         }
     }
 
-    pub fn get_abs(&self)->f32 {
+    pub fn get_abs(&self) -> f32 {
         match *self {
             Dim::None => 0.0,
             Dim::Absolute(v) => v,
@@ -53,15 +53,19 @@ impl Dim {
 }
 
 impl<T> From<T> for Dim
-        where f64: From<T> {
+where
+    f64: From<T>,
+{
     /// Create a Dim from a value.
-    fn from(val: T)->Self {
+    fn from(val: T) -> Self {
         Dim::Absolute(f64::from(val) as f32)
     }
 }
 
 /// Convenience function to create a percentual dimension.
-pub fn pct<T>(val: T)->Dim
-        where f64: From<T> {
+pub fn pct<T>(val: T) -> Dim
+where
+    f64: From<T>,
+{
     Dim::Percent(f64::from(val) as f32)
 }

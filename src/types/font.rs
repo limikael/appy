@@ -1,4 +1,4 @@
-use rusttype::{Scale, PositionedGlyph, Point, point};
+use rusttype::{point, Point, PositionedGlyph, Scale};
 
 /// Represents a font.
 ///
@@ -8,12 +8,10 @@ pub struct Font {
 }
 
 impl Font {
-    pub fn from_data(ttf_data:&'static[u8])->Self {
-        let f=rusttype::Font::try_from_bytes(ttf_data).unwrap();
+    pub fn from_data(ttf_data: &'static [u8]) -> Self {
+        let f = rusttype::Font::try_from_bytes(ttf_data).unwrap();
 
-        Self {
-            rusttype_font: f
-        }
+        Self { rusttype_font: f }
     }
 
     fn get_glyph_advance(&self, c: char, s: Scale) -> (f32, f32) {
@@ -37,11 +35,16 @@ impl Font {
         w
     }
 
-    pub fn create_glyphs<'a>(&self, str: &str, x: f32, y: f32, size: f32)
-            ->Vec<PositionedGlyph<'a>> {
+    pub fn create_glyphs<'a>(
+        &self,
+        str: &str,
+        x: f32,
+        y: f32,
+        size: f32,
+    ) -> Vec<PositionedGlyph<'a>> {
         let mut v = Vec::new();
-        let mut p:Point<f32>=rusttype::point(x,y);
-        let s:Scale=rusttype::Scale::uniform(size);
+        let mut p: Point<f32> = rusttype::point(x, y);
+        let s: Scale = rusttype::Scale::uniform(size);
 
         for c in str.chars() {
             let base_glyph = self.rusttype_font.glyph(c);
@@ -54,7 +57,7 @@ impl Font {
         v
     }
 
-    pub fn baseline(&self, size:f32)->f32 {
+    pub fn baseline(&self, size: f32) -> f32 {
         let s = Scale::uniform(size);
         let v_metrics = self.rusttype_font.v_metrics(s);
         size + v_metrics.descent
