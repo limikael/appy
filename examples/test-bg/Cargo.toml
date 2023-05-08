@@ -1,7 +1,0 @@
-[package]
-name = "test-bg"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-appy = {path="../..",features=["sdl"]}

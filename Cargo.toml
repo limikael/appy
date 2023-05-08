@@ -19,9 +19,14 @@ glapp={version="0.1.1", path="../glapp"}
 nalgebra-glm = {version="0.18.0"}
 rusttype = {version="0.9.3", features=["gpu_cache"]}
 environmental = "1.1.4"
-image = {version="0.24.6",default-features=false,features=["png","jpeg"]}
+
+# jpeg turned off since it caused comilation error (error: Unrecognized option: 'diagnostic-width')
+image = {version="0.24.6",default-features=false,features=["png"]}
+
+[dev-dependencies]
+rand = "0.8.5"
 
 [features]
-#default=["sdl"]
+default=["sdl"]
 sdl=["glapp/sdl"]
 glutin=["glapp/glutin"]

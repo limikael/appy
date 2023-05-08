@@ -14,7 +14,6 @@ pub fn app()->Elements {
 	});
 
 	let s=format!("Hello: {}",*v);
-//	let s=format!("Hello...");
 	let c=match *hover_state {
 		HoverState::Normal=>0x808080,
 		HoverState::Active=>0x404040,

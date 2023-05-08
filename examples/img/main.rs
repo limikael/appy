@@ -33,7 +33,7 @@ fn _flow_button(p:FlowButton)->Elements {
 #[main_window]
 fn main()->Elements {
 	let img_src=use_state(||ImageSource::from_memory(
-		include_bytes!("../assets/rustacean.png")
+		include_bytes!("rustacean.png")
 	));
 
 	let scale_mode=use_state(||ScaleMode::Fit);

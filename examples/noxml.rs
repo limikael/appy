@@ -8,19 +8,10 @@ pub fn app()->Elements {
 		]),
 		blk().right(0).width(pct(50)).children(vec![
 			bg().color(0xff0000)
+		]),
+		blk().left(0).right(0).height(32).children(vec![
+			bg().color(0x000000),
+			text().text("NO XML USED HERE").size(24)
 		])
 	]
-
-/*	apx! {
-		<Blk left=0 width=pct(50)>
-			<Bg col=0xffff00/>
-		</Blk>
-		{
-			apx!{
-				<Blk right=0 width=pct(50)>
-					<Bg col=0xff0000/>
-				</Blk>
-			}
-		}
-	}*/
 }

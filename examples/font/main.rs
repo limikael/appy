@@ -24,7 +24,7 @@ pub fn app()->Elements {
 
 		<Blk top=pct(100.0*4.0/7.0) width=pct(100) height=pct(100.0*2.0/7.0)>
 			<Bg color=0x008080/>
-			<Text text="Hello World" align=Align::Center font=lobster color=0xffffff size=pct(100)/>
+			<Text text="Hello Lobster" align=Align::Center font=lobster color=0xffffff size=pct(100)/>
 		</Blk>
 	}
 }

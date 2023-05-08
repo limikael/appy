@@ -15,4 +15,4 @@ path="src/main.rs"
 crate-type=["cdylib"]
 
 [dependencies]
-appy = {path="../..",features=["glutin"]}
+appy = {path="../..",default-features=false,features=["glutin"]}
