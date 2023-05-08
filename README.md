@@ -5,37 +5,27 @@ Declarative cross-platform UI framework in Rust for native applications. More in
 
 ### Running the examples locally
 
-Should be as easy as cloning the code, cd:ing into one of the example dirs (e.g. the `hello` example) and running:
+Should be as easy as cloning the code and running one of these:
 
-    cargo run
+    cargo run --example hello
+    cargo run --example calculator
+    ...
 
-The `hello` example is, by default, using [SDL](https://www.libsdl.org/) to render its graphics. As an alternative, you can edit the `Cargo.toml` file
-and change the line:
-
-    appy = {path="../..",features=["sdl"]}
-
-...to...
-
-    appy = {path="../..",features=["glutin"]}
-
-And Appy will use [Glutin](https://crates.io/crates/glutin) instead. The graphics pipeline in the Rust ecosystem is experiencing
-a kind of cambrian explosion at the moment, which is why it is good to be flexible possible when it comes to working with different
-underlying libraries and toolchains.
-
-Another very interesting library is [Miniquad](https://crates.io/crates/miniquad) which might be supported in the future.
+Check the examples folder for more examples.
 
 ### Running the examples on Android
 
-If you got it to build and run the "Hello World" app, the next step would be to get it to run on Android. Depending on if you use Glutin or SDL,
-try the following:
+First install and set up [cargo-sdl-apk](https://crates.io/crates/cargo-sdl-apk).
 
-* **With SDL**
-  * Install [cargo-sdl-apk](https://github.com/limikael/cargo-sdl-apk).
-  * Run `cargo sdl-apk run` from inside the crate.
+Then, running the examples on android should be as easy as locally, almost:
 
-* **With Glutin**
-  * Install [cargo-apk](https://crates.io/crates/cargo-apk).
-  * Run `cargo apk run` from inside the crate.
+    cargo sdl-apk run --example hello
+
+### Changing rendering backend
+
+Appy is, by default, using [SDL](https://www.libsdl.org/) to render its graphics. It also supports 
+[Glutin](https://crates.io/crates/glutin), which can be turned on as a feature. Check `platform-examples/test-glutin`
+for a project that is set up to use it. Running locally is done in the same way, i.e. with `cargo run`, but if you want to use Glutin on Android you need to use [cargo-apk](https://crates.io/crates/cargo-apk) instead of cargo-sdl-apk.
 
 ### Live reload
 
