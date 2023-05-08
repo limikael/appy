@@ -3,7 +3,7 @@ use appy::{*, components::*, types::*, hooks::*};
 #[main_window]
 #[allow(unused_parens)]
 pub fn app()->Elements {
-	let lobster=use_font_data(||include_bytes!("./Lobster-Regular.ttf"));
+	let lobster=use_font_data(||include_bytes!("Lobster-Regular.ttf"));
 	let s=use_state(||0);
 
 	apx!{
