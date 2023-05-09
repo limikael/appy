@@ -51,6 +51,16 @@ impl SpringData {
 
         spring
     }
+
+    fn is_at_rest(&self, conf: &SpringConf)->bool {
+        if (self.current - self.target).abs() > conf.epsilon || self.velocity.abs() > conf.epsilon {
+            false
+        }
+
+        else {
+            true
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -68,6 +78,8 @@ impl Deref for SpringRef {
 
 impl SpringRef {
     pub fn target(&self, v: f32) {
+        //println!("setting target: {}",v);
+
         let mut d = (*self.hook_ref).clone();
         d.target = v;
         self.hook_ref.set(d);
@@ -132,10 +144,9 @@ where
         }
     });
 
-    if ((*h).current - (*h).target).abs() > conf.epsilon || (*h).velocity.abs() > conf.epsilon {
-        use_animation_frame(rc_with_clone!([h], move |delta| {
-            //println!("delta: {:?}",delta);
-            h.set((*h).tick(&conf, delta));
+    if !h.get_inner_value().is_at_rest(&conf) {
+        use_animation_frame(rc_with_clone!([h],move |delta| {
+            h.set(h.get_inner_value().tick(&conf, delta));
         }));
     }
 

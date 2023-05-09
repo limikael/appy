@@ -12,13 +12,29 @@ use appy::{hooks::*, types::*, *};
 ///   <bg color=0x112233 />
 ///	};
 ///
-#[derive_component(ComponentBuilder, Default, SnakeFactory)]
+#[derive_component(ComponentBuilder, SnakeFactory)]
 pub struct Bg {
     color: u32,
     border_color: u32,
     corner_radius: Dim,
     border_width: Dim,
     borders: Option<[bool; 4]>,
+    alpha: f32
+}
+
+impl Default for Bg {
+    fn default()->Self {
+        Self {
+            color: 0,
+            border_color: 0,
+            corner_radius: Dim::Absolute(0.0),
+            border_width: Dim::Absolute(0.0),
+            borders: None,
+            alpha: 1.0,
+            key: None,
+            children: vec![]
+        }
+    }
 }
 
 #[function_component]
@@ -33,6 +49,7 @@ fn _bg(props: Bg) -> Elements {
         corner_radius: props.corner_radius.to_abs(0.),
         border_width: props.border_width.to_abs(0.),
         borders: props.borders.unwrap_or([true, true, true, true]),
+        alpha: props.alpha
     };
 
     app_context.rect_renderer.draw(&rect_renderer_spec);

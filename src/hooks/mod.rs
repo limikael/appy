@@ -104,7 +104,7 @@ pub fn use_hover_state_ref() -> StateRef<HoverState> {
     use_state(|| HoverState::Normal)
 }
 
-/// Get a from data.
+/// Get a Font from data.
 ///
 /// A font is a rather heavy resource, the best way to use it is probably
 /// to create it once and pass it down using a context or prop drilling.
@@ -127,6 +127,16 @@ where
     F: Fn() -> &'static [u8],
 {
     let state_ref = use_state(|| Font::from_data(closure()));
+
+    state_ref.as_rc()
+}
+
+/// Get an ImageSource from data.
+pub fn use_image_data<F>(closure: F)->Rc<ImageSource>
+where
+    F: Fn() -> &'static [u8],
+{
+    let state_ref = use_state(|| ImageSource::from_memory(closure()));
 
     state_ref.as_rc()
 }

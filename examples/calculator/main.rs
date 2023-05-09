@@ -1,7 +1,3 @@
-// TODO: is there a way to put that in the macro itself, or to avoid
-// putting `..Default::default()` at the end when all parameters exist?
-#![allow(clippy::needless_update)]
-
 use appy::{components::*, hooks::*, types::*, *};
 use std::rc::Rc;
 
@@ -30,7 +26,7 @@ fn _button(props: Button) -> Elements {
     apx!(
         <blk left=pct(10) top=pct(10) right=pct(10) bottom=pct(10)>
             <interaction on_click=on_click hover_state_ref=hover_state_ref/>
-            <bg color=color/>
+            <bg color=color corner_radius=5/>
             <text text=&*props.id.to_string() size=pct(65) align=Align::Center color=0x000000/>
         </blk>
     )
@@ -61,6 +57,59 @@ fn _button_bg(props: ButtonBg) -> Elements {
     }
 }
 
+#[derive_component(Default, ComponentBuilder, SnakeFactory)]
+pub struct TopBar {
+    on_click: Option<Rc<dyn Fn()>>
+}
+
+#[function_component]
+fn _top_bar(props:TopBar)->Elements {
+    let hamburger=use_image_data(||include_bytes!("hamburger-icon.png"));
+    apx!{
+        <blk top=0 height=56>
+            <bg color=0x69140E/>
+            <blk left=5 height=46 width=46>
+                <img src=hamburger/>
+                <interaction on_click_option=props.on_click/>
+            </blk>
+            <text size=pct(50) text="Appy Calculator"/>
+        </blk>
+    }
+}
+
+#[derive_component(Default, ComponentBuilder, SnakeFactory)]
+pub struct MobileMenu {
+    show: bool,
+    on_close: Option<Rc<dyn Fn()>>
+}
+
+#[function_component]
+fn _mobile_menu(props:MobileMenu)->Elements {
+    let left = use_spring(||-300.0, SpringConf::DEFAULT);
+    use_state(||{
+        left.target(0.0);
+    });
+
+    //println!("l: {:?}",*left);
+
+    if props.show {
+        apx!{
+            <blk>
+                <bg color=0x000000 alpha=0.5/>
+                <interaction on_click_option=props.on_close/>
+
+                <blk left=*left width=300>
+                    <bg color=0xffffff/>
+                </blk>
+            </blk>
+        }
+    }
+
+    else {
+        apx!{}
+    }
+}
+
 #[main_window]
 fn app() -> Elements {
     let model = use_reducer(CalculatorModel::action, CalculatorModel::new);
@@ -75,44 +124,34 @@ fn app() -> Elements {
     });
 
     apx!(
-        <blk height=pct(25) top=0>
-            <bg color=0x3C1518/>
-            <blk left=pct(5) right=pct(5)>
-                <text align=Align::Right
-                        text=&*model.get_display_value() size=pct(50) color=0xffffff/>
+        <top_bar on_click=rc_with_clone!([show_info],move||{
+            show_info.set(!*show_info)
+        })/>
+        <blk top=56 left=0 right=0 bottom=0>
+            <blk height=pct(25) top=0>
+                <bg color=0x3C1518/>
+                <blk left=pct(5) right=pct(5)>
+                    <text align=Align::Right
+                            text=&*model.get_display_value() size=pct(50) color=0xffffff/>
+                </blk>
             </blk>
-        </blk>
-        <blk top=pct(25)>
-            <bg color=0x69140E/>
-            <blk margin=10>
-                <grid rows=5 cols=4>
-                    {"C«%/789*456-123+±0.=".chars().into_iter().flat_map(|c| {
-                        apx!{
-                            <button id=c on_click=on_click.clone() />
-                        }
-                    }).collect()}
-                </grid>
+            <blk top=pct(25)>
+                <bg color=0x69140E/>
+                <blk margin=10>
+                    <grid rows=5 cols=4>
+                        {"C«%/789*456-123+±0.=".chars().into_iter().flat_map(|c| {
+                            apx!{
+                                <button id=c on_click=on_click.clone() />
+                            }
+                        }).collect()}
+                    </grid>
+                </blk>
             </blk>
-        </blk>
-        <blk top=pct(5) left=pct(5) width=pct(10) height=pct(10)>
-            <button_bg normal=0x000000 active=0x404040 hover=0x808080
-                    on_click=on_info_click.clone()/>
-            <text text="i" size=pct(100) align=Align::Center color=0xffffff/>
         </blk>
         {if *show_info {
-            apx!(
-                <blk top=pct(10) left=pct(10) right=pct(10) bottom=pct(10)>
-                    <bg color=0x102030/>
-                    <blk bottom=pct(10) width=pct(50) height=pct(10)>
-                        <button_bg normal=0x0000f0 active=0x4040f0 hover=0x8080f0
-                                on_click=on_info_click.clone()/>
-                        <text text="Ok"
-                                align=Align::Center size=pct(100) color=0xffffff/>
-                    </blk>
-                    <text text="This is a little calculator..."
-                            align=Align::Center size=32 color=0xffffff/>
-                </blk>
-            )
-        } else {apx!()}}
+            apx!{<mobile_menu show=*show_info on_close=rc_with_clone!([show_info],move||{
+                show_info.set(false)
+            })/>}
+        } else {apx!{}}}
     )
 }

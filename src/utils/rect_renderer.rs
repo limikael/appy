@@ -6,12 +6,12 @@ fn compute_viewport_matrix(size: (f32, f32)) -> nalgebra_glm::TMat4<f32> {
     nalgebra_glm::ortho(0.0, size.0, size.1, 0.0, -1.0, 1.0)
 }
 
-fn color_rgba_from_u32(col: u32) -> nalgebra_glm::TVec4<f32> {
+fn color_rgba_from_u32(col: u32, alpha: f32) -> nalgebra_glm::TVec4<f32> {
     nalgebra_glm::vec4(
         ((col & 0xff0000) >> 16) as f32 / 255.0,
         ((col & 0x00ff00) >> 8) as f32 / 255.0,
         (col & 0x0000ff) as f32 / 255.0,
-        1.0,
+        alpha,
     )
 }
 
@@ -63,6 +63,7 @@ pub struct RectRendererSpec {
     pub border_width: f32,
     pub corner_radius: f32,
     pub borders: [bool; 4],
+    pub alpha: f32,
 }
 
 /// Render rectangles.
@@ -142,7 +143,7 @@ impl RectRenderer {
                 out vec4 frag_col;
 
                 void main() {
-                    frag_col = vec4(col.r, col.g, col.b, 1.0f);
+                    frag_col = vec4(col.r, col.g, col.b, col.a);
                 }
             "
                 .to_string(),
@@ -175,7 +176,7 @@ impl RectRenderer {
 
     fn round(&self, spec: &RectRendererSpec, r: Rect, col: u32, inner: f32) {
         let m = compute_viewport_matrix(spec.viewport_size);
-        let c = color_rgba_from_u32(col);
+        let c = color_rgba_from_u32(col, spec.alpha);
         self.round_program.use_program();
         self.buf.bind(self.round_vertex, 0, 2);
 
@@ -201,7 +202,7 @@ impl RectRenderer {
 
     fn square(&self, spec: &RectRendererSpec, r: Rect, col: u32) {
         let m = compute_viewport_matrix(spec.viewport_size);
-        let c = color_rgba_from_u32(col);
+        let c = color_rgba_from_u32(col, spec.alpha);
         self.square_program.use_program();
         self.buf.bind(self.square_vertex, 0, 2);
 

@@ -29,8 +29,6 @@ impl ImageRenderer {
 				in vec2 tex_coord;
 				out vec2 fragment_tex_coord;
 				void main() {
-					//vec3 size3=vec3(size.x,size.1,1.0);
-					//vec3 pos3=vec3(pos.x,pos.y,1.0);
 					gl_Position=mvp*vec4(pos+vertex*size,0.0,1.0);
 					fragment_tex_coord=tex_coord;
 				}
@@ -55,8 +53,12 @@ impl ImageRenderer {
 
         let mut buf = ArrayBuffer::new(4);
         buf.set_data(vec![
-            0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-            1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0,
+            0.0, 0.0, 0.0, 0.0, 
+            1.0, 0.0, 1.0, 0.0, 
+            1.0, 1.0, 1.0, 1.0, 
+            0.0, 0.0, 0.0, 0.0, 
+            1.0, 1.0, 1.0, 1.0, 
+            0.0, 1.0, 0.0, 1.0,
         ]);
 
         Self {
