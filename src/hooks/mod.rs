@@ -45,6 +45,13 @@ pub fn use_second_render_pass(f: Box<dyn FnOnce() -> Elements>) {
     })
 }
 
+/// Get a function that quits.
+pub fn use_quit_trigger()->Rc<dyn Fn()> {
+    Appy::with(|appy| {
+        appy.quit.create_trigger()
+    })
+}
+
 /// Low level event handler.
 ///
 /// Function handler for low level application events.

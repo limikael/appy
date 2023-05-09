@@ -33,6 +33,7 @@ pub struct Appy {
     pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent, Rc<dyn Fn()>)>>,
     pub animation_frame_handlers: Vec<Rc<dyn Fn(f32)>>,
     pub dirty: Trigger,
+    pub quit: Trigger,
     pub contexts: HashMap<TypeId, Vec<Rc<dyn Any>>>,
 }
 
@@ -184,6 +185,7 @@ impl Appy {
             animation_frame_handlers: vec![],
             contexts: HashMap::new(),
             dirty: Trigger::new(),
+            quit: Trigger::new(),
             current_component_path: None,
             current_hook_index: 0,
         }
@@ -234,6 +236,10 @@ impl Appy {
 
             if self.dirty.get_state() {
                 w.post_redisplay();
+            }
+
+            if self.quit.get_state() {
+            	std::process::exit(0);
             }
         });
     }

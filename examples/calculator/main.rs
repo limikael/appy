@@ -125,6 +125,7 @@ fn _menu(props: Menu) -> Elements {
     let logo = use_image_data(|| include_bytes!("assets/menu-logo.png"));
     let info =use_image_data(|| include_bytes!("assets/circle-info-solid.png"));
     let xmark =use_image_data(|| include_bytes!("assets/circle-xmark-solid.png"));
+    let quit=use_quit_trigger();
 
     let left = use_spring(|| -300.0, SpringConf::spring(350.0, 30.0).epsilon(1.0));
     let alpha = use_spring(|| 0.0, SpringConf::linear(2.0));
@@ -182,7 +183,7 @@ fn _menu(props: Menu) -> Elements {
                             <blk height=20 bottom=10>
                                 <text size=pct(100) color=0xa0a0a0 text="Quit"/>
                             </blk>
-                            <button_bg/>
+                            <button_bg on_click=quit/>
                         </blk>
                         <blk>
                             <blk height=40 top=10>
