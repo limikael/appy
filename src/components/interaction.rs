@@ -39,15 +39,17 @@ fn _interaction(props: Interaction) -> Elements {
     });
 
     let on_click = props.on_click.clone();
-    use_app_event(rc_with_clone!([], move |e| {
+    use_app_event(rc_with_clone!([], move |e,cancel| {
         match e {
             AppEvent::MouseDown { x, y, .. } => {
                 if rect.contains(*x, *y) {
+                    cancel();
                     update_h_state(HoverState::Active);
                 }
             }
             AppEvent::MouseUp { x, y, kind, .. } => {
                 if rect.contains(*x, *y) {
+                    cancel();
                     if *h_state == HoverState::Active {
                         if on_click.is_some() {
                             (on_click.as_ref().unwrap())();
@@ -61,12 +63,16 @@ fn _interaction(props: Interaction) -> Elements {
                 }
             }
             AppEvent::MouseMove { x, y, kind, .. } => {
-                if rect.contains(*x, *y) && *h_state == HoverState::Normal {
-                    match kind {
-                        MouseKind::Touch => {}
-                        MouseKind::Mouse => update_h_state(HoverState::Hover),
+                if rect.contains(*x, *y) {
+                    cancel();
+
+                    if *h_state == HoverState::Normal {
+                        match kind {
+                            MouseKind::Touch => {}
+                            MouseKind::Mouse => update_h_state(HoverState::Hover),
+                        }
                     }
-                } else if !rect.contains(*x, *y) && *h_state != HoverState::Normal {
+                } else if *h_state != HoverState::Normal {
                     update_h_state(HoverState::Normal);
                 }
             }

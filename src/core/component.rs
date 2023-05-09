@@ -50,7 +50,7 @@ impl<T: 'static> HookRef<T> {
         self.value.clone()
     }
 
-    pub fn get_inner_value(&self)->Rc<T> {
+    pub fn get_inner_value(&self) -> Rc<T> {
         let any: Rc<dyn Any> = self.hook_data.value.borrow().clone();
         let value: Rc<T> = any.downcast::<T>().unwrap();
         value

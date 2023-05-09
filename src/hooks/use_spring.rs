@@ -3,21 +3,45 @@ use crate::rc_with_clone;
 use std::ops::Deref;
 
 #[derive(Clone)]
-pub struct SpringConf {
-    stiffness: f32,
-    damping: f32,
-    epsilon: f32,
+pub enum SpringConf {
+    Spring {
+        stiffness: f32,
+        damping: f32,
+        epsilon: f32,
+    },
+    Linear {
+        velocity: f32,
+    },
 }
 
 impl SpringConf {
-    pub const DEFAULT: SpringConf = SpringConf::new(170.0, 26.0);
-    pub const STIFF: SpringConf = SpringConf::new(210.0, 20.0);
+    pub const DEFAULT: SpringConf = SpringConf::spring(170.0, 26.0);
+    pub const STIFF: SpringConf = SpringConf::spring(210.0, 20.0);
 
-    pub const fn new(stiffness: f32, damping: f32) -> Self {
-        Self {
+    pub const fn spring(stiffness: f32, damping: f32) -> Self {
+        Self::Spring {
             stiffness,
             damping,
             epsilon: 0.001,
+        }
+    }
+
+    pub const fn linear(velocity: f32) -> Self {
+        Self::Linear { velocity: velocity }
+    }
+
+    pub fn epsilon(self: Self, new_epsilon: f32)->Self {
+        match self {
+            Self::Spring{stiffness,damping,epsilon:_}=>{
+                Self::Spring {
+                    stiffness,
+                    damping,
+                    epsilon: new_epsilon,
+                }
+            },
+            Self::Linear{velocity:_}=>{
+                panic!("no epsilon for linear")
+            }
         }
     }
 }
@@ -31,34 +55,66 @@ struct SpringData {
 
 impl SpringData {
     fn tick(&self, conf: &SpringConf, delta: f32) -> Self {
-        fn dampened_hooke_force(
-            displacement: f32,
-            velocity: f32,
-            stiffness: f32,
-            damping: f32,
-        ) -> f32 {
-            let hooke_force = -1.0 * (stiffness * displacement);
-            hooke_force - (damping * velocity)
+        match *conf {
+            SpringConf::Spring {
+                stiffness,
+                damping,
+                epsilon: _,
+            } => {
+                fn dampened_hooke_force(
+                    displacement: f32,
+                    velocity: f32,
+                    stiffness: f32,
+                    damping: f32,
+                ) -> f32 {
+                    let hooke_force = -1.0 * (stiffness * displacement);
+                    hooke_force - (damping * velocity)
+                }
+
+                let mut spring: SpringData = self.clone();
+                let displacement = spring.current - spring.target;
+                let force = dampened_hooke_force(displacement, spring.velocity, stiffness, damping);
+
+                spring.velocity += force * delta;
+                spring.current += spring.velocity * delta;
+
+                if spring.is_at_rest(&conf) {
+                    spring.velocity=0.0;
+                    spring.current=spring.target;
+                }
+
+                spring
+            }
+            SpringConf::Linear { velocity } => {
+                let mut spring: SpringData = self.clone();
+
+                if spring.current - spring.target < -velocity * delta {
+                    spring.current += velocity * delta;
+                } else if spring.current - spring.target > velocity * delta {
+                    spring.current -= velocity * delta
+                } else {
+                    spring.current = spring.target
+                }
+
+                spring
+            }
         }
-
-        let mut spring: SpringData = self.clone();
-        let displacement = spring.current - spring.target;
-        let force =
-            dampened_hooke_force(displacement, spring.velocity, conf.stiffness, conf.damping);
-
-        spring.velocity += force * delta;
-        spring.current += spring.velocity * delta;
-
-        spring
     }
 
-    fn is_at_rest(&self, conf: &SpringConf)->bool {
-        if (self.current - self.target).abs() > conf.epsilon || self.velocity.abs() > conf.epsilon {
-            false
-        }
-
-        else {
-            true
+    fn is_at_rest(&self, conf: &SpringConf) -> bool {
+        match *conf {
+            SpringConf::Spring {
+                stiffness: _,
+                damping: _,
+                epsilon,
+            } => {
+                if (self.current - self.target).abs() > epsilon || self.velocity.abs() > epsilon {
+                    false
+                } else {
+                    true
+                }
+            }
+            SpringConf::Linear { velocity:_ } => self.current == self.target,
         }
     }
 }
@@ -145,7 +201,8 @@ where
     });
 
     if !h.get_inner_value().is_at_rest(&conf) {
-        use_animation_frame(rc_with_clone!([h],move |delta| {
+        use_animation_frame(rc_with_clone!([h], move |delta| {
+            //println!("delta: {:?}", delta);
             h.set(h.get_inner_value().tick(&conf, delta));
         }));
     }

@@ -30,7 +30,7 @@ pub struct Appy {
     current_hook_index: usize,
     current_component_path: Option<ComponentPath>,
     last_render: Option<SystemTime>,
-    pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent)>>,
+    pub app_event_handlers: Vec<Rc<dyn Fn(&AppEvent, Rc<dyn Fn()>)>>,
     pub animation_frame_handlers: Vec<Rc<dyn Fn(f32)>>,
     pub dirty: Trigger,
     pub contexts: HashMap<TypeId, Vec<Rc<dyn Any>>>,
@@ -193,8 +193,11 @@ impl Appy {
         app.run(move |w, e| {
             //log_debug!("app: {:?}",e);
 
-            for handler in &self.app_event_handlers {
-                handler(&e);
+            let cancel_trigger=Trigger::new();
+            for handler in self.app_event_handlers.iter().rev() {
+                if !cancel_trigger.get_state() {
+                    handler(&e,cancel_trigger.create_trigger());
+                }
             }
 
             match e {

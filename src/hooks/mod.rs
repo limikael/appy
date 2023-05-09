@@ -48,7 +48,7 @@ pub fn use_second_render_pass(f: Box<dyn FnOnce() -> Elements>) {
 /// Low level event handler.
 ///
 /// Function handler for low level application events.
-pub fn use_app_event(f: Rc<dyn Fn(&AppEvent)>) {
+pub fn use_app_event(f: Rc<dyn Fn(&AppEvent, Rc<dyn Fn()>)>) {
     Appy::with(|appy| {
         appy.app_event_handlers.push(f.clone());
     })
@@ -132,7 +132,7 @@ where
 }
 
 /// Get an ImageSource from data.
-pub fn use_image_data<F>(closure: F)->Rc<ImageSource>
+pub fn use_image_data<F>(closure: F) -> Rc<ImageSource>
 where
     F: Fn() -> &'static [u8],
 {
