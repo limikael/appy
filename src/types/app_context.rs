@@ -27,7 +27,7 @@ impl AppContext {
             viewport_size: (w, h),
             rect: Rect { x: 0., y: 0., w, h },
             rect_renderer: Rc::new(RectRenderer::new()),
-            text_renderer: Rc::new(RefCell::new(TextRenderer::new(w, h))),
+            text_renderer: Rc::new(RefCell::new(TextRenderer::new(w, h, pixel_ratio))),
             image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w, h))),
             flow_elements: Rc::new(RefCell::new(vec![])),
             default_font: Rc::new(default_font),

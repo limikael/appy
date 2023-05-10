@@ -8,6 +8,10 @@ homepage = "https://github.com/limikael/appy"
 repository = "https://github.com/limikael/appy"
 license = "MIT"
 
+[package.metadata.android]
+package_name="dev.wayan.calculator"
+title="Appy Calculator"
+
 [lib]
 name="appy"
 path="src/lib.rs"

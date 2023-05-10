@@ -16,6 +16,7 @@ pub struct TextRenderer {
     pub window_height: f32,
     cache: Cache<'static>,
     used_glyphs: Vec<PositionedGlyph<'static>>,
+    pixel_ratio: f32
 }
 
 pub struct TextRendererSpec<'a> {
@@ -25,17 +26,17 @@ pub struct TextRendererSpec<'a> {
     pub font: &'a Font,
     pub size: f32,
     pub col: u32,
-    pub pr: f32,
+//    pub pr: f32,
     pub alpha: f32
 }
 
 impl TextRenderer {
     /// Create a text renderer for a specified window size.
-    pub fn new(window_width: f32, window_height: f32) -> Self {
+    pub fn new(window_width: f32, window_height: f32, pixel_ratio:f32) -> Self {
         let cache: Cache<'static> = Cache::builder()
             .dimensions(0, 0)
-            .scale_tolerance(2.75)
-            .position_tolerance(2.75)
+            .scale_tolerance(pixel_ratio)
+            .position_tolerance(pixel_ratio)
             .build();
 
         let mut tex_id: GLuint = 0;
@@ -88,6 +89,7 @@ impl TextRenderer {
             window_height,
             cache,
             used_glyphs: vec![],
+            pixel_ratio
         };
 
         slf.set_cache_size(1);
@@ -212,7 +214,13 @@ impl TextRenderer {
         let mut y=spec.y;
         y += spec.font.baseline(spec.size);
 
-        let glyphs = spec.font.create_glyphs(spec.text, spec.x * spec.pr, y * spec.pr, spec.size * spec.pr);
+        let glyphs = spec.font.create_glyphs(
+            spec.text, 
+            spec.x * self.pixel_ratio, 
+            y * self.pixel_ratio, 
+            spec.size * self.pixel_ratio
+        );
+
         for glyph in glyphs.clone() {
             self.used_glyphs.push(glyph.clone());
             self.cache.queue_glyph(0, glyph);
@@ -221,7 +229,7 @@ impl TextRenderer {
         self.render_cache();
         let mut data: Vec<f32> = vec![];
         for glyph in glyphs {
-            data.append(&mut self.vertices_for(&glyph, spec.pr));
+            data.append(&mut self.vertices_for(&glyph, self.pixel_ratio));
         }
 
         self.buf.set_data(data);

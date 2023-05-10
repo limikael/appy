@@ -77,7 +77,6 @@ fn _text(props: Text) -> Elements {
         font: &font,
         size,
         col: props.color,
-        pr: app_context.pixel_ratio,
         alpha: app_context.alpha
     };
 
