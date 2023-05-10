@@ -54,7 +54,12 @@ struct SpringData {
 }
 
 impl SpringData {
-    fn tick(&self, conf: &SpringConf, delta: f32) -> Self {
+    fn tick(&self, conf: &SpringConf, mut delta: f32) -> Self {
+        //println!("delta: {:?}", delta);
+        if delta>0.04 {
+            delta=0.04;
+        }
+
         match *conf {
             SpringConf::Spring {
                 stiffness,

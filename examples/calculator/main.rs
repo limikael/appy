@@ -7,9 +7,7 @@ use calculator_model::CalculatorModel;
 #[derive_component(Default, ComponentBuilder, SnakeFactory)]
 pub struct ButtonBg {
     pub on_click: Option<Rc<dyn Fn()>>,
-    pub normal: u32,
-    pub active: u32,
-    pub hover: u32,
+    pub no_hover: bool
 }
 
 #[function_component]
@@ -19,13 +17,15 @@ fn _button_bg(props: ButtonBg) -> Elements {
 
     let (color,alpha) = match *hover_state {
         HoverState::Normal => (0x000000,0.0),
-        HoverState::Hover => (0xffffff,0.25),
+        HoverState::Hover => (0xffffff,if props.no_hover {0.0} else {0.25}),
         HoverState::Active => (0x000000,0.25),
     };
 
     apx! {
-        <bg color=color alpha=alpha/>
-        <interaction on_click_option=props.on_click hover_state_ref=hover_state/>
+        <blk alpha=alpha>
+            <bg color=color/>
+            <interaction on_click_option=props.on_click hover_state_ref=hover_state/>
+        </blk>
     }
 }
 
@@ -67,7 +67,7 @@ fn _top_bar(props: TopBar) -> Elements {
                 <blk left=8 height=39.9 width=39.9>
                     <img src=hamburger/>
                 </blk>
-                <button_bg on_click_option=props.on_click/>
+                <button_bg on_click_option=props.on_click no_hover=true/>
             </blk>
             <text size=pct(50) text="Appy Calculator"/>
         </blk>
@@ -149,7 +149,9 @@ fn _menu(props: Menu) -> Elements {
 
     apx! {
         <blk>
-            <bg color=0x000000 alpha=*alpha/>
+            <blk alpha=*alpha>
+                <bg color=0x000000 />
+            </blk>
             <interaction on_click_option=props.on_close/>
             <blk left=*left width=300>
                 <interaction/>
@@ -209,6 +211,11 @@ pub struct About {
 
 #[function_component]
 pub fn _about(props:About)->Elements {
+    let bg_alpha = use_spring(|| 0.0, SpringConf::linear(2.0));
+    let top = use_spring(|| 100.0, SpringConf::spring(250.0, 30.0).epsilon(1.0));
+    let alpha = use_spring(|| 0.0, SpringConf::linear(2.0));
+    let app_context=use_context::<AppContext>();
+
     let texts=vec![
         "Appy Calculator",
         "",
@@ -220,42 +227,85 @@ pub fn _about(props:About)->Elements {
         "web view or similar.",
     ];
 
-    if !*props.show.as_ref().unwrap().clone() {
+    let show=props.show.as_ref().unwrap().clone();
+    if *show {
+        top.target(0.0);
+        bg_alpha.target(0.5);
+        alpha.target(1.0);
+    }
+
+    else {
+        top.target(100.0);
+        bg_alpha.target(0.0);
+        alpha.target(0.0);
+    }
+
+    if *alpha==0.0 && *bg_alpha==0.0 && *top==100.0 {
         return apx!{}
     }
 
-    let show=props.show.as_ref().unwrap().clone();
+    apx!{
+        <interaction
+                on_click=rc_with_clone!([show],move||{
+                    show.set(false);
+                })
+        />
+        <blk alpha=*bg_alpha>
+            <bg color=0x000000/>
+        </blk>
+        <blk alpha=*alpha top=*top height=app_context.rect.h>
+            <blk left=30 right=30 height=350>
+                <interaction/>
+                <bg color=0xffffff corner_radius=20 border_color=0xc0c0c0 border_width=1/>
+                <blk top=0 height=60>
+                    <text size=pct(50) text="Appy Calculator" color=0x000000/>
+                </blk>
+
+                <blk top=60 bottom=60>
+                    <bg color=0xf0f0f0 border_color=0xc0c0c0 border_width=1/>
+                </blk>
+                <blk bottom=10 height=40 width=100>
+                    <bg color=0x2F8FD3 corner_radius=5/>
+                    <text size=pct(50) text="Close" color=0xffffff/>
+                    <button_bg 
+                            on_click=rc_with_clone!([],move||{
+                                show.set(false);
+                            })
+                    />
+                </blk>
+
+                {texts.iter().map(|s|{
+                    apx!{
+                        <flow height=20>
+                            <text text=s size=pct(100) color=0x000000/>
+                        </flow>
+                    }
+                }).flatten().collect()}
+            </blk>
+        </blk>
+    }
+}
+
+#[derive_component(ComponentBuilder,Default,SnakeFactory)]
+pub struct Display {
+    text: String
+}
+
+#[function_component]
+fn _display(props:Display)->Elements {
+    let app_context=use_context::<AppContext>();
+    let mut size=app_context.rect.h*0.5;
+
+    let v=app_context.default_font.get_str_width(&*props.text,size);
+    if v>app_context.rect.w {
+        size*=app_context.rect.w/v
+    }
 
     apx!{
-        <interaction/>
-        <bg color=0x000000 alpha=0.5/>
-        <blk left=30 right=30 top=50 bottom=50>
-            <bg color=0xffffff corner_radius=20 border_color=0xc0c0c0 border_width=1/>
-            <blk top=0 height=60>
-                <text size=pct(50) text="Appy Calculator" color=0x000000/>
-            </blk>
-
-            <blk top=60 bottom=60>
-                <bg color=0xf0f0f0 border_color=0xc0c0c0 border_width=1/>
-            </blk>
-            <blk bottom=10 height=40 width=100>
-                <bg color=0x2F8FD3 corner_radius=5/>
-                <text size=pct(50) text="Close" color=0xffffff/>
-                <button_bg 
-                        on_click=rc_with_clone!([],move||{
-                            show.set(false);
-                        })
-                />
-            </blk>
-
-            {texts.iter().map(|s|{
-                apx!{
-                    <flow height=20>
-                        <text text=s size=pct(100) color=0x000000/>
-                    </flow>
-                }
-            }).flatten().collect()}
-        </blk>
+        <text align=Align::Right
+                text=&*props.text
+                size=size
+                color=0xffffff/>
     }
 }
 
@@ -275,6 +325,7 @@ fn app() -> Elements {
     let color_schemes=vec![
         ColorScheme{background:0x69140E,display:0x3C1518,buttons:0xD58936},
         ColorScheme{background:0x32007F,display:0x1B0050,buttons:0xDE8EFD},
+        ColorScheme{background:0x59981A,display:0x3D550C,buttons:0xECF87F}
     ];
 
     let color_scheme=&color_schemes[*color_scheme_index];
@@ -289,8 +340,7 @@ fn app() -> Elements {
             <blk height=pct(25) top=0>
                 <bg color=color_scheme.display/>
                 <blk left=pct(5) right=pct(5)>
-                    <text align=Align::Right
-                            text=&*model.get_display_value() size=pct(50) color=0xffffff/>
+                    <display text=&*model.get_display_value()/>
                 </blk>
             </blk>
             <blk top=pct(25)>

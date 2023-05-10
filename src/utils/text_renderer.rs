@@ -32,7 +32,12 @@ pub struct TextRendererSpec<'a> {
 impl TextRenderer {
     /// Create a text renderer for a specified window size.
     pub fn new(window_width: f32, window_height: f32) -> Self {
-        let cache: Cache<'static> = Cache::builder().dimensions(0, 0).build();
+        let cache: Cache<'static> = Cache::builder()
+            .dimensions(0, 0)
+            .scale_tolerance(2.75)
+            .position_tolerance(2.75)
+            .build();
+
         let mut tex_id: GLuint = 0;
         unsafe {
             gl::GenTextures(1, &mut tex_id);
@@ -90,7 +95,7 @@ impl TextRenderer {
     }
 
     fn set_cache_size(&mut self, size: u32) {
-        //println!("font cache size: {:?}x{:?}",size,size);
+        println!("font cache size: {:?}x{:?}",size,size);
 
         self.cache
             .to_builder()

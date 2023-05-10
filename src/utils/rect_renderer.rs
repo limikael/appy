@@ -180,12 +180,9 @@ impl RectRenderer {
         self.round_program.use_program();
         self.buf.bind(self.round_vertex, 0, 2);
 
-        if (r.w.abs() - r.h.abs()).abs() > 0.0001 {
-            panic!("expected w and h to be same, they are: {},{}", r.w, r.h)
-        }
-
-        let smoothness = 1.0 / r.w.abs();
-        let inner_rad = inner / r.w.abs();
+        let size=(r.w.abs()+r.h.abs())/2.0;
+        let smoothness = 1.0 / size;
+        let inner_rad = inner / size;
 
         unsafe {
             gl::Uniform1f(self.round_smoothness, smoothness);
