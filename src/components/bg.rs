@@ -18,8 +18,7 @@ pub struct Bg {
     border_color: u32,
     corner_radius: Dim,
     border_width: Dim,
-    borders: Option<[bool; 4]>,
-    alpha: f32,
+    borders: Option<[bool; 4]>
 }
 
 impl Default for Bg {
@@ -30,7 +29,6 @@ impl Default for Bg {
             corner_radius: Dim::Absolute(0.0),
             border_width: Dim::Absolute(0.0),
             borders: None,
-            alpha: 1.0,
             key: None,
             children: vec![],
         }
@@ -49,7 +47,7 @@ fn _bg(props: Bg) -> Elements {
         corner_radius: props.corner_radius.to_abs(0.),
         border_width: props.border_width.to_abs(0.),
         borders: props.borders.unwrap_or([true, true, true, true]),
-        alpha: props.alpha,
+        alpha: app_context.alpha,
     };
 
     app_context.rect_renderer.draw(&rect_renderer_spec);

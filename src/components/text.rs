@@ -1,6 +1,4 @@
-use crate::hooks::use_context;
-use crate::types::*;
-use appy::{derive_component, function_component, ComponentBuilder, SnakeFactory};
+use appy::{*, hooks::*, types::*, utils::*};
 use std::rc::Rc;
 
 /// Render text.
@@ -72,16 +70,18 @@ fn _text(props: Text) -> Elements {
         VAlign::Bottom => r.y + r.h - size,
     };
 
-    let mut tr = app_context.text_renderer.borrow_mut();
-    tr.draw(
-        &props.text,
+    let spec=TextRendererSpec{
+        text: &props.text,
         x,
         y,
-        &font,
+        font: &font,
         size,
-        props.color,
-        app_context.pixel_ratio,
-    );
+        col: props.color,
+        pr: app_context.pixel_ratio,
+        alpha: app_context.alpha
+    };
+
+    app_context.text_renderer.borrow_mut().draw(&spec);
 
     props.children
 }

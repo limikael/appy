@@ -126,7 +126,7 @@ impl RectRenderer {
                     float hs=smoothness/2.0;
                     float or=clamp(map(l,1.0f-hs,1.0f+hs,1.0f,0.0f),0.0f,1.0f);
                     float ir=clamp(map(l,inner_rad-hs,inner_rad+hs,1.0f,0.0f),0.0f,1.0f);
-                    frag_col = vec4(col.r, col.g, col.b, or-ir);
+                    frag_col = vec4(col.r, col.g, col.b, col.a*(or-ir));
                 }
             "
                 .to_string(),

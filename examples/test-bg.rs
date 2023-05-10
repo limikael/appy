@@ -19,7 +19,7 @@ fn _slider(props: Slider) -> Elements {
     let app_context = use_context::<AppContext>();
     let max = props.max;
 
-    use_app_event(rc_with_clone!([val, app_context, down, max], move |e| {
+    use_app_event(rc_with_clone!([val, app_context, down, max], move |e,_c| {
         let update = rc_with_clone!([val, app_context], move |x: f32| {
             let v = max * (x - app_context.rect.x) / app_context.rect.w;
             val.set(v.max(0.0).min(max));
@@ -108,6 +108,8 @@ fn _setting(props: Setting) -> Elements {
 fn main() -> Elements {
     let rad = use_state(|| 10.0);
     let border = use_state(|| 5.0);
+    let inner_alpha = use_state(|| 1.0);
+    let outer_alpha = use_state(|| 1.0);
 
     let borders = [
         use_state(|| true),
@@ -143,14 +145,24 @@ fn main() -> Elements {
                         </grid>
                     </blk>
                 </flow>
+                <Setting text=&*format!("Outer Alpha: {:.2}",*outer_alpha)
+                        value=outer_alpha.clone()
+                        max=1.0/>
+                <Setting text=&*format!("Inner Alpha: {:.2}",*inner_alpha)
+                        value=inner_alpha.clone()
+                        max=1.0/>
             </blk>
         </blk>
-        <blk left=250 top=100 width=400 height=200>
+        <blk left=250 top=100 width=400 height=200 alpha=*outer_alpha>
             <bg color=0x000080
                 corner_radius=*rad
                 border_color=0x8080ff
                 border_width=*border
                 borders=borders.map(|b|*b)/>
+            <blk width=100 height=40 alpha=*inner_alpha>
+                <bg color=0x800000 corner_radius=5/>
+                <text text="hello"/>
+            </blk>
         </blk>
     }
 }

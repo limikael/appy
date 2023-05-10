@@ -16,6 +16,7 @@ pub struct AppContext {
     pub image_renderer: Rc<RefCell<ImageRenderer>>,
     pub default_font: Rc<Font>,
     pub viewport_size: (f32, f32),
+    pub alpha: f32,
 }
 
 impl AppContext {
@@ -30,6 +31,7 @@ impl AppContext {
             image_renderer: Rc::new(RefCell::new(ImageRenderer::new(w, h))),
             flow_elements: Rc::new(RefCell::new(vec![])),
             default_font: Rc::new(default_font),
+            alpha: 1.0
         }
     }
 
@@ -48,10 +50,11 @@ impl AppContext {
         resized
     }
 
-    pub fn abs(&self, x: f32, y: f32, w: f32, h: f32) -> Self {
+    pub fn abs(&self, x: f32, y: f32, w: f32, h: f32, alpha: f32) -> Self {
         let mut resized = self.clone();
         resized.flow_elements = Rc::new(RefCell::new(vec![]));
         resized.rect = resized.rect.abs(x, y, w, h);
+        resized.alpha *= alpha;
         resized
     }
 

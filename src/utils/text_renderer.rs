@@ -18,6 +18,17 @@ pub struct TextRenderer {
     used_glyphs: Vec<PositionedGlyph<'static>>,
 }
 
+pub struct TextRendererSpec<'a> {
+    pub text: &'a str,
+    pub x: f32,
+    pub y: f32,
+    pub font: &'a Font,
+    pub size: f32,
+    pub col: u32,
+    pub pr: f32,
+    pub alpha: f32
+}
+
 impl TextRenderer {
     /// Create a text renderer for a specified window size.
     pub fn new(window_width: f32, window_height: f32) -> Self {
@@ -53,7 +64,7 @@ impl TextRenderer {
                 out vec4 fragment_color;
                 void main() {
                     vec4 tex_data=texture(texture0,fragment_tex_coord);
-                    fragment_color=vec4(col.r,col.g,col.b,tex_data.r);
+                    fragment_color=vec4(col.r,col.g,col.b,col.a*tex_data.r);
                 }
             "
                 .to_string(),
@@ -184,27 +195,19 @@ impl TextRenderer {
     }
 
     /// Draw text.
-    pub fn draw(
-        &mut self,
-        text: &str,
-        x: f32,
-        mut y: f32,
-        font: &Font,
-        size: f32,
-        col: u32,
-        pr: f32,
-    ) {
+    pub fn draw(&mut self, spec: &TextRendererSpec) {
         let m = glm::ortho(0.0, self.window_width, self.window_height, 0.0, -1.0, 1.0);
         let c = glm::vec4(
-            ((col & 0xff0000) >> 16) as f32 / 255.0,
-            ((col & 0x00ff00) >> 8) as f32 / 255.0,
-            (col & 0x0000ff) as f32 / 255.0,
-            1.0,
+            ((spec.col & 0xff0000) >> 16) as f32 / 255.0,
+            ((spec.col & 0x00ff00) >> 8) as f32 / 255.0,
+            (spec.col & 0x0000ff) as f32 / 255.0,
+            spec.alpha,
         );
 
-        y += font.baseline(size);
+        let mut y=spec.y;
+        y += spec.font.baseline(spec.size);
 
-        let glyphs = font.create_glyphs(text, x * pr, y * pr, size * pr);
+        let glyphs = spec.font.create_glyphs(spec.text, spec.x * spec.pr, y * spec.pr, spec.size * spec.pr);
         for glyph in glyphs.clone() {
             self.used_glyphs.push(glyph.clone());
             self.cache.queue_glyph(0, glyph);
@@ -213,7 +216,7 @@ impl TextRenderer {
         self.render_cache();
         let mut data: Vec<f32> = vec![];
         for glyph in glyphs {
-            data.append(&mut self.vertices_for(&glyph, pr));
+            data.append(&mut self.vertices_for(&glyph, spec.pr));
         }
 
         self.buf.set_data(data);

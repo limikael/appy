@@ -19,7 +19,7 @@ use std::rc::Rc;
 ///
 /// If you specify left and width, the block will be fixed relative to the left
 /// edge with a fixed size (i.e., the distance to the right edge will be dynamic).
-#[derive_component(ComponentBuilder, Default, SnakeFactory)]
+#[derive_component(ComponentBuilder, SnakeFactory)]
 pub struct Blk {
     left: Dim,
     top: Dim,
@@ -31,6 +31,7 @@ pub struct Blk {
     flow_vgap: Dim,
     flow_align: Align,
     flow_valign: VAlign,
+    alpha: f32,
 }
 
 impl Blk {
@@ -46,13 +47,33 @@ impl Blk {
     }
 }
 
+impl Default for Blk {
+    fn default()->Self{
+        Self{
+            left: Dim::default(),
+            top: Dim::default(),
+            width: Dim::default(),
+            height: Dim::default(),
+            bottom: Dim::default(),
+            right: Dim::default(),
+            flow_gap: Dim::default(),
+            flow_vgap: Dim::default(),
+            flow_align: Align::default(),
+            flow_valign: VAlign::default(),
+            alpha: 1.0,
+            key: None,
+            children: vec![]
+        }
+    }
+}
+
 #[function_component]
 fn _blk(props: Blk) -> Elements {
     let app_context = use_context::<AppContext>();
 
     let h = Dim::compute_span(app_context.rect.w, props.left, props.width, props.right);
     let v = Dim::compute_span(app_context.rect.h, props.top, props.height, props.bottom);
-    let new_context = app_context.abs(h.0, v.0, h.1, v.1);
+    let new_context = app_context.abs(h.0, v.0, h.1, v.1, props.alpha);
 
     use_second_render_pass(Box::new(with_clone!([new_context], move || {
         let elements = new_context.flow_elements.take();

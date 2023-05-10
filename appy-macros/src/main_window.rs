@@ -57,7 +57,7 @@ pub fn main_window(_attr: TokenStream, input: TokenStream) -> TokenStream {
 		#[appy::glapp::glapp_main(appy)]
 		fn main(mut app: appy::glapp::App) {
 			app.title(#appname);
-			app.size(400.0,600.0);
+			//app.size(400.0,600.0);
 			app.units(appy::glapp::AppUnits::DeviceIndependent);
 			appy::core::Appy::new(#name).run(app);
 		}
