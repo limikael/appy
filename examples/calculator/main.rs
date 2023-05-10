@@ -117,7 +117,8 @@ pub struct Menu {
     on_close: Option<Rc<dyn Fn()>>,
     color_schemes: Vec<ColorScheme>,
     color_scheme_index: usize,
-    on_select_index: Option<Rc<dyn Fn(usize)>>
+    on_select_index: Option<Rc<dyn Fn(usize)>>,
+    on_about_click: Option<Rc<dyn Fn()>>,
 }
 
 #[function_component]
@@ -192,11 +193,68 @@ fn _menu(props: Menu) -> Elements {
                             <blk height=20 bottom=10>
                                 <text size=pct(100) color=0xa0a0a0 text="About"/>
                             </blk>
-                            <button_bg/>
+                            <button_bg on_click_option=props.on_about_click/>
                         </blk>
                     </grid>
                 </blk>
             </blk>
+        </blk>
+    }
+}
+
+#[derive_component(ComponentBuilder, SnakeFactory, Default)]
+pub struct About {
+    show: Option<StateRef<bool>>
+}
+
+#[function_component]
+pub fn _about(props:About)->Elements {
+    let texts=vec![
+        "Appy Calculator",
+        "",
+        "This is a demonstration of",
+        "the Appy declarative UI framework.",
+        "",
+        "The app is written in pure Rust,",
+        "rendered natively without the use of a",
+        "web view or similar.",
+    ];
+
+    if !*props.show.as_ref().unwrap().clone() {
+        return apx!{}
+    }
+
+    let show=props.show.as_ref().unwrap().clone();
+
+    apx!{
+        <interaction/>
+        <bg color=0x000000 alpha=0.5/>
+        <blk left=30 right=30 top=50 bottom=50>
+            <bg color=0xffffff corner_radius=20 border_color=0xc0c0c0 border_width=1/>
+            <blk top=0 height=60>
+                <text size=pct(50) text="Appy Calculator" color=0x000000/>
+            </blk>
+
+            <blk top=60 bottom=60>
+                <bg color=0xf0f0f0 border_color=0xc0c0c0 border_width=1/>
+            </blk>
+            <blk bottom=10 height=40 width=100>
+                <bg color=0x2F8FD3 corner_radius=5/>
+                <text size=pct(50) text="Close" color=0xffffff/>
+                <button_bg 
+                        on_click=rc_with_clone!([],move||{
+                            show.set(false);
+                        })
+                />
+            </blk>
+
+            {texts.iter().map(|s|{
+                apx!{
+                    <flow height=20>
+                        <text text=s size=pct(100) color=0x000000/>
+                    </flow>
+                }
+            }).flatten().collect()}
         </blk>
     }
 }
@@ -212,6 +270,7 @@ pub struct ColorScheme {
 fn app() -> Elements {
     let model = use_reducer(CalculatorModel::action, CalculatorModel::new);
     let show_info = use_state(|| false);
+    let show_about=use_state(||false);
     let color_scheme_index=use_state(||0usize);
     let color_schemes=vec![
         ColorScheme{background:0x69140E,display:0x3C1518,buttons:0xD58936},
@@ -259,10 +318,15 @@ fn app() -> Elements {
                         show_info.set(false)
                     }
                 })
-                on_select_index=rc_with_clone!([],move|i|{
+                on_select_index=rc_with_clone!([show_info],move|i|{
                     color_scheme_index.set(i);
                     show_info.set(false);
                 })
+                on_about_click=rc_with_clone!([show_about,show_info],move||{
+                    show_about.set(true);
+                    show_info.set(false);
+                })
         />
+        <about show=show_about.clone()/>
     )
 }
