@@ -7,11 +7,12 @@ Declarative cross-platform UI framework in Rust for native applications. More in
 
 Should be as easy as cloning the code and running one of these:
 
-    cargo run --example hello
-    cargo run --example calculator
+    cargo run --example hello --release
+    cargo run --example calculator --release
     ...
 
-Check the examples folder for more examples.
+Check the examples folder for more examples. Btw, without the `--release` flag, it will still work, but
+your impression of the performance will probably not be that good.
 
 ### Running the examples on Android
 
